@@ -16,7 +16,7 @@ function verifyCredentials() {
                 return;
             }
             if (usernameText !== "d" || passwordText !== "p") {
-            document.getElementById("output").textContent = "Incorrect";
+            document.getElementById("output").textContent = "Incorrect username and/or password";
                 document.getElementById("output").style.color = "orange";
                 return;
             }
@@ -25,4 +25,5 @@ function verifyCredentials() {
 
             // Optional: clear the input field
             inputField.value = "";
+
         }
