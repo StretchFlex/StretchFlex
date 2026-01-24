@@ -1,9 +1,33 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Stretch Flex</title>
-    </head>
-</html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+	<link rel="stylesheet" href="loginPageStyles.css">
+
+</head>
 <body>
-    <h1>Stretch Flex</h1>
+    
+    <h2 class="gradient-text">StretchFlex</h2>
+    <!--<p>Enter credentials</p>-->
+ 
+<div class="flex-container"> 
+<input type="text" id="usernameInput" placeholder="Enter username...">
+<input type="text" id="passwordInput" placeholder="Enter password...">
+</div>
+
+<button onclick="verifyCredentials()">Login</button>
+
+
+    <!-- Output area -->
+    <div id="output"></div>
+
+<script src="loginPageScript.js"></script>
+
+
 </body>
+</html>
+
+
+
