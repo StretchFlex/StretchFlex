@@ -53,6 +53,11 @@ CodeCoverage/
 TestResult.xml
 nunit-*.xml
 
-.env
+*.env
 secrets/
 data/
+*.secret
+postgres-data/
+rabbitmq-data/
+node_modules/
+*.log
