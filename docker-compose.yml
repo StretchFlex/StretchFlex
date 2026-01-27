@@ -44,6 +44,43 @@ services:
       restart_policy:
         condition: on-failure
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
+    secrets:
+      - elastic_password
+    volumes:
+      - ./elastic/entrypoint.sh:/usr/local/bin/custom-entrypoint.sh:ro
+    entrypoint: ["/usr/local/bin/custom-entrypoint.sh"]
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=false
+    networks:
+      - stretchflex-network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.15.0
+    secrets:
+      - elastic_password
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD_FILE=/run/secrets/elastic_password
+    networks:
+      - stretchflex-network
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.15.0
+    secrets:
+      - elastic_password
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    environment:
+      - ELASTIC_USER=elastic
+      - ELASTIC_PASSWORD_FILE=/run/secrets/elastic_password
+    networks:
+      - stretchflex-network
+
   postgres:
     image: postgres:15-alpine
     secrets:
@@ -65,7 +102,7 @@ services:
         constraints:
           - node.role == manager
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U $$(cat /run/secrets/db_user)"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -83,6 +120,8 @@ secrets:
   rabbit_user:
     external: true
   rabbit_pass:
+    external: true
+  elastic_password:
     external: true
 
 networks:
