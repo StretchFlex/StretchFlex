@@ -23,7 +23,5 @@ function verifyCredentials() {
 
             window.location.href = "homePage.html";
 
-            // Optional: clear the input field
-            inputField.value = "";
 
         }
