@@ -2,6 +2,23 @@
 	background-color: #f9f9f9; 
 }
 
+/*for both buttons */    
+button {
+	padding: 6px 12px;
+	font-size: 12px;
+        text-align: center;  /*Center text inside*/
+	width: 70px;
+margin-left: 30%;
+margin-top: -10%;
+
+
+	background-color: #007e93;
+	color: #f9f9f9; 
+	border-radius: 6px;
+	cursor: pointer;
+ 	border: 1px solid #000000;
+}
+
 
 /* Style the iframe for better presentation */
   iframe {
@@ -11,7 +28,6 @@
         border-radius: 8px;
 	box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
-
 
 /*for logo*/
   .gradient-text {
