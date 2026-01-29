@@ -1,0 +1,23 @@
+{
+  "users": [
+    {
+      "name": "PLACEHOLDER_USER",
+      "password": "PLACEHOLDER_PASS",
+      "tags": "administrator"
+    }
+  ],
+  "vhosts": [
+    {
+      "name": "/"
+    }
+  ],
+  "permissions": [
+    {
+      "user": "PLACEHOLDER_USER",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ]
+}

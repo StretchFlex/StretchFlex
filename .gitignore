@@ -52,3 +52,12 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+*.env
+secrets/
+data/
+*.secret
+postgres-data/
+rabbitmq-data/
+node_modules/
+*.log
