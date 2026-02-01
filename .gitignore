@@ -55,7 +55,7 @@ nunit-*.xml
 
 *.env
 secrets/
-data/
+Data/
 *.secret
 postgres-data/
 rabbitmq-data/

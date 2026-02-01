@@ -11,6 +11,19 @@ services:
       restart_policy:
         condition: on-failure
 
+  data-ingest:
+    image: stretchflex-data-ingest
+    expose:
+      - "8080"
+    volumes:
+      - data-volume:/Data
+    networks:
+      - stretchflex-network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
   nginx:
     image: nginx:1.25-alpine
     ports:
@@ -19,7 +32,8 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - frontend
-      # add names of services here
+      - kibana
+      - data-ingest
     networks:
       - stretchflex-network
     deploy:
@@ -46,40 +60,35 @@ services:
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
-    secrets:
-      - elastic_password
-    volumes:
-      - ./elastic/entrypoint.sh:/usr/local/bin/custom-entrypoint.sh:ro
-    entrypoint: ["/usr/local/bin/custom-entrypoint.sh"]
     environment:
       - discovery.type=single-node
-      - xpack.security.enabled=true
-      - xpack.security.http.ssl.enabled=false
+      - xpack.security.enabled=false
+    volumes:
+      - elastic-data:/usr/share/elasticsearch/data
     networks:
       - stretchflex-network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.15.0
-    secrets:
-      - elastic_password
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=elastic
-      - ELASTICSEARCH_PASSWORD_FILE=/run/secrets/elastic_password
+      - SERVER_BASEPATH=/kibana
+      - SERVER_REWRITEBASEPATH=true
     networks:
       - stretchflex-network
-
-  logstash:
-    image: docker.elastic.co/logstash/logstash:8.15.0
-    secrets:
-      - elastic_password
-    volumes:
-      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
-    environment:
-      - ELASTIC_USER=elastic
-      - ELASTIC_PASSWORD_FILE=/run/secrets/elastic_password
-    networks:
-      - stretchflex-network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://elasticsearch:9200 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   postgres:
     image: postgres:15-alpine
@@ -111,6 +120,11 @@ volumes:
   postgres-data:
     driver: local
   rabbitmq-data:
+    driver: local
+  data-volume:
+    driver: local
+  elastic-data:
+    driver: local
 
 secrets:
   db_user:
@@ -120,8 +134,6 @@ secrets:
   rabbit_user:
     external: true
   rabbit_pass:
-    external: true
-  elastic_password:
     external: true
 
 networks:
