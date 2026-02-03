@@ -44,14 +44,14 @@ input[type="text"]:focus {
 button {
 	padding: 8px 12px;
 	font-size: 14px;
-        text-align: center;  /*Center text inside*/
+    text-align: center;  /*Center text inside*/
 	width: 318px;
 
 	background-color: #007e93;
 	color: #f9f9f9; 
 	border-radius: 6px;
 	cursor: pointer;
- 	border: 1px solid #000000;
+ 	border: 1px solid #251829;
 }
 
 
@@ -69,7 +69,7 @@ button:active {
 
 /* Focus effect (when clicked or tabbed into) */
 button:focus {
-    outline: 2px solid #cc9ba1; /* Custom outline */
+    outline: 2px solid #df7c87; /* Custom outline */
     outline-offset: 1px;
 }
 
