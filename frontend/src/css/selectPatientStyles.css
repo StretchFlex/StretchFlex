@@ -4,18 +4,46 @@ body {
         padding: 20px;
     }
 
+/* Patient Heading */
+.patient-heading {
+	font-size: 24px;
+	color: #251829;
+	margin-bottom: 15px;
+}
+
 /* Go Button */
 #goButton{
 	padding: 8px 12px;
-	font-size: 14px;
-	margin-left: 5px;
+    font-size: 15px;
+    background-color: #067b40;
+    color: #f9f9f9;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid #251829;
+    box-sizing: border-box;
+    height: 40px;
+    text-align: center;
+}
+
+#goButton:hover {
+	background-color: #069c51;
+    transform: scale(1.03);
 }
 
 /* Create Patient Button */
 #createButton{
 	padding: 8px 12px;
-	font-size: 14px;
+	font-size: 15px;
 	margin-left: 5px;
+    border: none; 
+    background-color: transparent;
+    color: #251829; 
+    cursor: pointer;
+}
+
+#createButton:hover {
+    text-decoration: underline;
+    transform: scale(1.03);
 }
 
 /* Dropdown container */
@@ -26,19 +54,22 @@ body {
 
     /* Dropdown button */
 	.dropbtn {
-        background-color: #3498db;
-        color: white;
-        padding: 10px 16px;
-        font-size: 16px;
-        border: none;
-        cursor: pointer;
-        border-radius: 4px;
-        min-width: 160px;
-        text-align: left;
+    display: inline-block;
+    padding: 5px 14px;
+    font-size: 15px;
+    background-color: #007e93;
+    color: #f9f9f9;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid #251829;
+    box-sizing: border-box;
+    height: 40px;
+    text-align: center;
     }
 
     .dropbtn:hover {
-        background-color: #2980b9;
+        background-color: #009cb7;
+        transform: scale(1.03);
     }
 
     /* Dropdown content (hidden by default) */
@@ -62,6 +93,7 @@ body {
 
     .dropdown-content a:hover {
         background-color: #f1f1f1;
+        transform: scale(1.03);
     }
 
     /* Show dropdown when active */
