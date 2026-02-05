@@ -1,14 +1,18 @@
 /* For main body of Page */
 body {
-        font-family: Arial, sans-serif;
+        font-family: Tahoma, sans-serif;
         padding: 20px;
+        /*color: #a334c5;*/
     }
 
 /* Patient Heading */
 .patient-heading {
-	font-size: 24px;
+	font-size: 28px;
 	color: #251829;
-	margin-bottom: 15px;
+	margin-bottom: 50px;
+    margin-top: 0px;
+    font-family: Tahoma, sans-serif;
+    text-align: center;
 }
 
 /* Go Button */
@@ -23,6 +27,7 @@ body {
     box-sizing: border-box;
     height: 40px;
     text-align: center;
+    font-family: Tahoma, sans-serif;
 }
 
 .goButton:hover {
@@ -39,6 +44,7 @@ body {
     background-color: transparent;
     color: #251829; 
     cursor: pointer;
+    font-family: Tahoma, sans-serif;
 }
 
 .createButton:hover {
@@ -65,9 +71,24 @@ body {
     box-sizing: border-box;
     height: 40px;
     text-align: left;
+    font-family: Tahoma, sans-serif;
+}
+
+.patient-select input::placeholder { 
+    color: #f9f9f9;
 }
 
 .patient-select input:hover {
     background-color: #009cb7;
     transform: scale(1.03);
+}
+
+/* Style for datlist dropdown options */
+datalist {
+    display: none;
+}
+
+datalist option {
+    background-color: #d32f2f;
+    color: #f9f9f9;
 }

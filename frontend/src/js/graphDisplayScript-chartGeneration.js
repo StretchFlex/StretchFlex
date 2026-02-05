@@ -32,8 +32,7 @@
         });
         //end of initial blank chart addition
         
-        //let chartInstance = null; //removed to allow initial blank chart
-
+        
         // Function to parse CSV text into arrays
         function parseCSV(text) {
             const rows = text.trim().split("\n");

@@ -9,11 +9,10 @@
 </head>
 <body>
     <h2 class="patient-heading">Select Patient</h2>
-    <p>Type to search or pick from the list. For new patients, click the "Create" button.</p>
 
 <div class="patient-select">
     <label for="patientInput">Patient:</label>
-    <input id="patientInput" name="patient" list="patientsList" placeholder="Start typing to search..." autocomplete="off">
+    <input id="patientInput" name="patient" list="patientsList" placeholder="Type to search patient..." autocomplete="off">
     <datalist id="patientsList">
         <option value="Patient 1"></option>
         <option value="Patient 2"></option>
@@ -27,6 +26,8 @@
 
     <!-- Output area -->
     <div id="output"></div>
+
+<p>Type to search or pick from the list. For new patients, click the "Create" button.</p>
 
 <script src="js/selectPatientScript.js"></script>
 </body>
