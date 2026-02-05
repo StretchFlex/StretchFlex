@@ -1,8 +1,38 @@
 
-        const fileInput = document.getElementById('csvFile');
-        const ctx = document.getElementById('lineChart').getContext('2d');
-        let chartInstance = null;
+        //const fileInput = document.getElementById('csvFile'); //going to change when pulling csv from backend
 
+        const ctx = document.getElementById('lineChart').getContext('2d');
+        
+        //Added to load blank chart initially
+        let chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'CSV Data',
+                    data: [],
+                    borderColor: 'blue',
+                    borderWidth: 2,
+                    backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: true, text: 'Blank Chart Waiting for Selection' }
+                },
+                scales: {
+                    x: { title: { display: true, text: 'Time (s)' }, beginAtZero: true },
+                    y: { title: { display: true, text: 'Stretch Distance (mm)' }, beginAtZero: true }
+                }
+            }
+        });
+        //end of initial blank chart addition
+        
+        
         // Function to parse CSV text into arrays
         function parseCSV(text) {
             const rows = text.trim().split("\n");

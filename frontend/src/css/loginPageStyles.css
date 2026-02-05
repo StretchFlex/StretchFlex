@@ -1,9 +1,7 @@
 
 /*For main body of page*/
 body {
-	font-family: Arial, sans-serif;
 	background-color: #f9f9f9; 
-
     position: absolute; /*Position it relative to the container */
     top: 40%; /* Move down %% of the container height */
     left: 50%; /* Move right %% of the container width */
@@ -20,6 +18,7 @@ body {
  font-size: 14px;
  border-radius: 6px;
  border: 2px solid #9fabaf;
+ font-family: Tahoma, sans-serif;
 } 
 
 
@@ -52,6 +51,7 @@ body {
 	border-radius: 6px;
 	cursor: pointer;
  	border: 1px solid #251829;
+     font-family: Tahoma, sans-serif;
 }
 
 
@@ -78,6 +78,7 @@ body {
 #output {
 	margin-top: 15px;
 	font-weight: bold;
+    font-family: Tahoma, sans-serif;
 }
 
 

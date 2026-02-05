@@ -8,9 +8,19 @@
 
 </head>
 <body>
-    <h2>Select Streching Sessions to show on Graph</h2>
-    <p>Click Generate Graph to update with your selections</p>
 
+
+<div class="fixed-container">
+    <div class="graph-top-box">
+    <!-- Chart Area -->
+    <canvas id="lineChart"></canvas>    
+    </div>
+    
+    <div class="bottom-row">
+        <div class="bottom-box">
+    <h2>Graph Selection</h2>
+    <p>Click Generate Graph to update with your selections</p>
+    
 <div class="graph-select">
     <label for="graphInput1">Graph 1:</label>
     <input id="graphInput1" name="graph" list="graphsList" placeholder="Start typing to search..." autocomplete="off">
@@ -49,11 +59,27 @@
     <!-- Output area -->
     <div id="output"></div>
 
-	<canvas id="lineChart"></canvas>
+        </div>
+        
+        
+        <div class="bottom-box">
+        <h2>Statistics Selection</h2>
+        <p>Select Statistics to show in box</p>
 
-<script src="js/graphDisplayScript-verifyInput.js"></script>
+        </div>
+    </div> 
+</div>
+
+
+
+
+
+
+
+
+
 <script src="js/graphDisplayScript-chartGeneration.js"></script>
-<script src="js/graphDisplayScript-dropDown.js"></script>
+
 
 </body>
 </html>
