@@ -10,19 +10,41 @@
 <body>
     <h2>Select Streching Sessions to show on Graph</h2>
     <p>Click Generate Graph to update with your selections</p>
-    <input type="file" id="csvFile" accept=".csv">
-    <br><br>
 
-<div class="dropdown">
-    <button onclick="toggleDropdown()" id="dropdownBtn" class="dropbtn">Select an option</button>
-    <div id="csvDropdown" class="dropdown-content">
-        <a href="#" onclick="selectOption(event, 'Curve Graph')">Curve Graph</a>
-        <a href="#" onclick="selectOption(event, 'Linear Graph')">Linear Graph</a>
-    </div>
+<div class="graph-select">
+    <label for="graphInput1">Graph 1:</label>
+    <input id="graphInput1" name="graph" list="graphsList" placeholder="Start typing to search..." autocomplete="off">
+    <datalist id="graphsList">
+        <option value="Curve Graph"></option>
+        <option value="Linear Graph"></option>
+    </datalist>
+
+    <label for="graphInput2">Graph 2:</label>
+    <input id="graphInput2" name="graph" list="graphsList" placeholder="Start typing to search..." autocomplete="off">
+    <datalist id="graphsList">
+        <option value="Curve Graph"></option>
+        <option value="Linear Graph"></option>
+    </datalist>
+
+    <label for="graphInput3">Graph 3:</label>
+    <input id="graphInput3" name="graph" list="graphsList" placeholder="Start typing to search..." autocomplete="off">
+    <datalist id="graphsList">
+        <option value="Curve Graph"></option>
+        <option value="Linear Graph"></option>
+    </datalist>
+
+    <label for="graphInput4">Graph 4:</label>
+    <input id="graphInput4" name="graph" list="graphsList" placeholder="Start typing to search..." autocomplete="off">
+    <datalist id="graphsList">
+        <option value="Curve Graph"></option>
+        <option value="Linear Graph"></option>
+    </datalist>
 </div>
 
-        
-<button onclick="verifyGraph()">Generate Graph</button>
+<button class="generateButton" onclick="verifyGraph()">Generate Graph</button>
+
+<!--need to create a dropdown menu next to each graph to select chart line color-->
+
 
     <!-- Output area -->
     <div id="output"></div>

@@ -12,8 +12,8 @@ body {
 }
 
 /* Go Button */
-#goButton{
-	padding: 8px 12px;
+.goButton{
+    padding: 8px 12px;
     font-size: 15px;
     background-color: #067b40;
     color: #f9f9f9;
@@ -25,78 +25,49 @@ body {
     text-align: center;
 }
 
-#goButton:hover {
-	background-color: #069c51;
+.goButton:hover {
+    background-color: #069c51;
     transform: scale(1.03);
 }
 
 /* Create Patient Button */
-#createButton{
-	padding: 8px 12px;
-	font-size: 15px;
-	margin-left: 5px;
+.createButton{
+    padding: 8px 12px;
+    font-size: 15px;
+    margin-left: 5px;
     border: none; 
     background-color: transparent;
     color: #251829; 
     cursor: pointer;
 }
 
-#createButton:hover {
+.createButton:hover {
     text-decoration: underline;
     transform: scale(1.03);
 }
 
-/* Dropdown container */
-    .dropdown {
-        position: relative;
-        display: inline-block;
-    }
+/* Patient select container (replaces old dropdown) */
+.patient-select {
+    position: relative;
+    display: inline-block;
+}
 
-    /* Dropdown button */
-	.dropbtn {
+/* Style the input used for patient selection (replaces .dropbtn rules) */
+.patient-select input {
     display: inline-block;
     padding: 5px 14px;
     font-size: 15px;
     background-color: #007e93;
     color: #f9f9f9;
     border-radius: 6px;
-    cursor: pointer;
+    cursor: text;
     border: 1px solid #251829;
     box-sizing: border-box;
     height: 40px;
-    text-align: center;
-    }
+    text-align: left;
+}
 
-    .dropbtn:hover {
-        background-color: #009cb7;
-        transform: scale(1.03);
-    }
-
-    /* Dropdown content (hidden by default) */
-    .dropdown-content {
-        display: none;
-        position: absolute;
-        background-color: white;
-        min-width: 160px;
-        box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-        z-index: 1;
-        border-radius: 4px;
-    }
-
-    /* Links inside dropdown */
-    .dropdown-content a {
-        color: black;
-        padding: 10px 14px;
-        text-decoration: none;
-        display: block;
-    }
-
-    .dropdown-content a:hover {
-        background-color: #f1f1f1;
-        transform: scale(1.03);
-    }
-
-    /* Show dropdown when active */
-    .show {
-        display: block;
-    }
+.patient-select input:hover {
+    background-color: #009cb7;
+    transform: scale(1.03);
+}

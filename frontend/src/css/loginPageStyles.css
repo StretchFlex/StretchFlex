@@ -13,7 +13,7 @@ body {
         
 
 /*For both text boxes*/
-input[type="text"] {
+.input-field {
  margin-bottom: 10px; /* Space between boxes */
  width: 300px;
  padding: 8px;
@@ -34,14 +34,14 @@ input[type="text"] {
 
 
 /*Focus effect (when clicked or tabbed into)*/
-input[type="text"]:focus {
+.input-field:focus {
     outline: 2px solid #cc9ba1;
-    outline-offset: 1 px;
+    outline-offset: 1px;
 }
  
 
 /*for Login button */    
-button {
+.login-btn {
 	padding: 8px 12px;
 	font-size: 14px;
     text-align: center;  /*Center text inside*/
@@ -56,19 +56,19 @@ button {
 
 
 /* Hover effect */
-button:hover {
+.login-btn:hover {
     background-color: #009cb7; /* Slightly lighter */
     transform: scale(1.03);    /* Slightly enlarge */
 }
 
 /* Active (click) effect */
-button:active {
+.login-btn:active {
     background-color: #007284; /* Slightly darker */
     transform: scale(0.99);    /* Slightly shrink */
 }
 
 /* Focus effect (when clicked or tabbed into) */
-button:focus {
+.login-btn:focus {
     outline: 2px solid #df7c87; /* Custom outline */
     outline-offset: 1px;
 }
