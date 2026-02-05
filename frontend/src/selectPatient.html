@@ -8,22 +8,22 @@
 
 </head>
 <body>
-    <h2 class="patient-heading">Select Patient from Dropdown</h2>
-    <p>For new patients, click the "Create" button.</p>
-    
+    <h2 class="patient-heading">Select Patient</h2>
+    <p>Type to search or pick from the list. For new patients, click the "Create" button.</p>
 
-<div class="dropdown">
-    <button onclick="toggleDropdown()" id="dropdownBtn" class="dropbtn">Select an option</button>
-    <div id="patientDropdown" class="dropdown-content">
-        <a href="#" onclick="selectOption(event, 'Patient 1')">Patient 1</a>
-        <a href="#" onclick="selectOption(event, 'Patient 2')">Patient 2</a>
-        <a href="#" onclick="selectOption(event, 'Patient 3')">Patient 3</a>
-    </div>
+<div class="patient-select">
+    <label for="patientInput">Patient:</label>
+    <input id="patientInput" name="patient" list="patientsList" placeholder="Start typing to search..." autocomplete="off">
+    <datalist id="patientsList">
+        <option value="Patient 1"></option>
+        <option value="Patient 2"></option>
+        <option value="Patient 3"></option>
+    </datalist>
 </div>
 
-<button id="goButton" onclick="verifySelection()">Go</button>
+<button class="goButton" onclick="verifySelection()">Go</button>
 
-<button id="createButton" onclick="createPatient()">+ Create New Patient</button>
+<button class="createButton" onclick="window.location.href='createPatient.html'">+ Create New Patient</button>
 
     <!-- Output area -->
     <div id="output"></div>

@@ -4,17 +4,9 @@ body {
 	margin: 20px;
 }
 
-/*For both text boxes*/	
-input[type="text"] {
-	display: block; /* Ensures each starts on a new line */
-	margin-bottom: 10px; /* Space between boxes */
-	width: 300px;
-	padding: 8px;
-	font-size: 14px;
-} 
  
 /*for Graph button  */     
-button {
+.generateButton {
 	padding: 8px 12px;
 	font-size: 14px;
 	margin-left: 5px;
@@ -31,53 +23,28 @@ canvas {
 	max-width: 800px;
 }
 
-/* Dropdown container */
-    .dropdown {
-        position: relative;
-        display: inline-block;
-    }
+/* Graph select container */
+.graph-select {
+    position: relative;
+    display: inline-block;
+}
 
-    /* Dropdown button */
-	.dropbtn {
-        background-color: #3498db;
-        color: white;
-        padding: 10px 16px;
-        font-size: 16px;
-        border: none;
-        cursor: pointer;
-        border-radius: 4px;
-        min-width: 160px;
-        text-align: left;
-    }
+/* Style the input used for graph selection (replaces .dropbtn rules) */
+.graph-select input {
+    display: inline-block;
+    padding: 5px 14px;
+    font-size: 15px;
+    background-color: #007e93;
+    color: #f9f9f9;
+    border-radius: 6px;
+    cursor: text;
+    border: 1px solid #251829;
+    box-sizing: border-box;
+    height: 40px;
+    text-align: left;
+}
 
-    .dropbtn:hover {
-        background-color: #2980b9;
-    }
-
-    /* Dropdown content (hidden by default) */
-    .dropdown-content {
-        display: none;
-        position: absolute;
-        background-color: white;
-        min-width: 160px;
-        box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-        z-index: 1;
-        border-radius: 4px;
-    }
-
-    /* Links inside dropdown */
-    .dropdown-content a {
-        color: black;
-        padding: 10px 14px;
-        text-decoration: none;
-        display: block;
-    }
-
-    .dropdown-content a:hover {
-        background-color: #f1f1f1;
-    }
-
-    /* Show dropdown when active */
-    .show {
-        display: block;
-    }
+.graph-select input:hover {
+    background-color: #009cb7;
+    transform: scale(1.03);
+}

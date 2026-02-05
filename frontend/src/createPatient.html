@@ -11,19 +11,22 @@
     <h2>Patient Information</h2>
     <p>Fill out Patient Information below</p>
     
-
+<div class="flex-container-cP">
 <!-- Text input field -->
-    <input type="text" id="fNameInput" placeholder="First name here...">
-    <input type="text" id="lNameInput" placeholder="Last name here...">
-    <input type="text" id="ageInput" placeholder="Age here...">
-    <input type="text" id="conditionsInput" placeholder="Conditions here...">
+    <input type="text" class="input-field-cP" id="fNameInput" placeholder="First name here...">
+    <input type="text" class="input-field-cP" id="lNameInput" placeholder="Last name here...">
+    <input type="text" class="input-field-cP" id="ageInput" placeholder="Age here...">
+    <input type="text" class="input-field-cP" id="conditionsInput" placeholder="Conditions here...">
+</div>
 
-<button id="createButton" onclick="verifyFields()">Create New Patient</button>
+    <button class="createButton" onclick="verifyFields()">Create New Patient</button>
+
+
 
 <div id="overlay">
     <div id="modal">
         <div id="modal-message"></div>
-        <button id="modal button" onclick="closeModal()">I have read it</button>
+        <button class="modalButton" onclick="closeModal()">I have read it</button>
     </div>
 </div>
 

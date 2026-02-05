@@ -1,37 +1,30 @@
-// Toggle dropdown visibility
-    function toggleDropdown() {
-        document.getElementById("patientDropdown").classList.toggle("show");
-    }
+const patients = [
+    'Patient 1',
+    'Patient 2',
+    'Patient 3'
+];
 
-    // Handle option selection
-    function selectOption(event, value) {
-        event.preventDefault(); // Prevent page jump
-        document.getElementById("dropdownBtn").textContent = value; // Update button text
-        document.getElementById("patientDropdown").classList.remove("show"); // Close dropdown
-    }    
-
-
-// Close dropdown if clicked outside
-    window.onclick = function(event) {
-        if (!event.target.matches('.dropbtn')) {
-            let dropdowns = document.getElementsByClassName("dropdown-content");
-            for (let i = 0; i < dropdowns.length; i++) {
-                let openDropdown = dropdowns[i];
-                if (openDropdown.classList.contains('show')) {
-                    openDropdown.classList.remove('show');
-                }
-            }
-        }
-    }
-
-
-function createPatient(){
-window.location.href = "createPatient.html"
+function populateDatalist(){
+    const dl = document.getElementById('patientsList');
+    if (!dl) return;
+    dl.innerHTML = '';
+    patients.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        dl.appendChild(opt);
+    });
 }
 
+document.addEventListener('DOMContentLoaded', populateDatalist);
+
+
 function verifySelection(){
-//need to add verification of a proper selection here
-
-window.location.href = "graphDisplay.html";
-
+    const val = document.getElementById('patientInput').value.trim();
+    if (!val) {
+        alert('Please select or type a patient');
+        return;
+    }
+    // store selection for downstream pages
+    sessionStorage.setItem('selectedPatient', val);
+    window.location.href = "graphDisplay.html";
 }
