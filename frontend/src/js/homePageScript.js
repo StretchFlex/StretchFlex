@@ -66,7 +66,7 @@
 })();
 */
 
-
+/*
 (function() {
   const iframe = document.getElementById('homePageIframe');
   let maxHeight = 2000; // Safety limit to prevent runaway growth
@@ -82,3 +82,21 @@
     }
   });
 })();
+*/
+
+function resizeIframeToBottom() {
+    const iframe = document.getElementById('homePageIframe');
+    if (iframe) {
+        const rect = iframe.getBoundingClientRect();
+        const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+
+        // If iframe bottom is near viewport bottom, extend height
+        if (rect.bottom - windowHeight < 100 && iframe.height < 2000) { // Safety limit to prevent runaway growth
+            iframe.height = parseInt(iframe.height) + 300; // Add 300px
+        }
+    }
+}
+
+window.addEventListener('scroll', resizeIframeToBottom);
+window.addEventListener('load', resizeIframeToBottom);
+window.addEventListener('resize', resizeIframeToBottom);
