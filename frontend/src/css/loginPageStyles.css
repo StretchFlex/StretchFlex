@@ -61,11 +61,13 @@ body {
     transform: scale(1.03);    /* Slightly enlarge */
 }
 
+
 /* Active (click) effect */
 .login-btn:active {
     background-color: #007284; /* Slightly darker */
     transform: scale(0.99);    /* Slightly shrink */
 }
+
 
 /* Focus effect (when clicked or tabbed into) */
 .login-btn:focus {

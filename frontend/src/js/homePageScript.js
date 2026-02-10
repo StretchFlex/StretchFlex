@@ -14,6 +14,7 @@
     }
 })();
 */
+
 /*
 (function() {
     // Adjust the iframe height when the content loads
@@ -55,7 +56,7 @@
 })();   
 */
 
-/*
+
 (function() {
     // add event listener to adjust the iframe height when the user scrolls within the iframe
     const iframe = document.getElementById('homePageIframe');
@@ -64,10 +65,8 @@
     }       
 })();
 
-*/
 
-
-
+/*
 (function() {
   const iframe = document.getElementById('homePageIframe');
   let maxHeight = 2000; // Safety limit to prevent runaway growth
@@ -83,4 +82,4 @@
     }
   });
 })();
-
+*/
