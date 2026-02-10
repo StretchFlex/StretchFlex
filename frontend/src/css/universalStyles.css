@@ -1,0 +1,15 @@
+/* Import custom TTF font */
+@font-face {
+    font-family: 'ErasDemi'; /* Use this name later in your CSS */
+    src: url('../assets/fonts/ErasDemi.ttf') format('truetype'); /* Relative path to the font */
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Import custom TTF font */
+@font-face {
+    font-family: 'Poppins-Regular-400'; /* Use this name later in your CSS */
+    src: url('../assets/fonts/Poppins-Regular-400.ttf') format('truetype'); /* Relative path to the font */
+    font-weight: normal;
+    font-style: normal;
+}

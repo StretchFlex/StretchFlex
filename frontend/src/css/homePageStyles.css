@@ -6,7 +6,7 @@
 /* Style the iframe for better presentation */
   iframe {
 	width: 100%;
-        height: 500px;
+        transition: height 0.3s ease;
         border: 2px solid #9fabaf;
         border-radius: 8px;
 	box-shadow: 0 4px 8px rgba(0,0,0,0.2);
