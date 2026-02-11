@@ -22,23 +22,24 @@
     
 
     const selectAll = document.getElementById('selectAll');
-    const deselectAllBtn = document.getElementById('deselectAll');
+    const deselectAll = document.getElementById('deselectAll');
     const items = document.querySelectorAll('.item');
 
     // "Select All" toggles all
-    selectAll.addEventListener('change', function () {
-        items.forEach(item => item.checked = this.checked);
+    selectAll.addEventListener('click', function () {
+        items.forEach(item => item.checked = true);
     });
 
     // "Deselect All" button
-    deselectAllBtn.addEventListener('click', function () {
+    deselectAll.addEventListener('click', function () {
         items.forEach(item => item.checked = false);
-        selectAll.checked = false;
+        //selectAll.checked = false;
     });
 
-    // Update "Select All" based on individual items
+    /*// Update "Select All" based on individual items
     items.forEach(item => {
         item.addEventListener('change', function () {
             selectAll.checked = [...items].every(i => i.checked);
         });
-    });      
+    }); 
+    */     

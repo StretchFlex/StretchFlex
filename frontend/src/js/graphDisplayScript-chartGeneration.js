@@ -110,5 +110,6 @@
                 chartInstance.destroy();
                 chartInstance = chartInstanceBlank; // Reset to blank chart
             }
-            statsContainer.innerHTML = '';
+            statsContainer.innerHTML = ''; //does this need to be changed to stats-toggle-box-container?
+
         }); 
