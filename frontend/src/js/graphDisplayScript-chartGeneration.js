@@ -1,6 +1,3 @@
-
-        //const fileInput = document.getElementById('csvFile'); //going to change when pulling csv from backend
-
         const ctx = document.getElementById('lineChart').getContext('2d');
         
         //Added to load blank chart initially
@@ -83,14 +80,13 @@
             //updateStats(data);
         }
 
-/*
 
         // Call fetchAndRenderChart on page load or based on user action
         //fetchAndRenderChart(); // Uncomment to load chart on page load    
 
         // Button to manually trigger data fetch and chart rendering
-        const loadChartButton = document.querySelector('.generateButton'); // Assuming there's a button with class 'generateButton'
-        loadChartButton.addEventListener('click', fetchAndRenderChart);     
+        const generateButton = document.querySelector('.generateButton'); // Assuming there's a button with class 'generateButton'
+        generateButton.addEventListener('click', fetchAndRenderChart);     
 
         //Function to fetch CSV from backend and render chart - replace URL with actual endpoint
         async function fetchAndRenderChart() {
@@ -105,44 +101,8 @@
                 alert('Failed to load chart data from server.');
             }
         }
+  
 
-        */
-/*
-        //Function to toggle stats display
-        const statsToggle = document.getElementById('stats-toggle-box');
-        const statsContainer = document.getElementById('stats-toggle-content');
-
-        statsToggle.addEventListener('change', function() {
-            if (this.checked) {
-                statsContainer.style.display = 'block';
-            } else {
-                statsContainer.style.display = 'none';
-            }
-        }); 
-
-     */   
-        /*
-        // Placeholder for stats calculation - replace with actual logic
-        function calculateStats(data) {
-            if (data.length === 0) return null;
-            const sum = data.reduce((a, b) => a + b, 0);
-            const mean = sum / data.length;
-            const variance = data.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / data.length;
-            const stdDev = Math.sqrt(variance);
-            return { mean: mean.toFixed(2), stdDev: stdDev.toFixed(2) };
-        }
-
-        // Update stats display when chart is rendered
-        function updateStats(data) {
-            const stats = calculateStats(data);
-            if (stats) {
-                statsContainer.innerHTML = `<p><strong>Mean:</strong> ${stats.mean}</p><p><strong>Standard Deviation:</strong> ${stats.stdDev}</p>`;
-            } else {
-                statsContainer.innerHTML = "<p>No data available for statistics.</p>";
-            }
-        }
-            */
-/*
         // Button to clear chart and stats
         const clearChartButton = document.querySelector('.clearChartButton');
         clearChartButton.addEventListener('click', function() {
@@ -152,44 +112,3 @@
             }
             statsContainer.innerHTML = '';
         }); 
-
-
-        //Function to clear all statistics checkboxes   
-        const clearStatsButton = document.querySelector('.clearAllStatsButton');
-        clearStatsButton.addEventListener('click', function() {
-            const checkboxes = document.querySelectorAll('.stats-toggle-box input[type="checkbox"]');
-            checkboxes.forEach(checkbox => checkbox.checked = false);
-            statsContainer.innerHTML = '';
-        });
-
-        //Function to check all statistics checkboxes
-        const checkAllStatsButton = document.querySelector('.checkAllStatsButton');
-        checkAllStatsButton.addEventListener('click', function() {
-            const checkboxes = document.querySelectorAll('.stats-toggle-box input[type="checkbox"]');
-            checkboxes.forEach(checkbox => checkbox.checked = true);
-            updateStats(chartInstance.data.datasets[0].data); // Update stats display with current chart data
-        });
-*/
-        
-
-const selectAll = document.getElementById('selectAll');
-    const deselectAllBtn = document.getElementById('deselectAll');
-    const items = document.querySelectorAll('.item');
-
-    // "Select All" toggles all
-    selectAll.addEventListener('change', function () {
-        items.forEach(item => item.checked = this.checked);
-    });
-
-    // "Deselect All" button
-    deselectAllBtn.addEventListener('click', function () {
-        items.forEach(item => item.checked = false);
-        selectAll.checked = false;
-    });
-
-    // Update "Select All" based on individual items
-    items.forEach(item => {
-        item.addEventListener('change', function () {
-            selectAll.checked = [...items].every(i => i.checked);
-        });
-    });        
