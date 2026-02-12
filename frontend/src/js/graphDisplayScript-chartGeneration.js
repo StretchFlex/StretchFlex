@@ -10,15 +10,15 @@
                     data: [],
                     borderColor: 'blue',
                     borderWidth: 2,
-                    backgroundColor: 'rgba(0, 0, 255, 0.1)',
-                    fill: true,
+                    //backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                    fill: false,
                     tension: 0.3
                 }]
             },
             options: {
                 responsive: true,
                 plugins: {
-                    legend: { position: 'top' },
+                    legend: { position: 'bottom' },
                     title: { display: true, text: 'Blank Chart Waiting for Selection' }
                 },
                 scales: {
@@ -61,15 +61,15 @@
                         label: 'CSV Data',
                         data: data,
                         borderColor: 'blue',
-                        backgroundColor: 'rgba(0, 0, 255, 0.1)',
-                        fill: true,
+                        //backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                        fill: false,
                         tension: 0.3
                     }]
                 },
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: { position: 'top' },
+                        legend: { position: 'bottom' },
                         title: { display: true, text: 'Line Chart from CSV' }
                     },
                     scales: {
@@ -88,6 +88,8 @@
         const generateButton = document.querySelector('.generateButton'); // Assuming there's a button with class 'generateButton'
         generateButton.addEventListener('click', fetchAndRenderChart);     
 
+
+        /* Need to update this function to match backend API and pull the chart selected by user
         //Function to fetch CSV from backend and render chart - replace URL with actual endpoint
         async function fetchAndRenderChart() {
             try {
@@ -101,7 +103,7 @@
                 alert('Failed to load chart data from server.');
             }
         }
-  
+  */
 
         // Button to clear chart and stats
         const clearChartButton = document.querySelector('.clearChartButton');
