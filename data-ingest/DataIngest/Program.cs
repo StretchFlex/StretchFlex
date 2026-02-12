@@ -24,18 +24,6 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-Log.Logger = new LoggerConfiguration()
-    .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://elasticsearch:9200"))
-    {
-        AutoRegisterTemplate = true,
-        IndexFormat = "stretchflex-logs-{0:yyyy.MM.dd}"
-    })
-    .CreateLogger();
-
-builder.Host.UseSerilog();
-
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
