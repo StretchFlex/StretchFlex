@@ -103,6 +103,12 @@ background-color: #218838;
     outline-offset: 1px;
 }
 
+label {
+    display: block; /* Ensures label is above the input */
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
 /*makes text boxes center on page*/
 .flex-container-cP { 
  display: block; /* Ensures each starts on a new line */
