@@ -1,10 +1,7 @@
-
-        //const fileInput = document.getElementById('csvFile'); //going to change when pulling csv from backend
-
         const ctx = document.getElementById('lineChart').getContext('2d');
         
         //Added to load blank chart initially
-        let chartInstance = new Chart(ctx, {
+        let chartInstanceBlank = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: [],
@@ -13,15 +10,15 @@
                     data: [],
                     borderColor: 'blue',
                     borderWidth: 2,
-                    backgroundColor: 'rgba(0, 0, 255, 0.1)',
-                    fill: true,
+                    //backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                    fill: false,
                     tension: 0.3
                 }]
             },
             options: {
                 responsive: true,
                 plugins: {
-                    legend: { position: 'top' },
+                    legend: { position: 'bottom' },
                     title: { display: true, text: 'Blank Chart Waiting for Selection' }
                 },
                 scales: {
@@ -30,8 +27,9 @@
                 }
             }
         });
+
+        chartInstance = chartInstanceBlank;
         //end of initial blank chart addition
-        
         
         // Function to parse CSV text into arrays
         function parseCSV(text) {
@@ -50,7 +48,7 @@
             return { labels, data };
         }
 
-        // Function to create/update chart
+        // Function to create/update chart and update statistics
         function renderChart(labels, data) {
             if (chartInstance) {
                 chartInstance.destroy(); // Avoid duplicate charts
@@ -63,15 +61,15 @@
                         label: 'CSV Data',
                         data: data,
                         borderColor: 'blue',
-                        backgroundColor: 'rgba(0, 0, 255, 0.1)',
-                        fill: true,
+                        //backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                        fill: false,
                         tension: 0.3
                     }]
                 },
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: { position: 'top' },
+                        legend: { position: 'bottom' },
                         title: { display: true, text: 'Line Chart from CSV' }
                     },
                     scales: {
@@ -79,30 +77,41 @@
                     }
                 }
             });
+            //updateStats(data);
         }
 
-        // Handle file upload
-        fileInput.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (!file) return;
 
-            if (file.type !== "text/csv" && !file.name.endsWith(".csv")) {
-                alert("Please upload a valid CSV file.");
-                return;
-            }
+        // Call fetchAndRenderChart on page load or based on user action
+        //fetchAndRenderChart(); // Uncomment to load chart on page load    
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const csvText = e.target.result;
+        // Button to manually trigger data fetch and chart rendering
+        const generateButton = document.querySelector('.generateButton'); // Assuming there's a button with class 'generateButton'
+        generateButton.addEventListener('click', fetchAndRenderChart);     
+
+
+        /* Need to update this function to match backend API and pull the chart selected by user
+        //Function to fetch CSV from backend and render chart - replace URL with actual endpoint
+        async function fetchAndRenderChart() {
+            try {
+                const response = await fetch('/api/get-chart-data'); // Example endpoint
+                if (!response.ok) throw new Error('Network response was not ok');
+                const csvText = await response.text();
                 const { labels, data } = parseCSV(csvText);
-                if (labels.length === 0 || data.length === 0) {
-                    alert("CSV file must have at least two columns: label, value.");
-                    return;
-                }
                 renderChart(labels, data);
-            };
-            reader.onerror = function() {
-                alert("Error reading file.");
-            };
-            reader.readAsText(file);
-        });
+            } catch (error) {
+                console.error('Error fetching chart data:', error);
+                alert('Failed to load chart data from server.');
+            }
+        }
+  */
+
+        // Button to clear chart and stats
+        const clearChartButton = document.querySelector('.clearChartButton');
+        clearChartButton.addEventListener('click', function() {
+            if (chartInstance) {
+                chartInstance.destroy();
+                chartInstance = chartInstanceBlank; // Reset to blank chart
+            }
+            statsContainer.innerHTML = ''; //does this need to be changed to stats-toggle-box-container?
+
+        }); 

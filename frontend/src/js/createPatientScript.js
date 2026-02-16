@@ -32,7 +32,7 @@ return;
 /* Need to generate a patient ID that has not been used before */
 
 const patientID = Math.floor(Math.random() * 1000000); // Example: random ID generation
-showModal("this is the patient id for this patient");
+showModal("Patient created successfully! Your patient ID is: " + patientID);
 // Optional: clear the input field
 //inputField.value = "";
 }

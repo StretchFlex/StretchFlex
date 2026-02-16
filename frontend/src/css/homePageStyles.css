@@ -1,7 +1,9 @@
   body {
   margin: 0;
+  height: 100vh;
 	background: linear-gradient(to bottom, #f9f9f9 0%, #f9f9f9 20%);
 }
+
 
 /* Style the iframe for better presentation */
   iframe {
@@ -11,6 +13,7 @@
         border-radius: 8px;
 	box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
+
 
 /*for logo*/
   .gradient-text {
@@ -35,6 +38,7 @@
   padding: 5px 16px;
   } 
 
+
   /* Top bar that holds the back + logout buttons */
   .top-bar {
     display: flex;
@@ -42,6 +46,7 @@
     align-items: center;
     padding: 12px 16px;
   }
+
 
   .back-btn,
   .logout-btn {
@@ -61,6 +66,7 @@
     font-family: Tahoma, sans-serif;
   }
 
+
   /* Hover effect */
   .back-btn:hover,
   .logout-btn:hover {
@@ -68,12 +74,14 @@
     transform: scale(1.03);    /* Slightly enlarge */
   }
 
+
   /* Active (click) effect */
   .back-btn:active,
   .logout-btn:active {
     background-color: #007284; /* Slightly darker */
     transform: scale(0.99);    /* Slightly shrink */
   }
+
 
   /* Focus effect (when clicked or tabbed into) */
   .back-btn:focus,

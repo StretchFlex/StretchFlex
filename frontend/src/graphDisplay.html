@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Graph Display</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<link rel="stylesheet" href="css/graphDisplayStyles.css">
@@ -52,6 +53,7 @@
     </datalist>
 </div>
 
+
 <button class="generateButton" onclick="verifyGraph()">Generate Graph</button>
 
 <!--need to create a dropdown menu next to each graph to select chart line color-->
@@ -66,21 +68,42 @@
         <div class="bottom-box">
         <h2>Statistics Selection</h2>
         <p>Select Statistics to show in box</p>
+        <div class="stats-checkbox-container">
+            <label>
+                <input type="checkbox" id="selectAll">
+                <span class="stats-action-button stats-selectAll-button">Select All</span>
+            
+            </label>
+
+            <label>
+                <input type="checkbox" id="deselectAll">
+                <span class="stats-action-button stats-deselectAll-button">Deselect All</span>
+            
+            </label>
 
         </div>
+
+        <div class="stats-toggle-box-container">
+            <label>
+                <input type="checkbox" class="item">
+                <span class="stats-toggle-box">Option 1</span>
+            </label>
+
+            <label>
+                <input type="checkbox" class="item">
+                <span class="stats-toggle-box">Option 2</span>
+            </label>
+
+        </div>
+        
+        
+
     </div> 
 </div>
 
 
-
-
-
-
-
-
-
 <script src="js/graphDisplayScript-chartGeneration.js"></script>
-
+<script src="js/statisticsScript.js"></script>
 
 </body>
 </html>
