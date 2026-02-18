@@ -2,6 +2,7 @@
 body {
         font-family: Poppins-Regular-400, sans-serif;
         padding: 20px;
+
     }
 
 /* Create Patient Button */
@@ -88,8 +89,11 @@ font-size: 14px;
 background-color: #218838;
 }
 
-.input-field-cP {
+.input-field-cP { /* make edits to this container to change the positioning of the text boxes within the flex box -KW */
+ display: flex;
+ flex-direction: column;
  margin-bottom: 10px; /* Space between boxes */
+ align-items: center;
  width: 300px;
  padding: 8px;
  font-size: 14px;
@@ -111,11 +115,12 @@ label {
 
 /*makes text boxes center on page*/
 .flex-container-cP { 
- display: block; /* Ensures each starts on a new line */
+ display: block; /* Keep this as it is to make container start after the body text -KW */
  justify-content: center; /* Horizontal center */ 
  align-items: center; /* Vertical center */ 
  height: 100px; /* Container height */ 
  border: none; 
+ margin-top: 20px;
 }
 
 /*For messages if inputs are not entered*/
