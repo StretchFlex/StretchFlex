@@ -39,7 +39,9 @@ canvas {
 /* Graph select container for each individual dropdown*/
 .graph-select {
     position: relative;
-    display: inline-block;
+    display: flex;
+    flex-direction: column;
+
 }
 
 /* Style the input used for graph selection (replaces .dropbtn rules) */
@@ -66,10 +68,11 @@ canvas {
     position: fixed;
     top: 20px;
     left: 20px;
+    right: 20px;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    max-width: 90vw;
+    /*width: 90vw;*/
     z-index: 1000;
 }
 
@@ -169,9 +172,8 @@ input[type="checkbox"]:checked + .stats-toggle-box {
 
 .stats-toggle-box-container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 10px;
+    flex-direction: column;
+    margin-top: 10px; /* Change distance between the Select/Deselect All buttons and the option Buttons */
 }
 
 .stats-action-button {
@@ -181,6 +183,7 @@ input[type="checkbox"]:checked + .stats-toggle-box {
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.2s ease;
+    margin-bottom: 20px;
 }
 
 .stats-selectAll-button {
