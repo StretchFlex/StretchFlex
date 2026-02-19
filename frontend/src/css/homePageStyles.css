@@ -4,10 +4,14 @@
 	background: linear-gradient(to bottom, #f9f9f9 0%, #f9f9f9 20%);
 }
 
+:root {
+  --scrollbar-width: 0px; /* Default value, will be updated by JS */
+}
+
 
 /* Style the iframe for better presentation */
   iframe {
-	width: 99.8%;
+	width: calc(100vw - var(--scrollbar-width) - 5px); /* Full width minus scrollbar minus border pixels*/
         transition: height 0.3s ease;
         border: 2px solid #9fabaf;
         border-radius: 8px;
