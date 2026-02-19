@@ -11,7 +11,7 @@
 
 /* Style the iframe for better presentation */
   iframe {
-	width: calc(100vw - var(--scrollbar-width) - 5px); /* Full width minus scrollbar minus border pixels*/
+	width: calc(100vw - var(--scrollbar-width) - 5px); /* Full width minus scrollbar minus fixed amount for border pixels*/
         transition: height 0.3s ease;
         border: 2px solid #9fabaf;
         border-radius: 8px;

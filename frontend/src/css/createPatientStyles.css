@@ -53,9 +53,9 @@ z-index: 999;
 
 /* Modal box NEED TO MESS WITH POSITIONING ON THE WINDOW TO MAKE IT MOVE WITH SCROLL -KW */
 #modal {
-position: relative;
-top: 50vh;
-left: 50vw;
+position: fixed;
+top: 150px;
+left: 50%;
 transform: translate(-50%, -50%);
 background: white;
 padding: 20px;
