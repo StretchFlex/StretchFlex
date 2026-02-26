@@ -131,7 +131,7 @@ background-color: #218838;
 }
 */
 
-.questionType0 { /* make edits to this container to change the positioning of the text boxes within the flex box -KW */
+.questionType0 { /* Type 0 is text box - make edits to this container to change the positioning of the text boxes within the flex box -KW */
  display: flex;
  flex-direction: column;
  margin-bottom: 10px; /* Space between boxes */
@@ -164,12 +164,6 @@ label {
  margin-top: 20px;
 }
 
-/*For messages if inputs are not entered*/
-/*
-#output {
-	margin-top: 15px;
-	font-weight: bold;
-}
 
 /* For new modal trial */
 .continueButton {
