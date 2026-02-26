@@ -52,33 +52,53 @@ showDoneModal("Patient created successfully! Your patient ID is: " + patientID);
 */
 
 
-/*
-function verifyFields() {
-// Get the value from the first name input field
-let fNameText = fNameInputField.value.trim();
-if (fNameText !== "") {
-    new bootstrap.Modal(continueModalElement).show();
-} else {
-    new bootstrap.Modal(errorModalElement).show();
-}
 
-}
-
-const fNameInputField = document.getElementById("fNameInput");
+// modal element references reused by verifyFields
 const continueModalElement = document.getElementById("continueModal");
 const errorModalElement = document.getElementById("errorModal");
 
-document.getElementById("createButton").addEventListener("click", verifyFields);
+function verifyFields() {
+    // list of required input ids in the order we want to validate/focus
+    const inputs = [
+        { id: "fNameInput", label: "First Name" },
+        { id: "lNameInput", label: "Last Name" },
+        { id: "dobInput", label: "Date of Birth" },
+        { id: "emailInput", label: "Email Address" },
+        { id: "sexInput", label: "Birth Sex" },
+        { id: "heightInput", label: "Height" },
+        { id: "massInput", label: "Mass" }
+    ];
 
-continueModalElement.addEventListener("hidden.bs.modal", function () {
-window.location.href = "createPatientMed.html";
-});
+    for (const field of inputs) {
+        const el = document.getElementById(field.id);
+        if (!el) continue; // should not happen
 
-errorModalElement.addEventListener("hidden.bs.modal", function () {
-fNameInputField.focus();
-});
+        const value = el.value.trim();
+        const isEmpty = value === "";
+        const invalidDate = field.id === "dobInput" && value !== "" && !validateDate(value);
 
-*/
+        if (isEmpty || invalidDate) {
+            // show error and focus the problematic element
+            const errModal = new bootstrap.Modal(errorModalElement);
+            errModal.show();
+            el.focus();
+            // ensure focus is restored after the modal closes
+            errorModalElement.addEventListener("hidden.bs.modal", () => el.focus(), { once: true });
+            return false;
+        }
+    }
+
+    // all fields have values (and dob is valid)
+    const contModal = new bootstrap.Modal(continueModalElement);
+    contModal.show();
+    continueModalElement.addEventListener("hidden.bs.modal", function () {
+        window.location.href = "createPatientMed.html";
+    }, { once: true });
+    return true;
+}
+
+
+
 
 
 // Loop through each question block
