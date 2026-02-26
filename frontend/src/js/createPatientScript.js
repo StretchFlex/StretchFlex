@@ -28,28 +28,35 @@ function closeDoneModal() {
 document.getElementById("overlay").style.display = "none";
 window.location.href = "selectPatient.html";
 }
-
+*/
 
 
 function verifyFieldsMed() {
-//make sure dropdown for plantarfaciitis is selected
-const plantarFaciitisDropdown = document.getElementById("plantarFaciitisDropdown");
-const plantarFaciitisChecked = plantarFaciitisDropdown.value !== "";
+    // validate that each question block has at least one selection
+    const questionBlocks = document.querySelectorAll('.questionType1, .questionType2');
+    for (const block of questionBlocks) {
+        const checkboxes = block.querySelectorAll('input[type=checkbox]');
+        let anyChecked = false;
+        checkboxes.forEach(cb => { if (cb.checked) anyChecked = true; });
+        if (!anyChecked) {
+            const errModal = new bootstrap.Modal(errorModalElement);
+            errModal.show();
+            if (checkboxes.length > 0) {
+                checkboxes[0].focus();
+                errorModalElement.addEventListener("hidden.bs.modal", () => checkboxes[0].focus(), { once: true });
+            }
+            return false;
+        }
+    }
 
-if (!plantarFaciitisChecked) {
-showErrorModal("Please select a value for Plantar Fasciitis");
+    // all questions answered
+    const contModal = new bootstrap.Modal(continueModalElement);
+    contModal.show();
+    continueModalElement.addEventListener("hidden.bs.modal", function () {
+        window.location.href = "selectPatient.html";
+    }, { once: true });
+    return true;
 }
-
-/* Need to store data somewhere when this successfully completes */
-/* Need to generate a patient ID that has not been used before */
-
-/*
-const patientID = Math.floor(Math.random() * 1000000); // Example: random ID generation
-showDoneModal("Patient created successfully! Your patient ID is: " + patientID);
-// Optional: clear the input field
-//inputField.value = "";
-}
-*/
 
 
 
