@@ -1,35 +1,3 @@
-/*
-
-function showContinueModal(message) {
-document.getElementById("modal-message").textContent = message;
-document.getElementById("overlay").style.display = "block";
-}
-
-function showErrorModal(message) {
-document.getElementById("modal-message").textContent = message;
-document.getElementById("overlay").style.display = "block";
-}
-
-function showDoneModal(message) {
-document.getElementById("modal-message").textContent = message;
-document.getElementById("overlay").style.display = "block";
-}
-
-function closeContinueModal() {
-document.getElementById("overlay").style.display = "none";
-window.location.href = "createPatientMed.html";
-}
-
-function closeErrorModal() {
-document.getElementById("overlay").style.display = "none";
-}
-
-function closeDoneModal() {
-document.getElementById("overlay").style.display = "none";
-window.location.href = "selectPatient.html";
-}
-*/
-
 
 function verifyFieldsMed() {
     // validate that each question block has at least one selection
