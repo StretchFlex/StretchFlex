@@ -6,6 +6,8 @@
     <title>Create New Patient</title>
 	<link rel="stylesheet" href="css/createPatientStyles.css">
     <link rel="stylesheet" href="css/universalStyles.css">
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
 </head>
 <body>
@@ -13,34 +15,76 @@
     <p>Fill out Patient Information below</p>
     
 <div class="flex-container-cP">
-<!-- Text input field -->
+<!-- Input Fields -->
 <label for="fNameInput">First Name</label>    
-    <input type="text" class="input-field-cP" id="fNameInput" placeholder="Type here...">
+    <input type="text" class="questionType0" id="fNameInput" placeholder="Type here...">
 <label for="lNameInput">Last Name</label>
-    <input type="text" class="input-field-cP" id="lNameInput" placeholder="Type here...">
-<label for="ageInput">Age</label>
-    <input type="text" class="input-field-cP" id="ageInput" placeholder="Type here...">
-<label for="conditionsInput">Medical Conditions</label>
-    <input type="text" class="input-field-cP" id="conditionsInput" placeholder="Type here...">
+    <input type="text" class="questionType0" id="lNameInput" placeholder="Type here...">
 
-    <button class="createButton" onclick="verifyFields()">Create New Patient</button>
-
-</div>
-
-    
-
-
-
-<div id="overlay">
-    <div id="modal">
-        <div id="modal-message"></div>
-        <button class="modalButton" onclick="closeModal()">I have read it</button>
+<form>
+    <label for="dobInput">Date of Birth</label>
+    <div class="date-picker-wrapper">
+        <input type="text" id="dobInput" placeholder="MM/DD/YYYY" maxlength="10">
+        <button type="button" class="calendar-icon" id="calendarButton">
+            <img src="assets/images/calendar-icon.png" alt="Calendar">
+        </button>
     </div>
+</form>
+
+<label for="emailInput">Email Address</label>
+    <input type="text" class="questionType0" id="emailInput" placeholder="Type here...">
+
+<label for="questionType3">Birth Sex</label>
+    <form class="questionType3">
+        <label><input type="radio" name="sex" value="male"> Male</label>
+        <label><input type="radio" name="sex" value="female"> Female</label>
+        <label><input type="radio" name="sex" value="other"> Rather Not Disclose</label>
+    </form>
+
+
+    <label for="heightInput">Height (m)</label>
+    <input type="text" class="questionType0" id="heightInput" placeholder="Type here...">
+<label for="massInput">Mass (kg)</label>
+    <input type="text" class="questionType0" id="massInput" placeholder="Type here...">        
+
+    <button class="createButton" onclick="verifyFields()">Create New Patient ID</button>
+
 </div>
 
-    <!-- Output area --> 
-    <div id="output"></div>
+<!-- Continue Modal -->
+ <div class="modal fade" id="continueModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content continue-modal">
+            <div class="modal-header">
+                <h5 class="modal-title">Success!</h5>
+            </div>
+            <div class="modal-body"> Patient created successfully! </div>   
+            <div class="modal-footer">
+                <button type="button" class="continueButton" data-bs-dismiss="modal">Continue to Patient Medical Data</button>
+            </div>
+        </div>
+    </div>
+ </div>  
+ 
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content error-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title">Error</h5>
+                </div>
+                <div class="modal-body"> Please fill out all fields to create a new patient. </div>
+                <div class="modal-footer">
+                    <button type="button" class="errorButton" data-bs-dismiss="modal">Try Again</button>
+                </div>
+            </div>
+        </div>
+    </div>  
 
+
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="js/bootstrap/bootstrap.bundle.min.js"></script>
 <script src="js/createPatientScript.js"></script>
 </body>
 </html>

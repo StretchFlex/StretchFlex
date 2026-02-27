@@ -2,10 +2,13 @@
 body {
         font-family: Poppins-Regular-400, sans-serif;
         padding: 20px;
+
     }
 
-/* Create Patient Button */
-.createButton{
+/* Create Patient Button and Finish Patient Button*/
+
+.finishButton,
+.createButton {
     background-color: #007e93;
     color: #f9f9f9;
     border-radius: 6px;
@@ -20,18 +23,21 @@ body {
 }
 
 /* Hover effect */
+.finishButton,
 .createButton:hover {
     background-color: #009cb7; /* Slightly lighter */
     transform: scale(1.03);    /* Slightly enlarge */
 }
 
 /* Active (click) effect */
+.finishButton:active,
 .createButton:active {
     background-color: #007284; /* Slightly darker */
     transform: scale(0.99);    /* Slightly shrink */
 }
 
 /* Focus effect (when clicked or tabbed into) */
+.finishButton:focus,
 .createButton:focus {
     outline: 2px solid #df7c87; /* Custom outline */
     outline-offset: 1px;
@@ -50,10 +56,12 @@ background: rgba(0, 0, 0, 0.6); /* Semi-transparent black */
 z-index: 999;
 }
 
-/* Modal box */
+
+/* Modal box NEED TO MESS WITH POSITIONING ON THE WINDOW TO MAKE IT MOVE WITH SCROLL -KW */
+/*
 #modal {
 position: fixed;
-top: 50%;
+top: 150px;
 left: 50%;
 transform: translate(-50%, -50%);
 background: white;
@@ -67,6 +75,7 @@ font-family: Arial, sans-serif;
 }
 
 /* Message text */
+/*
 #modal-message {
 margin-bottom: 15px;
 font-size: 16px;
@@ -74,7 +83,8 @@ color: #333;
 }
 
 /* Close button */
-.modalButton {
+/*
+.modalContinueButton {
 padding: 8px 15px;
 background-color: #28a745;
 color: white;
@@ -84,11 +94,46 @@ cursor: pointer;
 font-size: 14px;
 }
 
-.modalButton:hover {
+.modalContinueButton:hover {
 background-color: #218838;
 }
 
-.input-field-cP {
+/* Close button */
+/*
+.modalErrorButton {
+padding: 8px 15px;
+background-color: #e70909;
+color: white;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+font-size: 14px;
+}
+
+.modalErrorButton:hover {
+background-color: #c91515;
+}
+
+/* Close button */
+/*
+.modalDoneButton {
+padding: 8px 15px;
+background-color: #28a745;
+color: white;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+font-size: 14px;
+}
+
+.modalDoneButton:hover {
+background-color: #218838;
+}
+*/
+
+.questionType0 { /* Type 0 is text box - make edits to this container to change the positioning of the text boxes within the flex box -KW */
+ display: flex;
+ flex-direction: column;
  margin-bottom: 10px; /* Space between boxes */
  width: 300px;
  padding: 8px;
@@ -98,7 +143,7 @@ background-color: #218838;
 }
 
 /*Focus effect (when clicked or tabbed into)*/
-.input-field-cP:focus {
+.questionType0:focus {
     outline: 2px solid #cc9ba1;
     outline-offset: 1px;
 }
@@ -111,15 +156,143 @@ label {
 
 /*makes text boxes center on page*/
 .flex-container-cP { 
- display: block; /* Ensures each starts on a new line */
+ display: block; /* Keep this as it is to make container start after the body text -KW */
  justify-content: center; /* Horizontal center */ 
  align-items: center; /* Vertical center */ 
  height: 100px; /* Container height */ 
  border: none; 
+ margin-top: 20px;
 }
 
-/*For messages if inputs are not entered*/
-#output {
-	margin-top: 15px;
-	font-weight: bold;
+
+/* For new modal trial */
+.continueButton {
+    background-color: #00930c;
+    color: #f9f9f9;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 8px 18px;
+    transition: background-color 0.3s ease, transform 0.1s ease;
 }
+
+.continueButton:hover {
+    background-color: #00b41a; /* Slightly lighter */
+    transform: scale(1.03);    /* Slightly enlarge */
+}
+
+.errorButton {
+    background-color: #e70909;
+    color: #f9f9f9;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 8px 18px;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.errorButton:hover {
+    background-color: #c91515; /* Slightly darker */
+    transform: scale(1.03);    /* Slightly enlarge */
+}   
+
+.doneButton {
+    background-color: #00930c;
+    color: #f9f9f9;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 8px 18px;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.doneButton:hover {
+    background-color: #00b41a; /* Slightly lighter */
+    transform: scale(1.03);    /* Slightly enlarge */
+}
+
+.continueModal .modal-header {
+    background-color: #28a745;
+    color: white;
+    border-bottom: none;
+}
+
+.continueModal .modal-body {
+    font-size: 16px;
+    color: #333;
+}
+
+.errorModal .modal-header {
+    background-color: #e70909;
+    color: white;
+    border-bottom: none;
+}   
+
+.errorModal .modal-body {
+    font-size: 16px;
+    color: #333;
+}   
+
+.doneModal .modal-header {
+    background-color: #28a745;
+    color: white;
+    border-bottom: none;
+}   
+
+.doneModal .modal-body {
+    font-size: 16px;
+    color: #333;
+}
+
+.questionType1 {
+        margin-bottom: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+.questionType1 h3 {
+        margin-top: 0;
+    }
+
+.exclusive {
+        font-weight: bold;
+        color: red;
+    }
+.other-input {
+        display: none;
+        margin-left: 20px;
+        margin-top: 5px;
+    }
+
+
+.date-picker-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.date-picker-wrapper input {
+    padding: 8px 35px 8px 10px;
+    border-radius: 4px;
+    border: 1px solid #9fabaf;
+    font-size: 14px;
+}
+
+.calendar-icon {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    /* pointer-events removed so the button can be clicked */
+}
+
+.calendar-icon img {
+    width: 20px;
+    height: 20px;
+}
+
+.invalid {
+    border-color: red;
+    background-color: #ffe6e6;
+}
+

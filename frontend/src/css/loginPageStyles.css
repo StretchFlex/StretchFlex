@@ -24,7 +24,8 @@ body {
 
 /*makes text boxes center on page*/
 .flex-container { 
- display: block; /* Ensures each starts on a new line */
+ display: flex; /* Ensures each starts on a new line */
+ flex-direction: column; /* Stack vertically */
  justify-content: center; /* Horizontal center */ 
  align-items: center; /* Vertical center */ 
  height: 100px; /* Container height */ 
