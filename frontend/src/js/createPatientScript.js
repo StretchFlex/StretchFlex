@@ -1,17 +1,21 @@
 
 function verifyFieldsMed() {
     // validate that each question block has at least one selection
-    const questionBlocks = document.querySelectorAll('.questionType1, .questionType2');
+    // ignore freeform comment sections (additionalComments are not required)
+    const questionBlocks = document.querySelectorAll('.questionSelectOne, .questionSelectAllOtherExclusive');
     for (const block of questionBlocks) {
-        const checkboxes = block.querySelectorAll('input[type=checkbox]');
-        let anyChecked = false;
-        checkboxes.forEach(cb => { if (cb.checked) anyChecked = true; });
+        // skip hidden sections (e.g. follow-up questions that aren't visible)
+        if (block.offsetParent === null) continue;
+
+        // look for any radio or checkbox inputs inside the block
+        const inputs = block.querySelectorAll('input[type=checkbox], input[type=radio]');
+        let anyChecked = Array.from(inputs).some(i => i.checked);
         if (!anyChecked) {
             const errModal = new bootstrap.Modal(errorModalElement);
             errModal.show();
-            if (checkboxes.length > 0) {
-                checkboxes[0].focus();
-                errorModalElement.addEventListener("hidden.bs.modal", () => checkboxes[0].focus(), { once: true });
+            if (inputs.length > 0) {
+                inputs[0].focus();
+                errorModalElement.addEventListener("hidden.bs.modal", () => inputs[0].focus(), { once: true });
             }
             return false;
         }
@@ -39,7 +43,6 @@ function verifyFields() {
         { id: "lNameInput", label: "Last Name" },
         { id: "dobInput", label: "Date of Birth" },
         { id: "emailInput", label: "Email Address" },
-        { id: "sexInput", label: "Birth Sex" },
         { id: "heightInput", label: "Height" },
         { id: "massInput", label: "Mass" }
     ];
@@ -61,6 +64,34 @@ function verifyFields() {
             errorModalElement.addEventListener("hidden.bs.modal", () => el.focus(), { once: true });
             return false;
         }
+
+        // if this field has the float class, ensure it's a valid number
+        if (el.classList.contains('questionTextboxFloat')) {
+            const num = parseFloat(value);
+            if (isNaN(num)) {
+                const errModal = new bootstrap.Modal(errorModalElement);
+                errModal.show();
+                el.focus();
+                errorModalElement.addEventListener("hidden.bs.modal", () => el.focus(), { once: true });
+                return false;
+            }
+        }
+    }
+
+    // make sure any single-select questions have a selection
+    const selectOnes = document.querySelectorAll('.questionSelectOne');
+    for (const block of selectOnes) {
+        const checked = block.querySelector('input[type=radio]:checked, input[type=checkbox]:checked');
+        if (!checked) {
+            const errModal = new bootstrap.Modal(errorModalElement);
+            errModal.show();
+            const firstInput = block.querySelector('input');
+            if (firstInput) {
+                firstInput.focus();
+                errorModalElement.addEventListener("hidden.bs.modal", () => firstInput.focus(), { once: true });
+            }
+            return false;
+        }
     }
 
     // all fields have values (and dob is valid)
@@ -76,70 +107,91 @@ function verifyFields() {
 
 
 
-// Loop through each question block
-    document.querySelectorAll('.questionType1').forEach(questionBlock1 => {
-        const noOption = questionBlock1.querySelector('.noOption');
-        const otherOptions = questionBlock1.querySelectorAll('.option:not(.otherOption)');
-        const otherCheckbox = questionBlock1.querySelector('.otherOption');
-        const otherInput = questionBlock1.querySelector('.other-input');
+// handle behaviour for blocks where you can select all, an "other" text entry, or choose "no"
+    document.querySelectorAll('.questionSelectAllOtherExclusive').forEach(block => {
+        const noOption = block.querySelector('.noOption');
+        const otherOptions = block.querySelectorAll('.option:not(.otherOption)');
+        const otherCheckbox = block.querySelector('.otherOption');
+        const otherInput = block.querySelector('.other-input');
 
-        // If "No" is selected, uncheck all others in this question
-        noOption.addEventListener('change', function () {
-            if (this.checked) {
-                [...otherOptions, otherCheckbox].forEach(opt => opt.checked = false);
-                otherInput.style.display = 'none';
-                otherInput.value = '';
-            }
-        });
+        // when "No" is toggled, clear everything else
+        if (noOption) {
+            noOption.addEventListener('change', function () {
+                if (this.checked) {
+                    [...otherOptions, otherCheckbox].forEach(opt => opt.checked = false);
+                    if (otherInput) {
+                        otherInput.style.display = 'none';
+                        otherInput.value = '';
+                    }
+                }
+            });
+        }
 
-        // If any other option is selected, uncheck "No" in this question
+        // when any non-no option is checked, uncheck "No"
         [...otherOptions, otherCheckbox].forEach(opt => {
             opt.addEventListener('change', function () {
-                if (this.checked) {
+                if (this.checked && noOption) {
                     noOption.checked = false;
                 }
             });
         });
 
-        // Show/hide "Other" text box
-        otherCheckbox.addEventListener('change', function () {
-            if (this.checked) {
-                otherInput.style.display = 'block';
-                noOption.checked = false; // Ensure "No" is unchecked
-            } else {
-                otherInput.style.display = 'none';
-                otherInput.value = '';
-            }
-        });
-    });
-
-
-    // Loop through each question block
-    document.querySelectorAll('.questionType2').forEach(questionBlock2 => {
-        const noOption = questionBlock2.querySelector('.noOption');
-        const otherOptions = questionBlock2.querySelectorAll('.option:not(.otherOption)');
-        const otherCheckbox = questionBlock2.querySelector('.otherOption');
-
-        // If "No" is selected, uncheck all others in this question
-        noOption.addEventListener('change', function () {
-            if (this.checked) {
-                [...otherOptions, otherCheckbox].forEach(opt => opt.checked = false);
-                otherInput.style.display = 'none';
-                otherInput.value = '';
-            }
-        });
-
-        // If any other option is selected, uncheck "No" in this question
-        [...otherOptions, otherCheckbox].forEach(opt => {
-            opt.addEventListener('change', function () {
+        // toggle visibility of the accompanying text box for "other"
+        if (otherCheckbox && otherInput) {
+            otherCheckbox.addEventListener('change', function () {
                 if (this.checked) {
-                    noOption.checked = false;
+                    otherInput.style.display = 'block';
+                    if (noOption) noOption.checked = false;
+                } else {
+                    otherInput.style.display = 'none';
+                    otherInput.value = '';
                 }
             });
-        });
-
-        
+        }
     });
+
+    // show/hide the follow-up questions for plantar fasciitis history
+    const historyRadios = document.querySelectorAll('input[name="history"]');
+    const historyDetailBlock = document.getElementById('historyDetailR');
+    const historyDetailBlock2 = document.getElementById('historyDetailL');
+    const historyDetailNoBlock = document.getElementById('historyDetailNoR');
+    const historyDetailNoBlock2 = document.getElementById('historyDetailNoL');
+    historyRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (radio.value === 'yes' && radio.checked) {
+                // show both yes follow-ups
+                historyDetailBlock.classList.remove('hidden-question');
+                historyDetailBlock2.classList.remove('hidden-question');
+                // hide and clear both no follow-ups
+                if (historyDetailNoBlock) {
+                    historyDetailNoBlock.classList.add('hidden-question');
+                    historyDetailNoBlock.querySelectorAll('input').forEach(i => {
+                        if (i.type === 'radio' || i.type === 'checkbox') i.checked = false;
+                    });
+                }
+                if (historyDetailNoBlock2) {
+                    historyDetailNoBlock2.classList.add('hidden-question');
+                    historyDetailNoBlock2.querySelectorAll('input').forEach(i => {
+                        if (i.type === 'radio' || i.type === 'checkbox') i.checked = false;
+                    });
+                }
+            } else if (radio.value === 'no' && radio.checked) {
+                // show both no follow-ups
+                if (historyDetailNoBlock) historyDetailNoBlock.classList.remove('hidden-question');
+                if (historyDetailNoBlock2) historyDetailNoBlock2.classList.remove('hidden-question');
+                // hide and clear both yes follow-ups
+                historyDetailBlock.classList.add('hidden-question');
+                historyDetailBlock.querySelectorAll('input').forEach(i => {
+                    if (i.type === 'radio' || i.type === 'checkbox') i.checked = false;
+                });
+                historyDetailBlock2.classList.add('hidden-question');
+                historyDetailBlock2.querySelectorAll('input').forEach(i => {
+                    if (i.type === 'radio' || i.type === 'checkbox') i.checked = false;
+                });
+            }
+        });
+    });
+
 
 
     // Initialize Flatpickr

@@ -15,26 +15,150 @@
     
 <div class="flex-container-cP">
 
- <div class="questionType2"> <!--Type 2 selectAll with No option-->
-    <h3>Are you currently diagnosed with Plantar Fasciitis? </h3>
-    <label><input type="checkbox" class="option"> Yes Left Foot </label>
-    <label><input type="checkbox" class="option"> Yes Right Foot </label>
-    <label class="exclusive"><input type="checkbox" class="noOption"> No </label>
+ <!--Do you have a history of Plantar Fasciitis? Select one with appearing select one questions after that and an additional comments box-->
+ 
+    <form class="questionSelectOne">
+        <h3>Do you have a history of Plantar Fasciitis? </h3>
+        <label><input type="radio" name="history" value="yes"> Yes </label>
+        <label><input type="radio" name="history" value="no"> No </label>
+    </form>
+
+    <!-- additional follow-up question shown only when history=yes -->
+    <form class="questionSelectOne hidden-question" id="historyDetailR">
+        <h3>How long since your diagnosis in your right foot?</h3>
+        <label><input type="radio" name="historyDetailR" value="0-1"> 0-1 years </label>
+        <label><input type="radio" name="historyDetailR" value="2-3"> 2-3 years </label>
+        <label><input type="radio" name="historyDetailR" value="4-5"> 4-5 years </label>
+        <label><input type="radio" name="historyDetailR" value="6+"> 6+ years </label>
+        <label><input type="radio" name="historyDetailR" value="notApplicable"> Not Applicable</label>
+    </form>
+
+    <!-- second follow-up for yes branch -->
+    <form class="questionSelectOne hidden-question" id="historyDetailL">
+        <h3>How long since your diagnosis in your left foot?</h3>
+        <label><input type="radio" name="historyDetailL" value="0-1"> 0-1 years </label>
+        <label><input type="radio" name="historyDetailL" value="2-3"> 2-3 years </label>
+        <label><input type="radio" name="historyDetailL" value="4-5"> 4-5 years </label>
+        <label><input type="radio" name="historyDetailL" value="6+"> 6+ years </label>
+        <label><input type="radio" name="historyDetailL" value="notApplicable"> Not Applicable</label>
+    </form>
+
+    <!-- follow-up question shown only when history=no -->
+    <form class="questionSelectOne hidden-question" id="historyDetailNoR">
+        <h3>How long have you experienced pain or discomfort in your right foot?</h3>
+        <label><input type="radio" name="historyDetailNoR" value="0-1"> 0-1 months</label>
+        <label><input type="radio" name="historyDetailNoR" value="2-3"> 2-3 months</label>
+        <label><input type="radio" name="historyDetailNoR" value="3+"> 3+ months</label>
+        <label><input type="radio" name="historyDetailNoR" value="notApplicable"> Not Applicable</label>
+    </form>
+
+    <!-- second follow-up for no branch -->
+    <form class="questionSelectOne hidden-question" id="historyDetailNoL">
+        <h3>How long have you experienced pain or discomfort in your left foot?</h3>
+        <label><input type="radio" name="historyDetailNoL" value="0-1"> 0-1 months</label>
+        <label><input type="radio" name="historyDetailNoL" value="2-3"> 2-3 months</label>
+        <label><input type="radio" name="historyDetailNoL" value="3+"> 3+ months</label>
+        <label><input type="radio" name="historyDetailNoL" value="notApplicable"> Not Applicable</label>
+    </form>
+
+ <div class="additionalComments">
+    <h4>Additional Comments</h4>    
+    <input type="text" class="questionTextboxLong" id="commentsHistoryInput" placeholder="Type here...">
  </div>
 
+ <!--Have you experienced any of the following conditions to your right foot Select All Other Exclusive and additional comments-->
 
-  <div class="questionType1"> <!--Type 1 selectAll with other option and text box-->
-    <h3>Have you experienced any of the following conditions to your Right Foot? </h3>
+  <div class="questionSelectAllOtherExclusive"> 
+    <h3>Have you experienced any of the following conditions to your Right Foot?</h3>
     <label><input type="checkbox" class="option"> Sprain </label>
     <label><input type="checkbox" class="option"> Fracture or Break </label>
     <label><input type="checkbox" class="option"> Arthritis </label>
-    <label><input type="checkbox" class="option"> Tendonitis </label>
-    <label><input type="checkbox" class="option"> Nerve Damage </label>
+    <label><input type="checkbox" class="option"> Achilles Tendon Injury </label>
     <label><input type="checkbox" class="option otherOption"> Other </label>
-        <input type="text" class="other-input" id="otherRightFootInput" placeholder="Type here...">
+        <input type="text" class="other-input questionTextboxShort" id="otherRightFootInput" placeholder="Type here...">
     <label class="exclusive"><input type="checkbox" class="noOption"> No </label>
  </div>
 
+ <div class="additionalComments">
+    <h4>Additional Comments</h4>    
+    <input type="text" class="questionTextboxLong" id="commentsConditionsRightInput" placeholder="Type here...">
+ </div>
+
+
+ <!--Have you experienced any of the following conditions to your left foot Select All Other Exclusive and additional comments-->
+
+  <div class="questionSelectAllOtherExclusive"> 
+    <h3>Have you experienced any of the following conditions to your Left Foot?</h3>
+    <label><input type="checkbox" class="option"> Sprain </label>
+    <label><input type="checkbox" class="option"> Fracture or Break </label>
+    <label><input type="checkbox" class="option"> Arthritis </label>
+    <label><input type="checkbox" class="option"> Achilles Tendon Injury </label>
+    <label><input type="checkbox" class="option otherOption"> Other </label>
+        <input type="text" class="other-input questionTextboxShort" id="otherLeftFootInput" placeholder="Type here...">
+    <label class="exclusive"><input type="checkbox" class="noOption"> No </label>
+ </div>
+
+ <div class="additionalComments">
+    <h4>Additional Comments</h4>    
+    <input type="text" class="questionTextboxLong" id="commentsConditionsLeftInput" placeholder="Type here...">
+ </div>
+
+
+ <!--Have you previously had surgery to your right leg at or below the knee? Select One with additional comments-->
+
+ <div class="questionSelectOne"> 
+    <h3>Have you previously had surgery to your right leg at or below the knee? </h3>
+    <label><input type="checkbox" class="option"> Yes </label>
+    <label><input type="checkbox" class="option"> No </label>
+ </div>
+
+ <div class="additionalComments">
+    <h4>Additional Comments</h4>    
+    <input type="text" class="questionTextboxLong" id="commentsSurgeryRightInput" placeholder="Type here...">
+ </div>
+
+ <!--Have you previously had surgery to your left leg at or below the knee? Select One with additional comments-->
+
+ <div class="questionSelectOne"> 
+    <h3>Have you previously had surgery to your left leg at or below the knee? </h3>
+    <label><input type="checkbox" class="option"> Yes </label>
+    <label><input type="checkbox" class="option"> No </label>
+ </div>
+
+ <div class="additionalComments">
+    <h4>Additional Comments</h4>    
+    <input type="text" class="questionTextboxLong" id="commentsSurgeryLeftInput" placeholder="Type here...">
+ </div>
+
+
+ <!--Are you Currently using any of the following at home treatments? Select All Other Exclusive with additional comments-->
+
+  <div class="questionSelectAllOtherExclusive"> 
+    <h3>Are you currently using any of the following at home treatments?</h3>
+    <label><input type="checkbox" class="option"> Rest </label>
+    <label><input type="checkbox" class="option"> Stretch </label>
+    <label><input type="checkbox" class="option"> Ice </label>
+    <label><input type="checkbox" class="option"> Compression </label>
+    <label><input type="checkbox" class="option"> Elevation </label>
+    <label><input type="checkbox" class="option"> Brace </label>
+    <label><input type="checkbox" class="option"> Insole </label>
+    <label><input type="checkbox" class="option otherOption"> Medication </label>
+        <input type="text" class="other-input questionTextboxShort" id="medicationInput" placeholder="Type here...">
+    <label class="exclusive"><input type="checkbox" class="noOption"> No </label>
+ </div>
+
+ <div class="additionalComments">
+    <h4>Additional Comments</h4>
+    <input type="text" class="questionTextboxLong" id="commentsHomeTreatmentsInput" placeholder="Type here...">
+ </div>
+
+
+ <!--Do you have any other relevant conditions to report? Text box Long-->
+
+  <div class="additionalComments">
+    <h3>Do you have any other relevant conditions to report?</h3>    
+    <input type="text" class="questionTextboxLong" id="commentsRelevantConditionsInput" placeholder="Type here...">
+ </div>
 
     <button class="finishButton" onclick="verifyFieldsMed()">Finish New Patient</button>
 
