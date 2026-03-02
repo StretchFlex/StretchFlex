@@ -57,96 +57,6 @@ z-index: 999;
 }
 
 
-/* Modal box NEED TO MESS WITH POSITIONING ON THE WINDOW TO MAKE IT MOVE WITH SCROLL -KW */
-/*
-#modal {
-position: fixed;
-top: 150px;
-left: 50%;
-transform: translate(-50%, -50%);
-background: white;
-padding: 20px;
-border-radius: 8px;
-width: 300px;
-max-width: 90%;
-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-text-align: center;
-font-family: Arial, sans-serif;
-}
-
-/* Message text */
-/*
-#modal-message {
-margin-bottom: 15px;
-font-size: 16px;
-color: #333;
-}
-
-/* Close button */
-/*
-.modalContinueButton {
-padding: 8px 15px;
-background-color: #28a745;
-color: white;
-border: none;
-border-radius: 5px;
-cursor: pointer;
-font-size: 14px;
-}
-
-.modalContinueButton:hover {
-background-color: #218838;
-}
-
-/* Close button */
-/*
-.modalErrorButton {
-padding: 8px 15px;
-background-color: #e70909;
-color: white;
-border: none;
-border-radius: 5px;
-cursor: pointer;
-font-size: 14px;
-}
-
-.modalErrorButton:hover {
-background-color: #c91515;
-}
-
-/* Close button */
-/*
-.modalDoneButton {
-padding: 8px 15px;
-background-color: #28a745;
-color: white;
-border: none;
-border-radius: 5px;
-cursor: pointer;
-font-size: 14px;
-}
-
-.modalDoneButton:hover {
-background-color: #218838;
-}
-*/
-
-.questionType0 { /* Type 0 is text box - make edits to this container to change the positioning of the text boxes within the flex box -KW */
- display: flex;
- flex-direction: column;
- margin-bottom: 10px; /* Space between boxes */
- width: 300px;
- padding: 8px;
- font-size: 14px;
- border-radius: 6px;
- border: 2px solid #9fabaf;
-}
-
-/*Focus effect (when clicked or tabbed into)*/
-.questionType0:focus {
-    outline: 2px solid #cc9ba1;
-    outline-offset: 1px;
-}
 
 label {
     display: block; /* Ensures label is above the input */
@@ -241,26 +151,46 @@ label {
     color: #333;
 }
 
-.questionType1 {
-        margin-bottom: 20px;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-.questionType1 h3 {
-        margin-top: 0;
-    }
 
-.exclusive {
-        font-weight: bold;
-        color: red;
-    }
-.other-input {
-        display: none;
-        margin-left: 20px;
-        margin-top: 5px;
-    }
 
+
+/* Textbox question */
+.questionTextboxShort { /* Type 0 is text box - make edits to this container to change the positioning of the text boxes within the flex box -KW */
+ display: flex;
+ flex-direction: column;
+ margin-bottom: 10px; /* Space between boxes */
+ width: 300px;
+ padding: 8px;
+ font-size: 14px;
+ border-radius: 6px;
+ border: 2px solid #9fabaf;
+}
+
+/*Focus effect (when clicked or tabbed into)*/
+.questionTextboxShort:focus {
+    outline: 2px solid #cc9ba1;
+    outline-offset: 1px;
+}
+
+.questionTextboxShort.hidden-question {
+    display: none !important;
+}
+
+.questionTextboxLong { /* Type 0 is text box - make edits to this container to change the positioning of the text boxes within the flex box -KW */
+ display: flex;
+ flex-direction: column;
+ margin-bottom: 10px; /* Space between boxes */
+ width: 500px;
+ padding: 8px;
+ font-size: 14px;
+ border-radius: 6px;
+ border: 2px solid #9fabaf;
+}
+
+.questionTextboxLong:focus {
+    outline: 2px solid #cc9ba1;
+    outline-offset: 1px;
+}
 
 .date-picker-wrapper {
     position: relative;
@@ -296,3 +226,35 @@ label {
     background-color: #ffe6e6;
 }
 
+.questionSelectOne {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+.questionSelectOne.hidden-question {
+    display: none !important;
+}
+
+
+.questionSelectAllOtherExclusive {
+        margin-bottom: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .questionSelectAllOtherExclusive h3 {
+        margin-top: 0;
+    }
+
+.exclusive {
+        font-weight: bold;
+        color: red;
+    }
+
+
+.other-input {
+        display: none;
+        margin-left: 20px;
+        margin-top: 5px;
+    }
