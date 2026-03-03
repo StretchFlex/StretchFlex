@@ -162,6 +162,7 @@ function verifyFields() {
                 // show both yes follow-ups
                 historyDetailBlock.classList.remove('hidden-question');
                 historyDetailBlock2.classList.remove('hidden-question');
+                console.log(typeof historyDetailNoBlock); //Krishna checking what type this is
                 // hide and clear both no follow-ups
                 if (historyDetailNoBlock) {
                     historyDetailNoBlock.classList.add('hidden-question');
