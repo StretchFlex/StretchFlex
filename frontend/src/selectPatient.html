@@ -10,7 +10,7 @@
 </head>
 <body>
     <h2 class="patient-heading">Select Patient</h2>
-
+    <p>Type to search or pick from the list. For new patients, click the "Create" button.</p>
 <div class="patient-select">
     <label for="patientInput">Patient:</label>
     <input id="patientInput" name="patient" list="patientsList" placeholder="Type to search patient..." autocomplete="off">
@@ -23,12 +23,22 @@
 
 <button class="goButton" onclick="verifySelection()">Go</button>
 
+
+    <h2 class="patient-heading">Create New Patient</h2> 
 <button class="createButton" onclick="window.location.href='createPatient.html'">+ Create New Patient</button>
+
+    <h2 class="patient-heading">Lookup Patient ID</h2>
+    <p>This page needs to go to a login page for HIPPA? Then go to searching the matrix. Can we reuse the login Page and check crednetials again?</p>
+<button class="lookupButton" onclick="window.location.href='lookupPatient.html'">Lookup Patient ID</button>
+
+    <h2 class="patient-heading">Edit Patient Information</h2>
+    <p>This page needs to go to a login page for HIPPA? Then go to editing the patient information.</p>
+<button class="editButton" onclick="window.location.href='editPatient.html'">Edit Patient Information</button>
 
     <!-- Output area -->
     <div id="output"></div>
 
-<p>Type to search or pick from the list. For new patients, click the "Create" button.</p>
+
 
 <script src="js/selectPatientScript.js"></script>
 </body>
