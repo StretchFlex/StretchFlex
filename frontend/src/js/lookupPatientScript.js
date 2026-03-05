@@ -31,3 +31,7 @@ function verifySelection(){
     alert(`Selected Patient ID: ${val}`);
     
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('lookupGoBtn').addEventListener('click', verifySelection);
+});
