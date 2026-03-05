@@ -13,13 +13,17 @@
 <body>
     <h2>Patient Information</h2>
     <p>Fill out Patient Information below</p>
-    
+
+    <!-- need to put everything inside this form to make it secure and use the form action to submit to the backend. Then we can use the continue modal to link to the next page. -->
+<!-- <form method="POST" action="submitPatientData">
+    </form> -->
+
 <div class="flex-container-cP">
 <!-- Input Fields -->
 <label for="fNameInput">First Name</label>
-    <input type="text" class="questionTextboxShort" id="fNameInput" placeholder="Type here...">
+    <input type="text" class="questionTextboxShort" id="fNameInput" placeholder="Type here..." maxlength="20">
 <label for="lNameInput">Last Name</label>
-    <input type="text" class="questionTextboxShort" id="lNameInput" placeholder="Type here...">
+    <input type="text" class="questionTextboxShort" id="lNameInput" placeholder="Type here..." maxlength="20">
 
 <form>
     <label for="dobInput">Date of Birth</label>
@@ -32,7 +36,7 @@
 </form>
 
 <label for="emailInput">Email Address</label>
-    <input type="text" class="questionTextboxShort" id="emailInput" placeholder="Type here...">
+    <input type="text" class="questionTextboxShort" id="emailInput" placeholder="Type here..." maxlength="100">
 
 <label for="sexInput">Birth Sex</label>
     <form class="questionSelectOne">
@@ -43,12 +47,12 @@
 
 
     <label for="heightInput">Height (m)</label>
-    <input type="text" class="questionTextboxFloat questionTextboxShort" id="heightInput" placeholder="Type here...">
+    <input type="number" class="questionTextboxFloat questionTextboxShort" id="heightInput" placeholder="Type here..." step="0.01">
 
     <label for="massInput">Mass (kg)</label>
-    <input type="text" class="questionTextboxFloat questionTextboxShort" id="massInput" placeholder="Type here...">        
+    <input type="number" class="questionTextboxFloat questionTextboxShort" id="massInput" placeholder="Type here..." step="0.01">
 
-    <button class="createButton" onclick="verifyFields()">Create New Patient ID</button>
+    <button class="createButton" id="createPatientBtn">Create New Patient ID</button>
 
 </div>
 

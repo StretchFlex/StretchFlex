@@ -30,7 +30,7 @@
         <label><input type="radio" name="historyDetailR" value="2-3"> 2-3 years </label>
         <label><input type="radio" name="historyDetailR" value="4-5"> 4-5 years </label>
         <label><input type="radio" name="historyDetailR" value="6+"> 6+ years </label>
-        <label><input type="radio" name="historyDetailR" value="notApplicable"> Not Applicable</label>
+        <label><input type="radio" name="historyDetailR" value="N/A"> N/A</label>
     </form>
 
     <!-- second follow-up for yes branch -->
@@ -40,7 +40,7 @@
         <label><input type="radio" name="historyDetailL" value="2-3"> 2-3 years </label>
         <label><input type="radio" name="historyDetailL" value="4-5"> 4-5 years </label>
         <label><input type="radio" name="historyDetailL" value="6+"> 6+ years </label>
-        <label><input type="radio" name="historyDetailL" value="notApplicable"> Not Applicable</label>
+        <label><input type="radio" name="historyDetailL" value="N/A"> N/A</label>
     </form>
 
     <!-- follow-up question shown only when history=no -->
@@ -49,7 +49,7 @@
         <label><input type="radio" name="historyDetailNoR" value="0-1"> 0-1 months</label>
         <label><input type="radio" name="historyDetailNoR" value="2-3"> 2-3 months</label>
         <label><input type="radio" name="historyDetailNoR" value="3+"> 3+ months</label>
-        <label><input type="radio" name="historyDetailNoR" value="notApplicable"> Not Applicable</label>
+        <label><input type="radio" name="historyDetailNoR" value="N/A"> N/A</label>
     </form>
 
     <!-- second follow-up for no branch -->
@@ -58,12 +58,12 @@
         <label><input type="radio" name="historyDetailNoL" value="0-1"> 0-1 months</label>
         <label><input type="radio" name="historyDetailNoL" value="2-3"> 2-3 months</label>
         <label><input type="radio" name="historyDetailNoL" value="3+"> 3+ months</label>
-        <label><input type="radio" name="historyDetailNoL" value="notApplicable"> Not Applicable</label>
+        <label><input type="radio" name="historyDetailNoL" value="N/A"> N/A</label>
     </form>
 
  <div class="additionalComments">
     <h4>Additional Comments</h4>    
-    <input type="text" class="questionTextboxLong" id="commentsHistoryInput" placeholder="Type here...">
+    <input type="text" class="questionTextboxLong" id="commentsHistoryInput" placeholder="Type here..." maxlength="550">
  </div>
 
  <!--Have you experienced any of the following conditions to your right foot Select All Other Exclusive and additional comments-->
@@ -75,13 +75,13 @@
     <label><input type="checkbox" class="option"> Arthritis </label>
     <label><input type="checkbox" class="option"> Achilles Tendon Injury </label>
     <label><input type="checkbox" class="option otherOption"> Other </label>
-        <input type="text" class="other-input questionTextboxShort" id="otherRightFootInput" placeholder="Type here...">
+        <input type="text" class="other-input questionTextboxShort" id="otherRightFootInput" placeholder="Type here..." maxlength="100">
     <label class="exclusive"><input type="checkbox" class="noOption"> No </label>
  </div>
 
  <div class="additionalComments">
     <h4>Additional Comments</h4>    
-    <input type="text" class="questionTextboxLong" id="commentsConditionsRightInput" placeholder="Type here...">
+    <input type="text" class="questionTextboxLong" id="commentsConditionsRightInput" placeholder="Type here..." maxlength="550">
  </div>
 
 
@@ -94,27 +94,27 @@
     <label><input type="checkbox" class="option"> Arthritis </label>
     <label><input type="checkbox" class="option"> Achilles Tendon Injury </label>
     <label><input type="checkbox" class="option otherOption"> Other </label>
-        <input type="text" class="other-input questionTextboxShort" id="otherLeftFootInput" placeholder="Type here...">
+        <input type="text" class="other-input questionTextboxShort" id="otherLeftFootInput" placeholder="Type here..." maxlength="100">
     <label class="exclusive"><input type="checkbox" class="noOption"> No </label>
  </div>
 
  <div class="additionalComments">
     <h4>Additional Comments</h4>    
-    <input type="text" class="questionTextboxLong" id="commentsConditionsLeftInput" placeholder="Type here...">
+    <input type="text" class="questionTextboxLong" id="commentsConditionsLeftInput" placeholder="Type here..." maxlength="550">
  </div>
 
 
  <!--Have you previously had surgery to your right leg at or below the knee? Select One with additional comments-->
 
- <div class="questionSelectOne"> 
+ <div class="questionSelectOne">
     <h3>Have you previously had surgery to your right leg at or below the knee? </h3>
     <label><input type="checkbox" class="option"> Yes </label>
     <label><input type="checkbox" class="option"> No </label>
  </div>
 
  <div class="additionalComments">
-    <h4>Additional Comments</h4>    
-    <input type="text" class="questionTextboxLong" id="commentsSurgeryRightInput" placeholder="Type here...">
+    <h4>Additional Comments</h4>
+    <input type="text" class="questionTextboxLong" id="commentsSurgeryRightInput" placeholder="Type here..." maxlength="550">
  </div>
 
  <!--Have you previously had surgery to your left leg at or below the knee? Select One with additional comments-->
@@ -127,7 +127,7 @@
 
  <div class="additionalComments">
     <h4>Additional Comments</h4>    
-    <input type="text" class="questionTextboxLong" id="commentsSurgeryLeftInput" placeholder="Type here...">
+    <input type="text" class="questionTextboxLong" id="commentsSurgeryLeftInput" placeholder="Type here..." maxlength="550">
  </div>
 
 
@@ -143,13 +143,13 @@
     <label><input type="checkbox" class="option"> Brace </label>
     <label><input type="checkbox" class="option"> Insole </label>
     <label><input type="checkbox" class="option otherOption"> Medication </label>
-        <input type="text" class="other-input questionTextboxShort" id="medicationInput" placeholder="Type here...">
+        <input type="text" class="other-input questionTextboxShort" id="medicationInput" placeholder="Type here..." maxlength="550">
     <label class="exclusive"><input type="checkbox" class="noOption"> No </label>
  </div>
 
  <div class="additionalComments">
     <h4>Additional Comments</h4>
-    <input type="text" class="questionTextboxLong" id="commentsHomeTreatmentsInput" placeholder="Type here...">
+    <input type="text" class="questionTextboxLong" id="commentsHomeTreatmentsInput" placeholder="Type here..." maxlength="550">
  </div>
 
 
@@ -157,10 +157,10 @@
 
   <div class="additionalComments">
     <h3>Do you have any other relevant conditions to report?</h3>    
-    <input type="text" class="questionTextboxLong" id="commentsRelevantConditionsInput" placeholder="Type here...">
+    <input type="text" class="questionTextboxLong" id="commentsRelevantConditionsInput" placeholder="Type here..." maxlength="550">
  </div>
 
-    <button class="finishButton" onclick="verifyFieldsMed()">Finish New Patient</button>
+    <button class="finishButton" id="finishBtn">Finish New Patient</button>
 
 </div>
 

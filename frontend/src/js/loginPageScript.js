@@ -22,3 +22,7 @@ function verifyCredentials() {
 
     window.location.href = "homePage.html";
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('loginBtn').addEventListener('click', verifyCredentials);
+});

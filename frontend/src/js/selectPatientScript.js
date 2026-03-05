@@ -28,3 +28,10 @@ function verifySelection(){
     sessionStorage.setItem('selectedPatient', val);
     window.location.href = "graphDisplay.html";
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('goButton').addEventListener('click', verifySelection);
+    document.getElementById('createButton').addEventListener('click', () => window.location.href='createPatient.html');
+    document.getElementById('lookupButton').addEventListener('click', () => window.location.href='lookupPatient.html');
+    document.getElementById('editButton').addEventListener('click', () => window.location.href='editPatient.html');
+});

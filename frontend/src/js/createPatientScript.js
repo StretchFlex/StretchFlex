@@ -28,6 +28,16 @@ function verifyFieldsMed() {
         window.location.href = "selectPatient.html";
     }, { once: true });
     return true;
+
+    //create JSON object to send to backend - only includes the fields we want to keep, not necessarily all the inputs on the form
+    const medicalData = {
+        // example of how to gather data - this would need to be expanded based on the actual questions/inputs in the form
+        plantarFasciitisHistory: document.querySelector('input[name="history"]:checked')?.value || null,
+        // add more fields as needed, e.g.:
+        // symptomDuration: document.querySelector('input[name="symptomDuration"]:checked')?.value || null,
+        // painSeverity: document.querySelector('input[name="painSeverity"]:checked')?.value || null,
+        // etc.
+    };
 }
 
 
@@ -101,7 +111,44 @@ function verifyFields() {
         window.location.href = "createPatientMed.html";
     }, { once: true });
     return true;
+
+
+    //create JSON object to send to backend - only includes the fields we want to keep, not necessarily all the inputs on the form
+    const patientData = {
+        firstName: document.getElementById("fNameInput").value.trim(),
+        lastName: document.getElementById("lNameInput").value.trim(),
+        dateOfBirth: document.getElementById("dobInput").value.trim(),
+        email: document.getElementById("emailInput").value.trim(),
+        height: parseFloat(document.getElementById("heightInput").value.trim()),
+        mass: parseFloat(document.getElementById("massInput").value.trim())
+    };
+
+    // example of how to send the data to the backend using fetch
+    /*
+    fetch('/api/patients', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(patientData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+        // redirect or show success message as needed
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        // show error message as needed
+    });
+    */
+
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('createPatientBtn').addEventListener('click', verifyFields);
+    document.getElementById('finishBtn')?.addEventListener('click', verifyFieldsMed);
+});
 
 
 
