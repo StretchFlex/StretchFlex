@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS medical_history (
     patient_id SERIAL PRIMARY KEY,
     date_of_birth TEXT NOT NULL,
     sex TEXT NOT NULL,
-    hieght_m REAL,
+    height_m REAL,
     weight_kg REAL,
     BMI REAL,
     history_of_pf TEXT,
