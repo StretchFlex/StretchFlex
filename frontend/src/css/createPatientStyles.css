@@ -49,17 +49,7 @@ body {
 }
 
 
-/* Background overlay */
-#overlay {
-display: none; /* Hidden by default */
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: rgba(0, 0, 0, 0.6); /* Semi-transparent black */
-z-index: 999;
-}
+
 
 
 
