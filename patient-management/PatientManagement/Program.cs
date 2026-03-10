@@ -108,20 +108,20 @@ app.MapPost("/api/patient/medial-history", async (HttpRequest request, IConfigur
                 history_of_pf = @HistoryOfPF,
                 history_of_pf_right_foot = @RightFoot,
                 history_of_pf_left_foot = @LeftFoot,
-                history_of_pf_additional_comments = @AdditionalComments,
-                right_foot_conditions = @RightFootCondtions,
-                right_foot_conditions_additional_comments = @RightFootCondtionsAddionalComments,
-                left_foot_conditions = @LeftFootCondtions,
-                left_foot_conditions_additional_comments = @LeftFootCondtionsAddionalComments,
-                surgery_right = @SurgeryRight,
-                surgery_right_comment = @SurgeryRightComment,
-                surgery_left = @SurgeryLeft,
-                surgery_left_comment = @SurgeryLeftComment,
+                history_of_pf_additional_notes = @AdditionalComments,
+                right_foot_condition = @RightFootConditions,
+                right_foot_condition_additional_notes = @RightFootConditionsAdditionalComments,
+                left_foot_condition = @LeftFootConditions,
+                left_foot_condition_additional_notes = @LeftFootConditionsAdditionalComments,
+                surgery_right_foot = @SurgeryRight,
+                surgery_right_foot_additional_notes = @SurgeryRightComment,
+                surgery_left_foot = @SurgeryLeft,
+                surgery_left_foot_additional_notes = @SurgeryLeftComment,
                 treatments = @Treatments,
                 treatments_comments = @TreatmentsComments,
-                other_relevant_comments = @OtherRelevantComments
+                treatments_additional_notes = @OtherRelevantComments
             WHERE patient_id = @PatientId";
-        
+
         await connection.ExecuteAsync(histroySql, new
         {
             dto.PatientId,
@@ -129,17 +129,17 @@ app.MapPost("/api/patient/medial-history", async (HttpRequest request, IConfigur
             RightFoot = dto.HistoryOfPF.RightFoot,
             LeftFoot = dto.HistoryOfPF.LeftFoot,
             AdditionalComments = dto.HistoryOfPF.AdditionalComments,
-            RightFootCondtions = dto.RightFootCondtions.Condtions,
-            RightFootCondtionsAddionalComments = dto.RightFootCondtions.AddionalComments,
-            LeftFootCondtions = dto.LeftFootCondtions.Condtions,
-            LeftFootCondtionsAddionalComments = dto.LeftFootCondtions.AddionalComments,
-            SurgeryRight = dto.SurgeryRight,
-            SurgeryRightComment = dto.SurgeryRightComment,
-            SurgeryLeft = dto.SurgeryLeft,
-            SurgeryLeftComment = dto.SurgeryLeftComment,
-            Treatments = dto.Treatments,
-            TreatmentsComments = dto.TreatmentsComments,
-            OtherRelevantComments = dto.OtherRelevantComments
+            RightFootConditions = dto.RightFootConditions.Conditions,
+            RightFootConditionsAdditionalComments = dto.RightFootConditions.AdditionalComments,
+            LeftFootConditions = dto.LeftFootConditions.Conditions,
+            LeftFootConditionsAdditionalComments = dto.LeftFootConditions.AdditionalComments,
+            dto.SurgeryRight,
+            dto.SurgeryRightComment,
+            dto.SurgeryLeft,
+            dto.SurgeryLeftComment,
+            dto.Treatments,
+            dto.TreatmentsComments,
+            dto.OtherRelevantComments
         });
 
         Log.Information("Medical history updated for patient ID {PatientId}", dto.PatientId);
