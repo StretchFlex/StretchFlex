@@ -201,8 +201,8 @@ function verifyFields() {
         height: parseFloat(document.querySelector('[name="height"]').value.trim()),
         mass: parseFloat(document.querySelector('[name="mass"]').value.trim())
     };
-    console.log("Validated patient JSON:", patientData);
-    alert("Patient created successfully!");
+    console.log("Patient Personal Info JSON:", patientData);
+    alert("Patient personal information submitted successfully!");
     window.location.href = "createPatientMed.html";
     return true;
 }
