@@ -152,4 +152,35 @@ app.MapPost("/api/patient/medial-history", async (HttpRequest request, IConfigur
     }
 });
 
+app.MapGet("/api/patient/find/id/{firstName}-{lastName}", async (string firstName, string lastName) =>
+{
+    try
+    {
+        using var connection = new Npgsql.NpgsqlConnection(connectionString);
+        var sql = @"
+            SELECT p.patient_id AS PatientId, 
+                   p.first_name AS FirstName, 
+                   p.last_name AS LastName, 
+                   mh.date_of_birth AS DateOfBirth
+            FROM stretchflex_db.patients p
+            JOIN stretchflex_db.medical_history mh ON p.patient_id = mh.patient_id
+            WHERE LOWER(p.first_name) = LOWER(@FirstName) AND LOWER(p.last_name) = LOWER(@LastName)";
+        
+        var patients = await connection.QueryAsync<PatientResponse>(sql, new { FirstName = firstName, LastName = lastName });
+        
+        if (!patients.Any())
+        {
+            Log.Warning("Patient not found.");
+            return Results.NotFound("Patient not found.");
+        }
+
+        return Results.Ok(patients);
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error processing request.");
+        return Results.StatusCode(500);
+    }
+});
+
 app.Run();

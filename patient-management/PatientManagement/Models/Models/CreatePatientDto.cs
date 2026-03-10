@@ -8,3 +8,11 @@ public class CreatePatientDto
     public float Mass { get; set; }
     public float BMI { get; set; }
 }
+
+public class PatientResponse
+{
+    public int PatientId { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? DateOfBirth { get; set; }
+}
