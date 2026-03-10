@@ -39,7 +39,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.MapPost("/api/data/create", async (HttpRequest request) =>
+app.MapPost("/api/patient/create", async (HttpRequest request) =>
 {
     try
     {
