@@ -30,10 +30,13 @@ const patientPersonalInfoFormSchema = [
         name: "email",
         label: "Email Address",
         type: "string",
+        autocomplete:"email",
         required: true,
         id: "emailInput",
         placeholder: "Type here...",
-        maxLength: 100
+        maxLength: 100,
+        pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
     },
     {
         name: "sex",
@@ -41,6 +44,7 @@ const patientPersonalInfoFormSchema = [
         type: "single-choice",
         options: ["male", "female", "RND"],
         required: true
+       
     },
     {
         name: "height",
@@ -65,15 +69,44 @@ const patientPersonalInfoFormSchema = [
 const form = document.getElementById("patientPersonalInfoForm");
 
 function createQuestion(field) {
+    const fieldId = field.id || `${field.name}Input`;
     const wrapper = document.createElement("div");
     wrapper.style.marginBottom = "15px";
     if (field.type === "single-choice") wrapper.classList.add("questionSelectOne");
 
+    // radio groups are better handled with a fieldset/legend
+    if (field.type === "single-choice") {
+        const fieldset = document.createElement("fieldset");
+        const legend = document.createElement("legend");
+        legend.textContent = field.label;
+        fieldset.appendChild(legend);
+
+        field.options.forEach(opt => {
+            const lbl = document.createElement("label");
+            // display:block will stack options vertically; CSS also enforces spacing
+            //lbl.style.display = "inline-block";
+
+            const radio = document.createElement("input");
+            radio.type = "radio";
+            radio.name = field.name;
+            radio.value = opt;
+            const radioId = `${field.name}_${opt}`;
+            radio.id = radioId;
+            lbl.htmlFor = radioId;
+
+            lbl.appendChild(radio);
+            lbl.appendChild(document.createTextNode(" " + opt));
+            fieldset.appendChild(lbl);
+        });
+
+        wrapper.appendChild(fieldset);
+        return wrapper;
+    }
+
     const label = document.createElement("label");
-    if (field.id) label.setAttribute("for", field.id);
-    label.textContent = field.label; // no colon
+    label.htmlFor = fieldId;
+    label.textContent = field.label;
     wrapper.appendChild(label);
-    // ensure questions appear below the label
     wrapper.appendChild(document.createElement("br"));
 
     if (field.type === "string" || field.type === "float" || field.type === "date") {
@@ -84,11 +117,12 @@ function createQuestion(field) {
                 : field.type === "date"
                 ? "text"
                 : "text";
-        if (field.id) input.id = field.id;
+        input.id = fieldId;
         input.name = field.name;
         if (field.placeholder) input.placeholder = field.placeholder;
         if (field.maxLength) input.maxLength = field.maxLength;
         if (field.step) input.step = field.step;
+        input.autocomplete = field.autocomplete || "off";
         wrapper.appendChild(input);
 
         if (field.type === "date") {
@@ -101,14 +135,6 @@ function createQuestion(field) {
             wrapper.appendChild(btn);
             wrapper.classList.add("date-picker-wrapper");
         }
-    } else if (field.type === "single-choice") {
-        field.options.forEach(opt => {
-            const lbl = document.createElement("label");
-            // keep text beside the control
-            lbl.style.display = "inline-block";
-            lbl.innerHTML = `<input type="radio" name="${field.name}" value="${opt}"> ${opt}`;
-            wrapper.appendChild(lbl);
-        });
     }
 
     return wrapper;

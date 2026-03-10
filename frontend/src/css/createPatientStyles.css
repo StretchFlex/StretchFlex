@@ -145,6 +145,13 @@ label {
 .questionSelectOne.hidden-question {
     display: none !important;
 }
+/* ensure each option within question blocks is on its own line */
+.questionSelectOne label,
+.questionSelectAllOtherExclusive label {
+    display: block;
+    margin-bottom: 5px;
+}
+/* fieldset/legend structure from createPatientScript.js already stacks options by default */
 
 
 .questionSelectAllOtherExclusive {

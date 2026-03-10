@@ -114,7 +114,8 @@ function createQuestion(field) {
         wrapper.classList.add("questionSelectOne");
         field.options.forEach(opt => {
             const lbl = document.createElement("label");
-            lbl.style.display = "inline-block";
+            // stack vertically instead of inline
+            //lbl.style.display = "inline-block";
             lbl.innerHTML = `<input type="radio" name="${field.name}" value="${opt}"> ${opt}`;
             wrapper.appendChild(lbl);
         });
@@ -122,7 +123,8 @@ function createQuestion(field) {
         wrapper.classList.add("questionSelectAllOtherExclusive");
         field.options.forEach(opt => {
             const lbl = document.createElement("label");
-            lbl.style.display = "inline-block";
+            // vertical stack
+            //lbl.style.display = "inline-block";
             lbl.innerHTML = `<input type="checkbox" name="${field.name}" value="${opt}"> ${opt}`;
             wrapper.appendChild(lbl);
         });
