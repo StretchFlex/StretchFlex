@@ -1,6 +1,6 @@
 // form builder/validation for medical questionnaire
 
-const medFormSchema = [
+const patientMedicalInfoFormSchema = [
     // base question with follow‑ups depending on answer
     {
         name: "historyPF",
@@ -83,7 +83,7 @@ const medFormSchema = [
     }
 ];
 
-const form = document.getElementById("userForm");
+const form = document.getElementById("patientMedicalInfoForm");
 
 // helper that creates a single question block and wires dependency metadata
 function createQuestion(field) {
@@ -143,7 +143,7 @@ function createQuestion(field) {
 }
 
 // build the form on load
-medFormSchema.forEach(field => {
+patientMedicalInfoFormSchema.forEach(field => {
     form.appendChild(createQuestion(field));
 });
 
@@ -152,7 +152,7 @@ refreshDependencies();
 
 // show/hide dependent questions
 function refreshDependencies() {
-    medFormSchema.forEach(field => {
+    patientMedicalInfoFormSchema.forEach(field => {
         if (!field.dependsOn) return;
         const wrappers = form.querySelectorAll(
             `div[data-depends-field="${field.dependsOn.field}"][data-depends-value="${field.dependsOn.value}"]`
@@ -249,7 +249,7 @@ document.getElementById("finishBtn").addEventListener("click", function () {
     if (!verifyFieldsMed()) return;
 
     const jsonData = {};
-    medFormSchema.forEach(field => {
+    patientMedicalInfoFormSchema.forEach(field => {
         // skip hidden questions when building data
         const elementWrapper = form.querySelector(
             `[name="${field.name}"]`
@@ -287,10 +287,10 @@ document.getElementById("finishBtn").addEventListener("click", function () {
         jsonData[field.name] = value;
     });
 
-    console.log("Validated medical JSON:", jsonData);
+    console.log("Patient Medical Info JSON:", jsonData);
     document.getElementById("output").textContent =
         JSON.stringify({ user: jsonData }, null, 4);
 
-    alert("Patient created successfully!");
+    alert("Patient medical information submitted successfully!");
     window.location.href = "selectPatient.html";
 });
