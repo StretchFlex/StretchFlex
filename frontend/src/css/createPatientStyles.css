@@ -7,6 +7,11 @@ body {
 
 /* Create Patient Button and Finish Patient Button*/
 
+.other-text {
+    display: none;
+    margin-left: 20px;
+}
+
 .finishButton,
 .createButton {
     background-color: #007e93;
@@ -64,98 +69,14 @@ label {
     margin-bottom: 5px;
 }
 
-/*makes text boxes center on page*/
-.flex-container-cP { 
- display: block; /* Keep this as it is to make container start after the body text -KW */
- justify-content: center; /* Horizontal center */ 
- align-items: center; /* Vertical center */ 
- height: 100px; /* Container height */ 
- border: none; 
- margin-top: 20px;
-}
 
 
-/* For new modal trial */
-.continueButton {
-    background-color: #00930c;
-    color: #f9f9f9;
-    border-radius: 6px;
-    cursor: pointer;
-    padding: 8px 18px;
-    transition: background-color 0.3s ease, transform 0.1s ease;
-}
-
-.continueButton:hover {
-    background-color: #00b41a; /* Slightly lighter */
-    transform: scale(1.03);    /* Slightly enlarge */
-}
-
-.errorButton {
-    background-color: #e70909;
-    color: #f9f9f9;
-    border-radius: 6px;
-    cursor: pointer;
-    padding: 8px 18px;
-    transition: background-color 0.3s ease, transform 0.1s ease;
-}
-
-.errorButton:hover {
-    background-color: #c91515; /* Slightly darker */
-    transform: scale(1.03);    /* Slightly enlarge */
-}   
-
-.doneButton {
-    background-color: #00930c;
-    color: #f9f9f9;
-    border-radius: 6px;
-    cursor: pointer;
-    padding: 8px 18px;
-    transition: background-color 0.3s ease, transform 0.1s ease;
-}
-
-.doneButton:hover {
-    background-color: #00b41a; /* Slightly lighter */
-    transform: scale(1.03);    /* Slightly enlarge */
-}
-
-.continueModal .modal-header {
-    background-color: #28a745;
-    color: white;
-    border-bottom: none;
-}
-
-.continueModal .modal-body {
-    font-size: 16px;
-    color: #333;
-}
-
-.errorModal .modal-header {
-    background-color: #e70909;
-    color: white;
-    border-bottom: none;
-}   
-
-.errorModal .modal-body {
-    font-size: 16px;
-    color: #333;
-}   
-
-.doneModal .modal-header {
-    background-color: #28a745;
-    color: white;
-    border-bottom: none;
-}   
-
-.doneModal .modal-body {
-    font-size: 16px;
-    color: #333;
-}
 
 
 
 
 /* Textbox question */
-.questionTextboxShort { /* Type 0 is text box - make edits to this container to change the positioning of the text boxes within the flex box -KW */
+.questionTextboxShort { 
  display: flex;
  flex-direction: column;
  margin-bottom: 10px; /* Space between boxes */
