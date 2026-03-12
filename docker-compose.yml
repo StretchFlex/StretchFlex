@@ -50,6 +50,7 @@ services:
       - frontend
       - kibana
       - data-ingest
+      - patient-management
     networks:
       - stretchflex-network
     deploy:

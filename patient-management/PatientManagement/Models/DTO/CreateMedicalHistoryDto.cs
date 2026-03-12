@@ -24,7 +24,7 @@ public class Surgery
 public class OtherTreatments
 {
     public string? Treatments { get; set; }
-    [JsonPropertyName("comments")]
+    [JsonPropertyName("treatmentsComments")]
     public string? TreatmentsComments { get; set; }
 }
 
@@ -34,11 +34,11 @@ public class CreateMedicalHistoryDto
     public HistoryOfPF? HistoryOfPF { get; set; }
     public FootConditions? RightFootConditions { get; set; }
     public FootConditions? LeftFootConditions { get; set; }
-    [JsonPropertyName("surgeryRight")]
+    [JsonPropertyName("surgeryRightFoot")]
     public Surgery? SurgeryRight { get; set; }
-    [JsonPropertyName("surgeryLeft")]
+    [JsonPropertyName("surgeryLeftFoot")]
     public Surgery? SurgeryLeft { get; set; }
-    [JsonPropertyName("treatments")]
+    [JsonPropertyName("otherTreatments")]
     public OtherTreatments? Treatments { get; set; }
     public string? OtherRelevantComments { get; set; }
 }

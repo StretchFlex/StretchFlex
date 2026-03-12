@@ -53,7 +53,7 @@ app.MapPost("/api/patient/create", async (HttpRequest request) =>
         using var connection = new Npgsql.NpgsqlConnection(connectionString);
 
         var patientSQL = @"
-            INSERT INTO patients (first_name, last_name, email)
+            INSERT INTO stretchflex_db.patients (first_name, last_name, email)
             VALUES (@firstName, @lastName, @email)
             RETURNING patient_id
             ";
@@ -66,19 +66,19 @@ app.MapPost("/api/patient/create", async (HttpRequest request) =>
         });
 
         var histroySql = @"
-            INSERT INTO medical_history (patient_id, date_of_birth, sex, height_m, weight_kg, BMI)
+            INSERT INTO stretchflex_db.medical_history (patient_id, date_of_birth, sex, height_m, weight_kg, bmi)
             VALUES
-            (@patientId, @DateOfBirth, @Sex, @Height, @Mass, @BMI)
+            (@patientId, @dateOfBirth, @sex, @height, @mass, @bmi)
             ";
 
         await connection.ExecuteAsync(histroySql, new
         {
             patientId,
-            dto.DateOfBirth,
-            dto.Sex,
-            dto.Height,
-            dto.Mass,
-            dto.BMI
+            dto.dateOfBirth,
+            dto.sex,
+            dto.height,
+            dto.mass,
+            dto.bmi
         });
 
         Log.Information("Patient created with ID {PatientId}", patientId);
@@ -91,7 +91,7 @@ app.MapPost("/api/patient/create", async (HttpRequest request) =>
     }
 });
 
-app.MapPost("/api/patient/medial-history", async (HttpRequest request, IConfiguration config) =>
+app.MapPost("/api/patient/medical-history", async (HttpRequest request, IConfiguration config) =>
 {
     try
     {
@@ -105,7 +105,7 @@ app.MapPost("/api/patient/medial-history", async (HttpRequest request, IConfigur
         using var connection = new Npgsql.NpgsqlConnection(connectionString);
 
         var histroySql = @"
-            UPDATE medical_history SET
+            UPDATE stretchflex_db.medical_history SET
                 history_of_pf = @HistoryOfPF,
                 history_of_pf_right_foot = @RightFoot,
                 history_of_pf_left_foot = @LeftFoot,
@@ -165,9 +165,9 @@ app.MapGet("/api/patient/find/id/{firstName}-{lastName}", async (string firstNam
                    mh.date_of_birth AS DateOfBirth
             FROM stretchflex_db.patients p
             JOIN stretchflex_db.medical_history mh ON p.patient_id = mh.patient_id
-            WHERE LOWER(p.first_name) = LOWER(@FirstName) AND LOWER(p.last_name) = LOWER(@LastName)";
+            WHERE LOWER(p.first_name) = LOWER(@firstName) AND LOWER(p.last_name) = LOWER(@lastName)";
         
-        var patients = await connection.QueryAsync<PatientResponse>(sql, new { FirstName = firstName, LastName = lastName });
+        var patients = await connection.QueryAsync<PatientResponse>(sql, new { firstName, lastName });
         
         if (!patients.Any())
         {
