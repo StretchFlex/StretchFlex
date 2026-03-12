@@ -162,7 +162,8 @@ app.MapGet("/api/patient/find/id/{firstName}-{lastName}", async (string firstNam
             SELECT p.patient_id AS PatientId, 
                    p.first_name AS FirstName, 
                    p.last_name AS LastName, 
-                   mh.date_of_birth AS DateOfBirth
+                   mh.date_of_birth AS DateOfBirth,
+                   p.email AS Email
             FROM stretchflex_db.patients p
             JOIN stretchflex_db.medical_history mh ON p.patient_id = mh.patient_id
             WHERE LOWER(p.first_name) = LOWER(@firstName) AND LOWER(p.last_name) = LOWER(@lastName)";
