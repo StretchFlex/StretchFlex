@@ -2,7 +2,7 @@
 
 const patientPersonalInfoFormSchema = [
     {
-        name: "fName",
+        name: "firstName",
         label: "First Name",
         type: "string",
         required: true,
@@ -11,20 +11,13 @@ const patientPersonalInfoFormSchema = [
         maxLength: 20
     },
     {
-        name: "lName",
+        name: "lastName",
         label: "Last Name",
         type: "string",
         required: true,
         id: "lNameInput",
         placeholder: "Type here...",
         maxLength: 20
-    },
-    {
-        name: "dob",
-        label: "Date of Birth",
-        type: "date",
-        required: true,
-        id: "dobInput"
     },
     {
         name: "email",
@@ -37,6 +30,13 @@ const patientPersonalInfoFormSchema = [
         maxLength: 100,
         pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
+    },
+    {
+        name: "dateOfBirth",
+        label: "Date of Birth",
+        type: "date",
+        required: true,
+        id: "dobInput"
     },
     {
         name: "sex",
@@ -61,6 +61,15 @@ const patientPersonalInfoFormSchema = [
         type: "float",
         required: true,
         id: "massInput",
+        placeholder: "Type here...",
+        step: "0.01"
+    },
+    {
+        name: "bmi",
+        label: "BMI (kg/m²)",
+        type: "float",
+        required: true,
+        id: "bmiInput",
         placeholder: "Type here...",
         step: "0.01"
     }

@@ -1,50 +1,54 @@
 // form builder/validation for medical questionnaire
 
 const patientMedicalInfoFormSchema = [
-    // base question with follow‑ups depending on answer
-    {
-        name: "historyPF",
+    // history of plantar fasciitis section
+    { // historyOfPF
+        name: "responseOfHistory",
         label: "Do you have a history of Plantar Fasciitis?",
         type: "single-choice",
         options: ["Yes", "No"],
         required: true
     },
+    // if yes: time since diagnosis
     {
-        name: "historyDetailR_yes",
+        name: "rightFoot",
         label: "How long since your diagnosis in your right foot?",
         type: "single-choice",
         options: ["0-1 years", "2-3 years", "4-5 years", "6+ years", "N/A"],
-        dependsOn: { field: "historyPF", value: "Yes" }
+        dependsOn: { field: "responseOfHistory", value: "Yes" }
     },
     {
-        name: "historyDetailL_yes",
+        name: "leftFoot",
         label: "How long since your diagnosis in your left foot?",
         type: "single-choice",
         options: ["0-1 years", "2-3 years", "4-5 years", "6+ years", "N/A"],
-        dependsOn: { field: "historyPF", value: "Yes" }
+        dependsOn: { field: "responseOfHistory", value: "Yes" }
     },
+    // if no: pain duration questions reuse same names so hidden logic skips them when not applicable
     {
-        name: "historyDetailR_no",
+        name: "rightFoot",
         label: "How long have you experienced pain or discomfort in your right foot?",
         type: "single-choice",
         options: ["0-1 months", "2-3 months", "4-5 months", "6+ months", "N/A"],
-        dependsOn: { field: "historyPF", value: "No" }
+        dependsOn: { field: "responseOfHistory", value: "No" }
     },
     {
-        name: "historyDetailL_no",
+        name: "leftFoot",
         label: "How long have you experienced pain or discomfort in your left foot?",
         type: "single-choice",
         options: ["0-1 months", "2-3 months", "4-5 months", "6+ months", "N/A"],
-        dependsOn: { field: "historyPF", value: "No" }
+        dependsOn: { field: "responseOfHistory", value: "No" }
     },
     {
-        name: "add",
+        name: "historyAdditionalComments",
         label: "Additional Comments",
         type: "string",
-        required: false
+        required: false,
+        maxLength: 550
     },
+    // right foot conditions
     {
-        name: "conditionsR",
+        name: "rightConditions",
         label: "Have you experienced any of the following conditions to your Right Foot?",
         type: "multi-choice",
         options: ["Sprain", "Fracture or Break", "Arthritis", "Achilles Tendon Injury", "no"],
@@ -52,7 +56,15 @@ const patientMedicalInfoFormSchema = [
         required: true
     },
     {
-        name: "conditionsL",
+        name: "rightConditionsComments",
+        label: "Additional Comments",
+        type: "string",
+        required: false,
+        maxLength: 550
+    },    
+    // left foot conditions
+    {
+        name: "leftConditions",
         label: "Have you experienced any of the following conditions to your Left Foot?",
         type: "multi-choice",
         options: ["Sprain", "Fracture or Break", "Arthritis", "Achilles Tendon Injury", "no"],
@@ -60,26 +72,63 @@ const patientMedicalInfoFormSchema = [
         required: true
     },
     {
-        name: "surgeryR",
+        name: "leftConditionsComments",
+        label: "Additional Comments",
+        type: "string",
+        required: false,
+        maxLength: 550
+    },    
+    // surgeries
+    {
+        name: "surgeryRight",
         label: "Have you previously had surgery to your right leg at or below the knee?",
         type: "single-choice",
         options: ["Yes", "No"],
         required: true
     },
     {
-        name: "surgeryL",
+        name: "surgeryRightComments",
+        label: "Additional Comments",
+        type: "string",
+        required: false,
+        maxLength: 550
+    },    
+    {
+        name: "surgeryLeft",
         label: "Have you previously had surgery to your left leg at or below the knee?",
         type: "single-choice",
         options: ["Yes", "No"],
         required: true
     },
     {
-        name: "homeTreatments",
+        name: "surgeryLeftComments",
+        label: "Additional Comments",
+        type: "string",
+        required: false,
+        maxLength: 550
+    },
+    // treatments
+    {
+        name: "treatments",
         label: "Are you currently using any of the following at home treatments?",
         type: "multi-choice",
         options: ["option1", "option2"],
         allowOther: true,
         required: true
+    },
+    {
+        name: "treatmentsComments",
+        label: "Additional Comments",
+        type: "string",
+        required: false,
+        maxLength: 550
+    },
+    {
+        name: "otherRelevantComments",
+        label: "Do you have any other relevant conditions to report?",
+        type: "string",
+        required: false,
+        maxLength: 550
     }
 ];
 
@@ -289,9 +338,41 @@ document.getElementById("finishBtn").addEventListener("click", function () {
         jsonData[field.name] = value;
     });
 
-    console.log("Patient Medical Info JSON:", jsonData);
+    // reformat into the nested object required by back end / user request
+    const outputObject = {
+        patientId: 1,
+        historyOfPF: {
+            responseOfHistory: jsonData.responseOfHistory || "",
+            rightFoot: jsonData.rightFoot || "",
+            leftFoot: jsonData.leftFoot || "",
+            additionalComments: jsonData.historyAdditionalComments || ""
+        },
+        rightFootConditions: {
+            conditions: jsonData.rightConditions || "",
+            additionalComments: jsonData.rightConditionsComments || ""
+        },
+        leftFootConditions: {
+            conditions: jsonData.leftConditions || "",
+            additionalComments: jsonData.leftConditionsComments || ""
+        },
+        surgeryRightFoot: {
+            surgery: jsonData.surgeryRight || "",
+            additionalComments: jsonData.surgeryRightComments || ""
+        },
+        surgeryLeftFoot: {
+            surgery: jsonData.surgeryLeft || "",
+            additionalComments: jsonData.surgeryLeftComments || ""
+        },
+        otherTreatments: {
+            treatments: jsonData.treatments || "",
+            treatmentsComments: jsonData.treatmentsComments || ""
+        },
+        otherRelevantComments: jsonData.otherRelevantComments || ""
+    };
+
+    console.log("Patient Medical Info JSON:", outputObject);
     document.getElementById("output").textContent =
-        JSON.stringify({ user: jsonData }, null, 4);
+        JSON.stringify(outputObject, null, 4);
 
     alert("Patient medical information submitted successfully!");
     window.location.href = "selectPatient.html";
