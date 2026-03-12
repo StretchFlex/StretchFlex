@@ -51,7 +51,7 @@ const patientMedicalInfoFormSchema = [
         name: "rightConditions",
         label: "Have you experienced any of the following conditions to your Right Foot?",
         type: "multi-choice",
-        options: ["Sprain", "Fracture or Break", "Arthritis", "Achilles Tendon Injury", "no"],
+        options: ["Sprain", "Fracture or Break", "Arthritis", "Achilles Tendon Injury", "No"],
         allowOther: true,
         required: true
     },
@@ -67,7 +67,7 @@ const patientMedicalInfoFormSchema = [
         name: "leftConditions",
         label: "Have you experienced any of the following conditions to your Left Foot?",
         type: "multi-choice",
-        options: ["Sprain", "Fracture or Break", "Arthritis", "Achilles Tendon Injury", "no"],
+        options: ["Sprain", "Fracture or Break", "Arthritis", "Achilles Tendon Injury", "No"],
         allowOther: true,
         required: true
     },
@@ -112,8 +112,7 @@ const patientMedicalInfoFormSchema = [
         name: "treatments",
         label: "Are you currently using any of the following at home treatments?",
         type: "multi-choice",
-        options: ["option1", "option2"],
-        allowOther: true,
+        options: ["Rest", "Stretch", "Ice", "Compression", "Elevation", "Brace", "Insole", "Medication", "No"],
         required: true
     },
     {
@@ -240,13 +239,13 @@ form.addEventListener("change", function (e) {
         }
     }
 
-    // enforce "no" checkbox exclusivity in multi-choice groups
+    // enforce "No" checkbox exclusivity in multi-choice groups
     if (e.target.type === "checkbox") {
         const name = e.target.name;
         const value = e.target.value.toLowerCase();
         if (value === "no" && e.target.checked) {
             // uncheck every other option in the same group
-            form.querySelectorAll(`input[name="${name}"]:not([value="no"])`).forEach(cb => cb.checked = false);
+            form.querySelectorAll(`input[name="${name}"]:not([value="No"])`).forEach(cb => cb.checked = false);
             // also hide/clear any "other" text inputs in the group
             form.querySelectorAll(`input[name="${name}"].other-option`).forEach(otherCb => {
                 const textField = otherCb.closest("label").nextElementSibling;
@@ -257,8 +256,8 @@ form.addEventListener("change", function (e) {
                 }
             });
         } else if (e.target.checked) {
-            // if any other option is checked, uncheck the no box
-            const noBox = form.querySelector(`input[name="${name}"][value="no"]`);
+            // if any other option is checked, uncheck the "No" box
+            const noBox = form.querySelector(`input[name="${name}"][value="No"]`);
             if (noBox) noBox.checked = false;
         }
     }
