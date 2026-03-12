@@ -53,15 +53,16 @@ app.MapPost("/api/patient/create", async (HttpRequest request) =>
         using var connection = new Npgsql.NpgsqlConnection(connectionString);
 
         var patientSQL = @"
-            INSERT INTO patients (first_name, last_name)
-            VALUES (@firstName, @lastName)
+            INSERT INTO patients (first_name, last_name, email)
+            VALUES (@firstName, @lastName, @email)
             RETURNING patient_id
             ";
         
         var patientId = await connection.ExecuteScalarAsync<int>(patientSQL, new
         {
             dto.firstName,
-            dto.lastName
+            dto.lastName,
+            dto.email
         });
 
         var histroySql = @"
@@ -119,27 +120,27 @@ app.MapPost("/api/patient/medial-history", async (HttpRequest request, IConfigur
                 surgery_left_foot_additional_notes = @SurgeryLeftComment,
                 treatments = @Treatments,
                 treatments_comments = @TreatmentsComments,
-                treatments_additional_notes = @OtherRelevantComments
+                other_relevant_comments = @OtherRelevantComments
             WHERE patient_id = @PatientId";
 
         await connection.ExecuteAsync(histroySql, new
         {
             dto.PatientId,
-            HistoryOfPF = dto.HistoryOfPF.ResponseOfHistory,
-            RightFoot = dto.HistoryOfPF.RightFoot,
-            LeftFoot = dto.HistoryOfPF.LeftFoot,
-            AdditionalComments = dto.HistoryOfPF.AdditionalComments,
-            RightFootConditions = dto.RightFootConditions.Conditions,
-            RightFootConditionsAdditionalComments = dto.RightFootConditions.AdditionalComments,
-            LeftFootConditions = dto.LeftFootConditions.Conditions,
-            LeftFootConditionsAdditionalComments = dto.LeftFootConditions.AdditionalComments,
-            dto.SurgeryRight,
-            dto.SurgeryRightComment,
-            dto.SurgeryLeft,
-            dto.SurgeryLeftComment,
-            dto.Treatments,
-            dto.TreatmentsComments,
-            dto.OtherRelevantComments
+            HistoryOfPF = dto.HistoryOfPF?.ResponseOfHistory,
+            RightFoot = dto.HistoryOfPF?.RightFoot,
+            LeftFoot = dto.HistoryOfPF?.LeftFoot,
+            AdditionalComments = dto.HistoryOfPF?.AdditionalComments,
+            RightFootConditions = dto.RightFootConditions?.Conditions,
+            RightFootConditionsAdditionalComments = dto.RightFootConditions?.AdditionalComments,
+            LeftFootConditions = dto.LeftFootConditions?.Conditions,
+            LeftFootConditionsAdditionalComments = dto.LeftFootConditions?.AdditionalComments,
+            SurgeryRight = dto.SurgeryRight?.SurgeryPerformed,
+            SurgeryRightComment = dto.SurgeryRight?.AdditionalComments,
+            SurgeryLeft = dto.SurgeryLeft?.SurgeryPerformed,
+            SurgeryLeftComment = dto.SurgeryLeft?.AdditionalComments,
+            Treatments = dto.Treatments?.Treatments,
+            TreatmentsComments = dto.Treatments?.TreatmentsComments,
+            OtherRelevantComments = dto.OtherRelevantComments
         });
 
         Log.Information("Medical history updated for patient ID {PatientId}", dto.PatientId);

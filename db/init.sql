@@ -8,7 +8,8 @@ SET search_path TO stretchflex_db;
 CREATE TABLE IF NOT EXISTS patients (
     patient_id SERIAL PRIMARY KEY,
     first_name TEXT NOT NULL,
-    last_name TEXT NOT NULL
+    last_name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE
 );
 
 ---------------------------------------------------
@@ -35,7 +36,7 @@ CREATE TABLE IF NOT EXISTS medical_history (
     surgery_left_foot_additional_notes TEXT,
     treatments TEXT,
     treatments_comments TEXT,
-    treatments_additional_notes TEXT,
+    other_relevant_comments TEXT,
     FOREIGN KEY (patient_id) REFERENCES patients(patient_id)
 );
 
@@ -54,8 +55,8 @@ ON medical_history(patient_id);
 ---------------------------------------------------
 -- OPTIONAL DEFAULT DATA
 ---------------------------------------------------
-INSERT INTO patients (first_name, last_name)
-VALUES ('Test', 'Patient')
+INSERT INTO patients (first_name, last_name, email)
+VALUES ('Test', 'Patient', 'test.patient@example.com')
 ON CONFLICT DO NOTHING;
 
 INSERT INTO medical_history (patient_id, date_of_birth, sex)
