@@ -23,6 +23,20 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+  
+  patient-management:
+    image: stretchflex-patient-management
+    expose:
+      - "5000"
+    networks:
+      - stretchflex-network
+    secrets:
+      - db_user
+      - db_password
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
 
   nginx:
     image: nginx:1.25-alpine
@@ -36,6 +50,7 @@ services:
       - frontend
       - kibana
       - data-ingest
+      - patient-management
     networks:
       - stretchflex-network
     deploy:
@@ -102,6 +117,7 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
       POSTGRES_DB: patient_database
     volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
       - postgres-data:/var/lib/postgresql/data
     networks:
       - stretchflex-network
