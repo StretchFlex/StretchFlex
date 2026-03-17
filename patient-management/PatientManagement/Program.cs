@@ -3,6 +3,8 @@ using Serilog.Sinks.Elasticsearch;
 using Microsoft.AspNetCore.Http.Features;
 using Dapper;
 using Npgsql;
+using System.Security.Cryptography.X509Certificates;
+using System.Runtime.CompilerServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -181,6 +183,246 @@ app.MapGet("/api/patient/find/id/{firstName}-{lastName}", async (string firstNam
     catch (Exception ex)
     {
         Log.Error(ex, "Error processing request.");
+        return Results.StatusCode(500);
+    }
+});
+
+
+app.MapGet("/api/patient/personal/{id}", async (int id) =>
+{
+    try
+    {
+        using var connection = new Npgsql.NpgsqlConnection(connectionString);
+
+        var sql = @"
+            SELECT 
+                p.first_name,
+                p.last_name,
+                p.email,
+                mh.date_of_birth,
+                mh.sex,
+                mh.height_m,
+                mh.weight_kg,
+                mh.bmi
+            FROM stretchflex_db.patients p
+            INNER JOIN stretchflex_db.medical_history mh 
+                ON p.patient_id = mh.patient_id
+            WHERE p.patient_id = @id
+        ";
+
+        var patient = await connection.QuerySingleOrDefaultAsync<PatientPersonalInfoResponseDto>(sql, new { id });
+
+        if (patient == null)
+        {
+            Log.Warning("Patient with ID {PatientId} not found.", id);
+            return Results.NotFound($"Patient with ID {id} not found.");
+        }
+
+        Log.Information("Patient personal info with ID {PatientId} retrieved.", id);
+        return Results.Ok(patient);
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error retrieving patient.");
+        return Results.StatusCode(500);
+    }
+});
+
+app.MapGet("/api/patient/medical-history/{id}", async (int id) =>
+{
+    try
+    {
+        using var connection = new Npgsql.NpgsqlConnection(connectionString);
+        var sql = @"
+            SELECT
+                mh.history_of_pf,
+                mh.history_of_pf_right_foot,
+                mh.history_of_pf_left_foot,
+                mh.history_of_pf_additional_notes,
+                mh.right_foot_condition,
+                mh.right_foot_condition_additional_notes,
+                mh.left_foot_condition,
+                mh.left_foot_condition_additional_notes,
+                mh.surgery_right_foot,
+                mh.surgery_right_foot_additional_notes,
+                mh.surgery_left_foot,
+                mh.surgery_left_foot_additional_notes,
+                mh.treatments,
+                mh.treatments_comments,
+                mh.other_relevant_comments
+            FROM stretchflex_db.medical_history mh
+            WHERE mh.patient_id = @id";
+
+        var row = await connection.QuerySingleOrDefaultAsync<MedicalHistoryRow>(sql, new { id });
+
+        if (row == null)
+        {
+            Log.Warning("Patient with ID {PatientId} not found.", id);
+            return Results.NotFound($"Patient with ID {id} not found.");
+        }
+
+        var response = new PatientMedicalInfoResponseDto
+        {
+            PatientId = id,
+            HistoryOfPF = new HistoryOfPF
+            {
+                ResponseOfHistory = row.history_of_pf,
+                RightFoot = row.history_of_pf_right_foot,
+                LeftFoot = row.history_of_pf_left_foot,
+                AdditionalComments = row.history_of_pf_additional_notes
+            },
+            RightFootConditions = new FootConditions
+            {
+                Conditions = row.right_foot_condition,
+                AdditionalComments = row.right_foot_condition_additional_notes
+            },
+            LeftFootConditions = new FootConditions
+            {
+                Conditions = row.left_foot_condition,
+                AdditionalComments = row.left_foot_condition_additional_notes
+            },
+            SurgeryRight = new Surgery
+            {
+                SurgeryPerformed = row.surgery_right_foot,
+                AdditionalComments = row.surgery_right_foot_additional_notes
+            },
+            SurgeryLeft = new Surgery
+            {
+                SurgeryPerformed = row.surgery_left_foot,
+                AdditionalComments = row.surgery_left_foot_additional_notes
+            },
+            Treatments = new OtherTreatments
+            {
+                Treatments = row.treatments,
+                TreatmentsComments = row.treatments_comments
+            },
+            OtherRelevantComments = row.other_relevant_comments
+        };
+
+        Log.Information("Patient medical info with ID {PatientId} retrieved.", id);
+        return Results.Ok(response);
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error retrieving patient.");
+        return Results.StatusCode(500);
+    }
+});
+
+app.MapPut("/api/patient/personal-info/update/{id}", async (int id, PatientPersonalInfoUpdateDto updateDto) =>
+{
+    try
+    {
+        using var connection = new Npgsql.NpgsqlConnection(connectionString);
+
+        var sql = @"
+            UPDATE stretchflex_db.patients p
+            SET
+                p.first_name = @FirstName,
+                p.last_name = @LastName,
+                p.email = @Email
+            FROM stretchflex_db.medical_history mh
+            WHERE p.patient_id = mh.patient_id
+              AND p.patient_id = @Id;
+
+            UPDATE stretchflex_db.medical_history
+            SET
+                date_of_birth = @DateOfBirth,
+                sex = @Sex,
+                height_m = @HeightM,
+                weight_kg = @WeightKg,
+                bmi = @Bmi
+            WHERE patient_id = @Id;
+        ";
+
+        var affected = await connection.ExecuteAsync(sql, new
+        {
+            Id          = id,
+            updateDto.FirstName,
+            updateDto.LastName,
+            updateDto.Email,
+            updateDto.DateOfBirth,
+            updateDto.Sex,
+            updateDto.HeightM,
+            updateDto.WeightKg,
+            updateDto.Bmi
+        });
+
+        if (affected == 0)
+        {
+            Log.Warning("Patient with ID {PatientId} not found for personal info update.", id);
+            return Results.NotFound($"Patient with ID {id} not found.");
+        }
+
+        Log.Information("Patient personal info with ID {PatientId} updated.", id);
+        return Results.NoContent();
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error updating patient personal info.");
+        return Results.StatusCode(500);
+    }
+});
+
+app.MapPut("/api/patient/update/medical-history/{id}", async (int id, PatientMedicalInfoUpdateDto updateDto) =>
+{
+    try
+    {
+        using var connection = new Npgsql.NpgsqlConnection(connectionString);
+
+        var sql = @"
+            UPDATE stretchflex_db.medical_history
+            SET
+                history_of_pf = @HistoryOfPf,
+                history_of_pf_right_foot = @HistoryOfPfRightFoot,
+                history_of_pf_left_foot = @HistoryOfPfLeftFoot,
+                history_of_pf_additional_notes = @HistoryOfPfAdditionalNotes,
+                right_foot_condition = @RightFootCondition,
+                right_foot_condition_additional_notes = @RightFootConditionAdditionalNotes,
+                left_foot_condition = @LeftFootCondition,
+                left_foot_condition_additional_notes = @LeftFootConditionAdditionalNotes,
+                surgery_right_foot = @SurgeryRightFoot,
+                surgery_right_foot_additional_notes = @SurgeryRightFootAdditionalNotes,
+                surgery_left_foot = @SurgeryLeftFoot,
+                surgery_left_foot_additional_notes = @SurgeryLeftFootAdditionalNotes,
+                treatments = @Treatments,
+                treatments_comments = @TreatmentsComments,
+                other_relevant_comments = @OtherRelevantComments
+            WHERE patient_id = @Id
+        ";
+
+        var affected = await connection.ExecuteAsync(sql, new
+        {
+            Id = id,
+            HistoryOfPf = updateDto.HistoryOfPF.ResponseOfHistory,
+            HistoryOfPfRightFoot = updateDto.HistoryOfPF.RightFoot,
+            HistoryOfPfLeftFoot = updateDto.HistoryOfPF.LeftFoot,
+            HistoryOfPfAdditionalNotes = updateDto.HistoryOfPF.AdditionalComments,
+            RightFootCondition = updateDto.RightFootConditions.Conditions,
+            RightFootConditionAdditionalNotes = updateDto.RightFootConditions.AdditionalComments,
+            LeftFootCondition = updateDto.LeftFootConditions.Conditions,
+            LeftFootConditionAdditionalNotes = updateDto.LeftFootConditions.AdditionalComments,
+            SurgeryRightFoot = updateDto.SurgeryRight.SurgeryPerformed,
+            SurgeryRightFootAdditionalNotes = updateDto.SurgeryRight.AdditionalComments,
+            SurgeryLeftFoot = updateDto.SurgeryLeft.SurgeryPerformed,
+            SurgeryLeftFootAdditionalNotes = updateDto.SurgeryLeft.AdditionalComments,
+            Treatments = updateDto.Treatments.Treatments,
+            TreatmentsComments = updateDto.Treatments.TreatmentsComments,
+            OtherRelevantComments = updateDto.OtherRelevantComments
+        });
+
+        if (affected == 0)
+        {
+            Log.Warning("Patient with ID {PatientId} not found for medical history update.", id);
+            return Results.NotFound($"Patient with ID {id} not found.");
+        }
+
+        Log.Information("Patient medical history with ID {PatientId} updated.", id);
+        return Results.NoContent();
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error updating patient medical history.");
         return Results.StatusCode(500);
     }
 });
