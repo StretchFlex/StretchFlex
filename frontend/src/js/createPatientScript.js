@@ -282,3 +282,29 @@ document.addEventListener("DOMContentLoaded", () => {
         .getElementById("createPatientBtn")
         .addEventListener("click", verifyFields);
 });
+
+//need to post request this to the backend with fetch
+fetch("/api/patient", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(patientData)
+})
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Patient data saved successfully:", data);
+        alert("Patient personal information submitted successfully!");
+        window.location.href = "createPatientMed.html";
+    })
+    .catch(error => {
+        console.error("Error saving patient data:", error);
+        alert("There was an error submitting the patient information. Please try again.");
+    });
+
+    

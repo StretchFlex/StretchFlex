@@ -1,4 +1,6 @@
 // form builder/validation for medical questionnaire
+//need to recieve the response from the POST request from createPatientScript.js that contains the generated patient ID and include it in the outputObject before sending to the back end
+
 
 const patientMedicalInfoFormSchema = [
     // history of plantar fasciitis section
@@ -376,3 +378,28 @@ document.getElementById("finishBtn").addEventListener("click", function () {
     alert("Patient medical information submitted successfully!");
     window.location.href = "selectPatient.html";
 });
+
+
+//need to post request the json object to the back end with fetch
+fetch("/api/patients/medical-info", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(outputObject)
+})
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Success:", data);
+        alert("Patient medical information submitted successfully!");
+        window.location.href = "selectPatient.html";
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("There was an error submitting the information. Please try again.");
+    });
