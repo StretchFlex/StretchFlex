@@ -91,7 +91,7 @@ app.MapPost("/api/patient/create", async (HttpRequest request) =>
     }
 });
 
-app.MapPost("/api/patient/medical-history", async (HttpRequest request, IConfiguration config) =>
+app.MapPost("/api/patient/medical-history/create", async (HttpRequest request, IConfiguration config) =>
 {
     try
     {
