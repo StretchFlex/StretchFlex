@@ -1,8 +1,25 @@
-// form builder/validation for medical questionnaire
-//need to recieve the response from the POST request from createPatientScript.js that contains the generated patient ID and include it in the outputObject before sending to the back end
+//do a GET request to the backend to get the latest patient ID and store it in a variable for use in the medical info form submission
+let patientId = null;
+fetch("/api/patients/latest")
+    .then(response => response.json())
+    .then(data => {
+        patientId = data.id; // assuming the response contains the new patient's ID in an 'id' field
+        console.log("Received patient ID:", patientId);
+    })
+    .catch(error => console.error("Error fetching latest patient ID:", error));
 
+// rest of the code that builds the form and handles submission
 
 const patientMedicalInfoFormSchema = [
+    //section to display patient ID for reference, not editable
+    {
+        name: "patientId",
+        label: "Patient ID",
+        type: "string",
+        required: false,
+        readOnly: true
+    },
+    
     // history of plantar fasciitis section
     { // historyOfPF
         name: "responseOfHistory",
@@ -341,7 +358,7 @@ document.getElementById("finishBtn").addEventListener("click", function () {
 
     // reformat into the nested object required by back end / user request
     const outputObject = {
-        patientId: 1,
+        patientId: patientId, // include the patient ID from the earlier fetch
         historyOfPF: {
             responseOfHistory: jsonData.responseOfHistory || "",
             rightFoot: jsonData.rightFoot || "",
@@ -371,13 +388,13 @@ document.getElementById("finishBtn").addEventListener("click", function () {
         otherRelevantComments: jsonData.otherRelevantComments || ""
     };
 
-    console.log("Patient Medical Info JSON:", outputObject);
-    document.getElementById("output").textContent =
-        JSON.stringify(outputObject, null, 4);
+    //without fetch, just for reference
+    // console.log("Patient Medical Info JSON:", outputObject);
+    // document.getElementById("output").textContent =
+    //     JSON.stringify(outputObject, null, 4);
 
-    alert("Patient medical information submitted successfully!");
-    window.location.href = "selectPatient.html";
-});
+    // alert("Patient medical information submitted successfully!");
+    // window.location.href = "selectPatient.html";
 
 
 //need to post request the json object to the back end with fetch
@@ -396,10 +413,11 @@ fetch("/api/patients/medical-info", {
     })
     .then(data => {
         console.log("Success:", data);
-        alert("Patient medical information submitted successfully!");
+        alert("Patient medical information submitted successfully! Your patient ID is: " + patientId);
         window.location.href = "selectPatient.html";
     })
     .catch(error => {
         console.error("Error:", error);
         alert("There was an error submitting the information. Please try again.");
     });
+});

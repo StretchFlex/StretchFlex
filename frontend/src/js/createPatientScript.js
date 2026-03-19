@@ -236,11 +236,37 @@ function verifyFields() {
         height: parseFloat(document.querySelector('[name="height"]').value.trim()),
         mass: parseFloat(document.querySelector('[name="mass"]').value.trim())
     };
-    console.log("Patient Personal Info JSON:", patientData);
-    alert("Patient personal information submitted successfully!");
-    window.location.href = "createPatientMed.html";
-    return true;
-}
+    //Replaced by fetch call to backend, but keeping for reference
+    // console.log("Patient Personal Info JSON:", patientData);
+    // alert("Patient personal information submitted successfully!");
+    // window.location.href = "createPatientMed.html";
+    // return true;
+
+//need to post request this to the backend with fetch
+fetch("/api/patient", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(patientData)
+})
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Patient data saved successfully:", data);
+        alert("Patient personal information submitted successfully!");
+        window.location.href = "createPatientMed.html";
+    })
+    .catch(error => {
+        console.error("Error saving patient data:", error);
+        alert("There was an error submitting the patient information. Please try again.");
+    });
+
+} //end of verifyFields
 
 document.addEventListener("DOMContentLoaded", () => {
     patientPersonalInfoFormSchema.forEach(f => form.appendChild(createQuestion(f)));
@@ -283,28 +309,4 @@ document.addEventListener("DOMContentLoaded", () => {
         .addEventListener("click", verifyFields);
 });
 
-//need to post request this to the backend with fetch
-fetch("/api/patient", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(patientData)
-})
-    .then(response => {
-        if (!response.ok) {
-            throw new Error("Network response was not ok");
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log("Patient data saved successfully:", data);
-        alert("Patient personal information submitted successfully!");
-        window.location.href = "createPatientMed.html";
-    })
-    .catch(error => {
-        console.error("Error saving patient data:", error);
-        alert("There was an error submitting the patient information. Please try again.");
-    });
-
-    
+ 
