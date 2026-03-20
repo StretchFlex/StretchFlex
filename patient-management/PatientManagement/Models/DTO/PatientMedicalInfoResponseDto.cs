@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 public class MedicalHistoryRow
 {
     public string? history_of_pf { get; set; }
@@ -17,7 +18,6 @@ public class MedicalHistoryRow
     public string? other_relevant_comments { get; set; }
 }
 
-// Response DTO — mirrors the shape of CreateMedicalHistoryDto for consistency
 public class PatientMedicalInfoResponseDto
 {
     public int PatientId { get; set; }
