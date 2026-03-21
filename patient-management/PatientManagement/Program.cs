@@ -28,6 +28,8 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
+Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
+
 var dbUser = File.ReadAllText("/run/secrets/db_user").Trim();
 var dbPassword = File.ReadAllText("/run/secrets/db_password").Trim();
 var connectionStringTemplate = builder.Configuration.GetConnectionString("Postgres");
@@ -316,24 +318,21 @@ app.MapPut("/api/patient/personal-info/update/{id}", async (int id, PatientPerso
         using var connection = new Npgsql.NpgsqlConnection(connectionString);
 
         var sql = @"
-            UPDATE stretchflex_db.patients p
-            SET
-                p.first_name = @FirstName,
-                p.last_name = @LastName,
-                p.email = @Email
-            FROM stretchflex_db.medical_history mh
-            WHERE p.patient_id = mh.patient_id
-              AND p.patient_id = @Id;
-
-            UPDATE stretchflex_db.medical_history
-            SET
-                date_of_birth = @DateOfBirth,
-                sex = @Sex,
-                height_m = @HeightM,
-                weight_kg = @WeightKg,
-                bmi = @Bmi
-            WHERE patient_id = @Id;
-        ";
+                UPDATE stretchflex_db.patients
+                SET
+                    first_name = @FirstName,
+                    last_name = @LastName,
+                    email = @Email
+                WHERE patient_id = @Id;
+                UPDATE stretchflex_db.medical_history
+                SET
+                    date_of_birth = @DateOfBirth,
+                    sex = @Sex,
+                    height_m = @HeightM,
+                    weight_kg = @WeightKg,
+                    bmi = @Bmi
+                WHERE patient_id = @Id;
+                ";
 
         var affected = await connection.ExecuteAsync(sql, new
         {
