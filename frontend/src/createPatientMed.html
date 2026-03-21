@@ -7,70 +7,19 @@
 	<link rel="stylesheet" href="css/createPatientStyles.css">
     <link rel="stylesheet" href="css/universalStyles.css">
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
-
 </head>
+
 <body>
     <h2>Patient Medical Information</h2>
     <p>Fill out Patient Medical Information below</p>
     
-<div class="flex-container-cP">
+<form id="patientMedicalInfoForm"></form>
 
- <div class="questionType2"> <!--Type 2 selectAll with No option-->
-    <h3>Are you currently diagnosed with Plantar Fasciitis? </h3>
-    <label><input type="checkbox" class="option"> Yes Left Foot </label>
-    <label><input type="checkbox" class="option"> Yes Right Foot </label>
-    <label class="exclusive"><input type="checkbox" class="noOption"> No </label>
- </div>
+<button class="finishButton" id="finishBtn">Finish New Patient</button>
 
-
-  <div class="questionType1"> <!--Type 1 selectAll with other option and text box-->
-    <h3>Have you experienced any of the following conditions to your Right Foot? </h3>
-    <label><input type="checkbox" class="option"> Sprain </label>
-    <label><input type="checkbox" class="option"> Fracture or Break </label>
-    <label><input type="checkbox" class="option"> Arthritis </label>
-    <label><input type="checkbox" class="option"> Tendonitis </label>
-    <label><input type="checkbox" class="option"> Nerve Damage </label>
-    <label><input type="checkbox" class="option otherOption"> Other </label>
-        <input type="text" class="other-input" id="otherRightFootInput" placeholder="Type here...">
-    <label class="exclusive"><input type="checkbox" class="noOption"> No </label>
- </div>
-
-
-    <button class="finishButton" onclick="verifyFieldsMed()">Finish New Patient</button>
-
-</div>
-
-<!-- Continue Modal -->
- <div class="modal fade" id="continueModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content continue-modal">
-            <div class="modal-header">
-                <h5 class="modal-title">Success!</h5>
-            </div>
-            <div class="modal-body"> Patient created successfully! </div>   
-            <div class="modal-footer">
-                <button type="button" class="continueButton" data-bs-dismiss="modal">Return to Patient List</button>
-            </div>
-        </div>
-    </div>
- </div>  
- 
-<!-- Error Modal -->
-<div class="modal fade" id="errorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content error-modal">
-            <div class="modal-header">
-                <h5 class="modal-title">Error</h5>
-            </div>
-            <div class="modal-body"> Please fill out all fields to create a new patient. </div>
-            <div class="modal-footer">
-                <button type="button" class="errorButton" data-bs-dismiss="modal">Try Again</button>
-            </div>
-        </div>
-    </div>
-</div>
+<pre id="output"></pre>
 
 <script src="js/bootstrap/bootstrap.bundle.min.js"></script>
-<script src="js/createPatientScript.js"></script>
+<script src="js/createPatientMedScript.js"></script>
 </body>
 </html>

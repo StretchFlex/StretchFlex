@@ -29,5 +29,10 @@ window.addEventListener('load', updateScrollbarWidth);
 window.addEventListener('resize', updateScrollbarWidth);
 updateScrollbarWidth();
 
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('backBtn').addEventListener('click', () => window.history.back());
+    document.getElementById('logoutBtn').addEventListener('click', () => window.location.href='index.html');
+});
+
 
 

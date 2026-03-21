@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lookup Patient</title>
+	<link rel="stylesheet" href="css/lookupPatientStyles.css">
+    <link rel="stylesheet" href="css/universalStyles.css">
+
+</head>
+<body>
+    <h2 class="patient-heading">Lookup Patient ID</h2>
+
+<div class="patient-select">
+    <label for="patientInput">Patient:</label>
+    <input id="patientInput" name="patient" list="patientsList" placeholder="Type to search patient..." autocomplete="off">
+    <datalist id="patientsList">
+        <option value="Patient 1"></option>
+        <option value="Patient 2"></option>
+        <option value="Patient 3"></option>
+    </datalist>
+</div>
+
+<button class="goButton" id="lookupGoBtn">Go</button>
+
+
+<script src="js/lookupPatientScript.js"></script>
+</body>
+</html>

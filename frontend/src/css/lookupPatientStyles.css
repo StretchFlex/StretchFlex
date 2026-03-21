@@ -1,0 +1,79 @@
+/* For main body of Page */
+body {
+        font-family: Tahoma, sans-serif;
+        padding: 20px;
+        /*color: #a334c5;*/
+    }
+
+/* Patient Heading */
+.patient-heading {
+	font-size: 28px;
+	color: #251829;
+	margin-bottom: 50px;
+    margin-top: 0px;
+    font-family: Tahoma, sans-serif;
+    text-align: center;
+}
+
+/* Go Button */
+.goButton{
+    padding: 8px 12px;
+    font-size: 15px;
+    background-color: #067b40;
+    color: #f9f9f9;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid #251829;
+    box-sizing: border-box;
+    height: 40px;
+    text-align: center;
+    font-family: Tahoma, sans-serif;
+}
+
+.goButton:hover {
+    background-color: #069c51;
+    transform: scale(1.03);
+}
+
+
+
+/* Patient select container (replaces old dropdown) */
+.patient-select {
+    position: relative;
+    display: inline-block;
+}
+
+/* Style the input used for patient selection (replaces .dropbtn rules) */
+.patient-select input {
+    display: inline-block;
+    padding: 5px 14px;
+    font-size: 15px;
+    background-color: #007e93;
+    color: #f9f9f9;
+    border-radius: 6px;
+    cursor: text;
+    border: 1px solid #251829;
+    box-sizing: border-box;
+    height: 40px;
+    text-align: left;
+    font-family: Tahoma, sans-serif;
+}
+
+.patient-select input::placeholder { 
+    color: #f9f9f9;
+}
+
+.patient-select input:hover {
+    background-color: #009cb7;
+    transform: scale(1.03);
+}
+
+/* Style for datlist dropdown options */
+datalist {
+    display: none;
+}
+
+datalist option {
+    background-color: #d32f2f;
+    color: #f9f9f9;
+}
