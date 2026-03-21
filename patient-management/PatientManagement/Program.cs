@@ -201,7 +201,7 @@ app.MapGet("/api/patient/personal/{id}", async (int id) =>
                 p.first_name,
                 p.last_name,
                 p.email,
-                mh.date_of_birth,
+                CAST(mh.date_of_birth AS DATE)::text AS date_of_birth,
                 mh.sex,
                 mh.height_m,
                 mh.weight_kg,
