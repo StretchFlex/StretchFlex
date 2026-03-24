@@ -190,7 +190,7 @@ function autoCorrectDate() {
     }
 }
 
-function verifyFields() {
+async function verifyFields() {
     for (const field of patientPersonalInfoFormSchema) {
         if (!field.required) continue;
 
@@ -237,38 +237,66 @@ function verifyFields() {
         mass: parseFloat(document.querySelector('[name="mass"]').value.trim())
     };
     //Replaced by fetch call to backend, but keeping for reference
-    // console.log("Patient Personal Info JSON:", patientData);
     // alert("Patient personal information submitted successfully!");
     // window.location.href = "createPatientMed.html";
     // return true;
 
-//need to post request this to the backend with fetch
-fetch("/api/patient/create", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(patientData)
-})
-    .then(response => {
+// //need to post request this to the backend with fetch
+// fetch("/api/patient/create", {
+//     method: "POST",
+//     headers: {
+//         "Content-Type": "application/json"
+//     },
+//     body: JSON.stringify(patientData)
+// })
+//     .then(response => {
+//         if (!response.ok) {
+//             throw new Error("Network response was not ok");
+//         }
+//         return response.json();
+//     })
+//     .then(data => {
+//
+//         if (data?.PatientId) {
+//             sessionStorage.setItem('selectedPatientId', data.PatientId);
+//             sessionStorage.setItem('selectedPatient', `${patientData.firstName} ${patientData.lastName}`);
+//         }
+//         alert("Patient personal information submitted successfully!");
+//         window.location.href = "createPatientMed.html";
+//     })
+//     .catch(error => {
+//         console.error("Error saving patient data:", error);
+//         alert("There was an error submitting the patient information. Please try again.");
+//     });
+
+    try {
+        const response = await fetch("/api/patient/create", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(patientData)
+        });
+
         if (!response.ok) {
             throw new Error("Network response was not ok");
         }
-        return response.json();
-    })
-    .then(data => {
-        console.log("Patient data saved successfully:", data);
+
+        const data = await response.json();
+
         if (data?.PatientId) {
             sessionStorage.setItem('selectedPatientId', data.PatientId);
             sessionStorage.setItem('selectedPatient', `${patientData.firstName} ${patientData.lastName}`);
         }
+
         alert("Patient personal information submitted successfully!");
         window.location.href = "createPatientMed.html";
-    })
-    .catch(error => {
+
+    } catch (error) {
         console.error("Error saving patient data:", error);
         alert("There was an error submitting the patient information. Please try again.");
-    });
+    }
+
 
 } //end of verifyFields
 

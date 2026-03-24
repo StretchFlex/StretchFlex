@@ -263,7 +263,36 @@ function collectMedicalFormData() {
     return out;
 }
 
-function submitMedicalUpdate() {
+// function submitMedicalUpdate() {
+//     if (!patientId) {
+//         alert('Patient ID missing.');
+//         return;
+//     }
+
+//     if (!verifyFieldsMed()) return;
+
+//     const payload = collectMedicalFormData();
+
+//     fetch(`/api/patient/update/medical-history/${patientId}`, {
+//         method: 'PUT',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(payload)
+//     })
+//         .then(resp => {
+//             if (!resp.ok) throw new Error('Network response was not ok');
+//             return resp;
+//         })
+//         .then(() => {
+//             alert('Patient medical history updated successfully.');
+//             window.location.href = 'selectPatient.html';
+//         })
+//         .catch(error => {
+//             console.error('Error updating medical history:', error);
+//             alert('Unable to update medical history; please try again.');
+//         });
+// }
+
+async function submitMedicalUpdate() {
     if (!patientId) {
         alert('Patient ID missing.');
         return;
@@ -273,24 +302,26 @@ function submitMedicalUpdate() {
 
     const payload = collectMedicalFormData();
 
-    fetch(`/api/patient/update/medical-history/${patientId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    })
-        .then(resp => {
-            if (!resp.ok) throw new Error('Network response was not ok');
-            return resp;
-        })
-        .then(() => {
-            alert('Patient medical history updated successfully.');
-            window.location.href = 'selectPatient.html';
-        })
-        .catch(error => {
-            console.error('Error updating medical history:', error);
-            alert('Unable to update medical history; please try again.');
+    try {
+        const resp = await fetch(`/api/patient/update/medical-history/${patientId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
         });
+
+        if (!resp.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        alert('Patient medical history updated successfully.');
+        window.location.href = 'selectPatient.html';
+
+    } catch (error) {
+        console.error('Error updating medical history:', error);
+        alert('Unable to update medical history; please try again.');
+    }
 }
+
 
 function buildForm() {
     patientMedicalInfoFormSchema.forEach(field => form.appendChild(createQuestion(field)));

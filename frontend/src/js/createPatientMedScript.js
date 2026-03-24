@@ -4,13 +4,13 @@ function loadSelectedPatientId() {
     const stored = sessionStorage.getItem('selectedPatientId');
     if (stored && !isNaN(parseInt(stored, 10))) {
         patientId = parseInt(stored, 10);
-        console.log("Using selected patient ID:", patientId);
+        //console.log("Using selected patient ID:", patientId);
     } else {
         const search = new URLSearchParams(window.location.search);
         const queryId = search.get('id');
         if (queryId && !isNaN(parseInt(queryId, 10))) {
             patientId = parseInt(queryId, 10);
-            console.log("Using patient ID from query:", patientId);
+            //console.log("Using patient ID from query:", patientId);
         }
     }
 }
@@ -322,7 +322,7 @@ function verifyFieldsMed() {
 }
 
 // convert form to JSON and run validation on finish
-document.getElementById("finishBtn").addEventListener("click", function () {
+document.getElementById("finishBtn").addEventListener("click", async function () {
     if (!verifyFieldsMed()) return;
 
     const jsonData = {};
@@ -397,7 +397,6 @@ document.getElementById("finishBtn").addEventListener("click", function () {
     };
 
     //without fetch, just for reference
-    // console.log("Patient Medical Info JSON:", outputObject);
     // document.getElementById("output").textContent =
     //     JSON.stringify(outputObject, null, 4);
 
@@ -410,27 +409,55 @@ if (!patientId) {
     return;
 }
 
-// need to post request the json object to the backend with fetch
-fetch("/api/patient/medical-history/create", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(outputObject)
-})
-    .then(response => {
+// // need to post request the json object to the backend with fetch
+// fetch("/api/patient/medical-history/create", {
+//     method: "POST",
+//     headers: {
+//         "Content-Type": "application/json"
+//     },
+//     body: JSON.stringify(outputObject)
+// })
+//     .then(response => {
+//         if (!response.ok) {
+//             throw new Error("Network response was not ok");
+//         }
+//         return response.text();
+//     })
+//     .then(data => {
+//         console.log("Success");
+//         alert("Patient medical information submitted successfully! Your patient ID is: " + patientId);
+//         window.location.href = "selectPatient.html";
+//     })
+//     .catch(error => {
+//         console.error("Error:", error);
+//         alert("There was an error submitting the information. Please try again.");
+//     });
+// });
+
+    try {
+        const response = await fetch("/api/patient/medical-history/create", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(outputObject)
+        });
+
         if (!response.ok) {
             throw new Error("Network response was not ok");
         }
-        return response.text();
-    })
-    .then(data => {
+
+        // Backend returns plain text, so parse as text
+        const data = await response.text();
+
         console.log("Success:", data);
+
         alert("Patient medical information submitted successfully! Your patient ID is: " + patientId);
         window.location.href = "selectPatient.html";
-    })
-    .catch(error => {
-        console.error("Error:", error);
+
+    } catch (error) {
+        console.error("Error submitting medical history:", error);
         alert("There was an error submitting the information. Please try again.");
-    });
+    }
+
 });
