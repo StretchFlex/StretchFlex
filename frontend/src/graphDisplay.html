@@ -20,83 +20,84 @@
     
     <div class="bottom-row">
         <div class="bottom-box">
-    <h2>Graph Selection</h2>
-    <p>Click Generate Graph to update with your selections</p>
-    
-<div class="graph-select">
-    <label for="graphInput1">Graph 1:</label>
-    <input id="graphInput1" name="graph" list="graphsList" placeholder="Start typing to search..." autocomplete="off">
-    <datalist id="graphsList">
-        <option value="Curve Graph"></option>
-        <option value="Linear Graph"></option>
-    </datalist>
+            <h2>Graph + Statistics</h2>
+            <p>Click Generate Graph to update with your selections</p>
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th>Graph Selection</th>
+                        <th>Mean</th>
+                        <th>Std Dev</th>
+                        <th>Min</th>
+                        <th>Max</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="row-1">
+                        <td>
+                            <label for="graphInput1" class="hidden-label">Graph 1</label>
+                            <select id="graphInput1" name="graph1" class="single-graph-select">
+                                <option value="">Select Graph 1</option>
+                                <option value="Graph A">Graph A</option>
+                                <option value="Graph B">Graph B</option>
+                                <option value="Graph C">Graph C</option>
+                            </select>
+                        </td>
+                        <td class="stat-mean">...</td>
+                        <td class="stat-std">...</td>
+                        <td class="stat-min">...</td>
+                        <td class="stat-max">...</td>
+                    </tr>
+                    <tr id="row-2">
+                        <td>
+                            <label for="graphInput2" class="hidden-label">Graph 2</label>
+                            <select id="graphInput2" name="graph2" class="single-graph-select">
+                                <option value="">Select Graph 2</option>
+                                <option value="Graph A">Graph A</option>
+                                <option value="Graph B">Graph B</option>
+                                <option value="Graph C">Graph C</option>
+                            </select>
+                        </td>
+                        <td class="stat-mean">...</td>
+                        <td class="stat-std">...</td>
+                        <td class="stat-min">...</td>
+                        <td class="stat-max">...</td>
+                    </tr>
+                    <tr id="row-3">
+                        <td>
+                            <label for="graphInput3" class="hidden-label">Graph 3</label>
+                            <select id="graphInput3" name="graph3" class="single-graph-select">
+                                <option value="">Select Graph 3</option>
+                                <option value="Graph A">Graph A</option>
+                                <option value="Graph B">Graph B</option>
+                                <option value="Graph C">Graph C</option>
+                            </select>
+                        </td>
+                        <td class="stat-mean">...</td>
+                        <td class="stat-std">...</td>
+                        <td class="stat-min">...</td>
+                        <td class="stat-max">...</td>
+                    </tr>
+                    <tr id="row-4">
+                        <td>
+                            <label for="graphInput4" class="hidden-label">Graph 4</label>
+                            <select id="graphInput4" name="graph4" class="single-graph-select">
+                                <option value="">Select Graph 4</option>
+                                <option value="Graph A">Graph A</option>
+                                <option value="Graph B">Graph B</option>
+                                <option value="Graph C">Graph C</option>
+                            </select>
+                        </td>
+                        <td class="stat-mean">...</td>
+                        <td class="stat-std">...</td>
+                        <td class="stat-min">...</td>
+                        <td class="stat-max">...</td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="generateButton">Generate Graph & Stats </button>
+            <button class="clearChartButton">Clear Graph & Stats</button>
 
-    <label for="graphInput2">Graph 2:</label>
-    <input id="graphInput2" name="graph" list="graphsList" placeholder="Start typing to search..." autocomplete="off">
-    <datalist id="graphsList">
-        <option value="Curve Graph"></option>
-        <option value="Linear Graph"></option>
-    </datalist>
-
-    <label for="graphInput3">Graph 3:</label>
-    <input id="graphInput3" name="graph" list="graphsList" placeholder="Start typing to search..." autocomplete="off">
-    <datalist id="graphsList">
-        <option value="Curve Graph"></option>
-        <option value="Linear Graph"></option>
-    </datalist>
-
-    <label for="graphInput4">Graph 4:</label>
-    <input id="graphInput4" name="graph" list="graphsList" placeholder="Start typing to search..." autocomplete="off">
-    <datalist id="graphsList">
-        <option value="Curve Graph"></option>
-        <option value="Linear Graph"></option>
-    </datalist>
-</div>
-
-
-<button class="generateButton">Generate Graph</button>
-
-<!--need to create a dropdown menu next to each graph to select chart line color-->
-
-
-    <!-- Output area -->
-    <div id="output"></div>
-
-        </div>
-        
-        
-        <div class="bottom-box">
-        <h2>Statistics Selection</h2>
-        <p>Select Statistics to show in box</p>
-        <div class="stats-checkbox-container">
-            <label>
-                <input type="checkbox" id="selectAll">
-                <span class="stats-action-button stats-selectAll-button">Select All</span>
-            
-            </label>
-
-            <label>
-                <input type="checkbox" id="deselectAll">
-                <span class="stats-action-button stats-deselectAll-button">Deselect All</span>
-            
-            </label>
-
-        </div>
-
-        <div class="stats-toggle-box-container">
-            <label>
-                <input type="checkbox" class="item">
-                <span class="stats-toggle-box">Option 1</span>
-            </label>
-
-            <label>
-                <input type="checkbox" class="item">
-                <span class="stats-toggle-box">Option 2</span>
-            </label>
-
-        </div>
-        
-        
 
     </div> 
 </div>
