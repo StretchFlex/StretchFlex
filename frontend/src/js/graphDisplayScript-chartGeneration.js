@@ -48,11 +48,15 @@
             return { labels, data };
         }
 
+        window.currentChartData = [];
+
         // Function to create/update chart and update statistics
         function renderChart(labels, data) {
             if (chartInstance) {
                 chartInstance.destroy(); // Avoid duplicate charts
             }
+            window.currentChartData = Array.isArray(data) ? data : [];
+
             chartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -77,7 +81,10 @@
                     }
                 }
             });
-            //updateStats(data);
+
+            if (typeof updateStatsTable === 'function') {
+                updateStatsTable();
+            }
         }
 
 
@@ -86,7 +93,24 @@
 
         // Button to manually trigger data fetch and chart rendering
         const generateButton = document.querySelector('.generateButton'); // Assuming there's a button with class 'generateButton'
-        generateButton.addEventListener('click', fetchAndRenderChart);     
+        generateButton.addEventListener('click', function () {
+            if (typeof fetchAndRenderChart === 'function') {
+                fetchAndRenderChart();
+            }
+            if (typeof updateStatsTable === 'function') {
+                updateStatsTable();
+            }
+        });
+
+        // Recompute stats table on each graph selection change
+        const graphInputs = document.querySelectorAll('.single-graph-select');
+        graphInputs.forEach(input => {
+            input.addEventListener('change', function () {
+                if (typeof updateStatsTable === 'function') {
+                    updateStatsTable();
+                }
+            });
+        });
 
 
         /* Need to update this function to match backend API and pull the chart selected by user
@@ -112,6 +136,49 @@
                 chartInstance.destroy();
                 chartInstance = chartInstanceBlank; // Reset to blank chart
             }
-            statsContainer.innerHTML = ''; //does this need to be changed to stats-toggle-box-container?
+            window.currentChartData = [];
+            if (typeof updateStatsTable === 'function') {
+                updateStatsTable();
+            }
+        });
 
-        }); 
+        async function populateGraphSelects() {
+            const selects = document.querySelectorAll('.single-graph-select');
+
+            try {
+                const response = await fetch('/csv-graphs/graphs.json');
+                if (!response.ok) throw new Error('Failed to fetch graph list');
+                const graphs = await response.json();
+                if (!Array.isArray(graphs)) throw new Error('Unexpected graphs payload');
+
+                selects.forEach(select => {
+                    // Clear existing options except the first
+                    while (select.options.length > 1) {
+                        select.remove(1);
+                    }
+                    graphs.forEach(graph => {
+                        const opt = document.createElement('option');
+                        opt.value = graph;
+                        opt.textContent = graph;
+                        select.appendChild(opt);
+                    });
+                });
+            } catch (error) {
+                console.error('Error loading graph list:', error);
+                // Fallback
+                selects.forEach(select => {
+                    while (select.options.length > 1) {
+                        select.remove(1);
+                    }
+                    ['Curve Graph', 'Linear Graph'].forEach(graph => {
+                        const opt = document.createElement('option');
+                        opt.value = graph;
+                        opt.textContent = graph;
+                        select.appendChild(opt);
+                    });
+                });
+            }
+        }
+
+        // Call on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', populateGraphSelects); 

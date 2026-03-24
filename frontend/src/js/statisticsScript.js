@@ -1,25 +1,66 @@
-
         // Placeholder for stats calculation - replace with actual logic
         function calculateStats(data) {
-            if (data.length === 0) return null;
-            const sum = data.reduce((a, b) => a + b, 0);
-            const mean = sum / data.length;
-            const variance = data.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / data.length;
+            if (!Array.isArray(data) || data.length === 0) return null;
+            const cleaned = data.filter(x => typeof x === 'number' && !isNaN(x));
+            if (cleaned.length === 0) return null;
+            const sum = cleaned.reduce((a, b) => a + b, 0);
+            const mean = sum / cleaned.length;
+            const min = Math.min(...cleaned);
+            const max = Math.max(...cleaned);
+            const variance = cleaned.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / cleaned.length;
             const stdDev = Math.sqrt(variance);
-            return { mean: mean.toFixed(2), stdDev: stdDev.toFixed(2) };
+            return {
+                mean: mean.toFixed(2),
+                stdDev: stdDev.toFixed(2),
+                min: min.toFixed(2),
+                max: max.toFixed(2)
+            };
         }
 
-        // Update stats display when chart is rendered does statsContainer need to be changed to the actual id of the stats container in the html?
-        const statsContainer = document.getElementById('stats-toggle-box-container'); // Make sure this ID matches the HTML element
-        function updateStats(data) {
-            const stats = calculateStats(data);
-            if (stats) {
-                statsContainer.innerHTML = `<p><strong>Mean:</strong> ${stats.mean}</p><p><strong>Standard Deviation:</strong> ${stats.stdDev}</p>`;
-            } else {
-                statsContainer.innerHTML = "<p>No data available for statistics.</p>";
+        function updateStatsForRow(rowNumber, data) {
+            const row = document.getElementById(`row-${rowNumber}`);
+            if (!row) return;
+            const statCells = {
+                mean: row.querySelector('.stat-mean'),
+                std: row.querySelector('.stat-std'),
+                min: row.querySelector('.stat-min'),
+                max: row.querySelector('.stat-max')
+            };
+            if (!data || !data.length) {
+                Object.values(statCells).forEach(cell => cell.textContent = '...');
+                return;
             }
+            const stats = calculateStats(data);
+            if (!stats) {
+                Object.values(statCells).forEach(cell => cell.textContent = '...');
+                return;
+            }
+            statCells.mean.textContent = stats.mean;
+            statCells.std.textContent = stats.stdDev;
+            statCells.min.textContent = stats.min;
+            statCells.max.textContent = stats.max;
         }
-    
+
+        function updateStatsTable() {
+            const graphInputs = [
+                document.getElementById('graphInput1'),
+                document.getElementById('graphInput2'),
+                document.getElementById('graphInput3'),
+                document.getElementById('graphInput4')
+            ];
+
+            graphInputs.forEach((input, idx) => {
+                const value = input?.value?.trim();
+                if (!value) {
+                    updateStatsForRow(idx + 1, null);
+                } else {
+                    // placeholder for actual data retrieval per graph by name
+                    // If you have chart series per graph, replace this with that data.
+                    const chartSourceData = window.currentChartData || [12, 15, 8, 20, 18];
+                    updateStatsForRow(idx + 1, chartSourceData);
+                }
+            });
+        }
 
     const selectAll = document.getElementById('selectAll');
     const deselectAll = document.getElementById('deselectAll');
@@ -33,7 +74,6 @@
     // "Deselect All" button
     deselectAll.addEventListener('click', function () {
         items.forEach(item => item.checked = false);
-        //selectAll.checked = false;
     });
 
     /*// Update "Select All" based on individual items
