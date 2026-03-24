@@ -189,6 +189,28 @@ app.MapGet("/api/patient/find/id/{firstName}-{lastName}", async (string firstNam
     }
 });
 
+app.MapGet("/api/patient/list", async () =>
+{
+    try
+    {
+        using var connection = new Npgsql.NpgsqlConnection(connectionString);
+        var sql = @"
+            SELECT patient_id AS patientId,
+                   first_name AS firstName,
+                   last_name AS lastName
+            FROM stretchflex_db.patients
+            ORDER BY patient_id";
+
+        var patientList = await connection.QueryAsync(sql);
+        return Results.Ok(patientList);
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error retrieving patient list.");
+        return Results.StatusCode(500);
+    }
+});
+
 
 app.MapGet("/api/patient/personal/{id}", async (int id) =>
 {

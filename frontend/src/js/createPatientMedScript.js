@@ -1,12 +1,20 @@
-//do a GET request to the backend to get the latest patient ID and store it in a variable for use in the medical info form submission
+// get patient id from previous selection/session
 let patientId = null;
-fetch("/api/patients/latest")
-    .then(response => response.json())
-    .then(data => {
-        patientId = data.id; // assuming the response contains the new patient's ID in an 'id' field
-        console.log("Received patient ID:", patientId);
-    })
-    .catch(error => console.error("Error fetching latest patient ID:", error));
+function loadSelectedPatientId() {
+    const stored = sessionStorage.getItem('selectedPatientId');
+    if (stored && !isNaN(parseInt(stored, 10))) {
+        patientId = parseInt(stored, 10);
+        console.log("Using selected patient ID:", patientId);
+    } else {
+        const search = new URLSearchParams(window.location.search);
+        const queryId = search.get('id');
+        if (queryId && !isNaN(parseInt(queryId, 10))) {
+            patientId = parseInt(queryId, 10);
+            console.log("Using patient ID from query:", patientId);
+        }
+    }
+}
+loadSelectedPatientId();
 
 // rest of the code that builds the form and handles submission
 
@@ -397,8 +405,13 @@ document.getElementById("finishBtn").addEventListener("click", function () {
     // window.location.href = "selectPatient.html";
 
 
-//need to post request the json object to the back end with fetch
-fetch("/api/patients/medical-info", {
+if (!patientId) {
+    alert('Patient ID not found; please go back to the patient list and select a patient before entering medical info.');
+    return;
+}
+
+// need to post request the json object to the backend with fetch
+fetch("/api/patient/medical-history/create", {
     method: "POST",
     headers: {
         "Content-Type": "application/json"
@@ -409,7 +422,7 @@ fetch("/api/patients/medical-info", {
         if (!response.ok) {
             throw new Error("Network response was not ok");
         }
-        return response.json();
+        return response.text();
     })
     .then(data => {
         console.log("Success:", data);

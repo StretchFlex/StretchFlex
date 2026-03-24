@@ -243,7 +243,7 @@ function verifyFields() {
     // return true;
 
 //need to post request this to the backend with fetch
-fetch("/api/patient", {
+fetch("/api/patient/create", {
     method: "POST",
     headers: {
         "Content-Type": "application/json"
@@ -258,6 +258,10 @@ fetch("/api/patient", {
     })
     .then(data => {
         console.log("Patient data saved successfully:", data);
+        if (data?.PatientId) {
+            sessionStorage.setItem('selectedPatientId', data.PatientId);
+            sessionStorage.setItem('selectedPatient', `${patientData.firstName} ${patientData.lastName}`);
+        }
         alert("Patient personal information submitted successfully!");
         window.location.href = "createPatientMed.html";
     })
