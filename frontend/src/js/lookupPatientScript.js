@@ -26,12 +26,12 @@ function verifySelection(){
     }
     // store selection for downstream pages
     sessionStorage.setItem('selectedPatient', val);
-    window.location.href = "graphDisplay.html";
+    //window.location.href = "graphDisplay.html";
+    // For lookup page, we just alert the selected patient instead of navigating to another page
+    alert(`Selected Patient ID: ${val}`);
+    
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('goButton').addEventListener('click', verifySelection);
-    document.getElementById('createButton').addEventListener('click', () => window.location.href='createPatient.html');
-    document.getElementById('lookupButton').addEventListener('click', () => window.location.href='lookupPatient.html');
-    document.getElementById('editButton').addEventListener('click', () => window.location.href='editPatient.html');
+    document.getElementById('lookupGoBtn').addEventListener('click', verifySelection);
 });

@@ -1,238 +1,310 @@
+/* dynamic form builder and validation for patient info page */
 
-function verifyFieldsMed() {
-    // validate that each question block has at least one selection
-    const questionBlocks = document.querySelectorAll('.questionType1, .questionType2');
-    for (const block of questionBlocks) {
-        const checkboxes = block.querySelectorAll('input[type=checkbox]');
-        let anyChecked = false;
-        checkboxes.forEach(cb => { if (cb.checked) anyChecked = true; });
-        if (!anyChecked) {
-            const errModal = new bootstrap.Modal(errorModalElement);
-            errModal.show();
-            if (checkboxes.length > 0) {
-                checkboxes[0].focus();
-                errorModalElement.addEventListener("hidden.bs.modal", () => checkboxes[0].focus(), { once: true });
-            }
-            return false;
+const patientPersonalInfoFormSchema = [
+    {
+        name: "firstName",
+        label: "First Name",
+        type: "string",
+        required: true,
+        id: "fNameInput",
+        placeholder: "Type here...",
+        maxLength: 20
+    },
+    {
+        name: "lastName",
+        label: "Last Name",
+        type: "string",
+        required: true,
+        id: "lNameInput",
+        placeholder: "Type here...",
+        maxLength: 20
+    },
+    {
+        name: "email",
+        label: "Email Address",
+        type: "string",
+        autocomplete:"email",
+        required: true,
+        id: "emailInput",
+        placeholder: "Type here...",
+        maxLength: 100,
+        pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    },
+    {
+        name: "dateOfBirth",
+        label: "Date of Birth",
+        type: "date",
+        required: true,
+        id: "dobInput"
+    },
+    {
+        name: "sex",
+        label: "Birth Sex",
+        type: "single-choice",
+        options: ["male", "female", "RND"],
+        required: true
+       
+    },
+    {
+        name: "height",
+        label: "Height (m)",
+        type: "float",
+        required: true,
+        id: "heightInput",
+        placeholder: "Type here...",
+        step: "0.01"
+    },
+    {
+        name: "mass",
+        label: "Mass (kg)",
+        type: "float",
+        required: true,
+        id: "massInput",
+        placeholder: "Type here...",
+        step: "0.01"
+    },
+    {
+        name: "bmi",
+        label: "BMI (kg/m²)",
+        type: "float",
+        required: true,
+        id: "bmiInput",
+        placeholder: "Type here...",
+        step: "0.01"
+    }
+];
+
+const form = document.getElementById("patientPersonalInfoForm");
+
+function createQuestion(field) {
+    const fieldId = field.id || `${field.name}Input`;
+    const wrapper = document.createElement("div");
+    wrapper.style.marginBottom = "15px";
+    if (field.type === "single-choice") wrapper.classList.add("questionSelectOne");
+
+    // radio groups are better handled with a fieldset/legend
+    if (field.type === "single-choice") {
+        const fieldset = document.createElement("fieldset");
+        const legend = document.createElement("legend");
+        legend.textContent = field.label;
+        fieldset.appendChild(legend);
+
+        field.options.forEach(opt => {
+            const lbl = document.createElement("label");
+            // display:block will stack options vertically; CSS also enforces spacing
+            //lbl.style.display = "inline-block";
+
+            const radio = document.createElement("input");
+            radio.type = "radio";
+            radio.name = field.name;
+            radio.value = opt;
+            const radioId = `${field.name}_${opt}`;
+            radio.id = radioId;
+            lbl.htmlFor = radioId;
+
+            lbl.appendChild(radio);
+            lbl.appendChild(document.createTextNode(" " + opt));
+            fieldset.appendChild(lbl);
+        });
+
+        wrapper.appendChild(fieldset);
+        return wrapper;
+    }
+
+    const label = document.createElement("label");
+    label.htmlFor = fieldId;
+    label.textContent = field.label;
+    wrapper.appendChild(label);
+    wrapper.appendChild(document.createElement("br"));
+
+    if (field.type === "string" || field.type === "float" || field.type === "date") {
+        const input = document.createElement("input");
+        input.type =
+            field.type === "float"
+                ? "number"
+                : field.type === "date"
+                ? "text"
+                : "text";
+        input.id = fieldId;
+        input.name = field.name;
+        if (field.placeholder) input.placeholder = field.placeholder;
+        if (field.maxLength) input.maxLength = field.maxLength;
+        if (field.step) input.step = field.step;
+        input.autocomplete = field.autocomplete || "off";
+        wrapper.appendChild(input);
+
+        if (field.type === "date") {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "calendar-icon";
+            btn.id = "calendarButton";
+            btn.innerHTML =
+                '<img src="assets/images/calendar-icon.png" alt="Calendar">';
+            wrapper.appendChild(btn);
+            wrapper.classList.add("date-picker-wrapper");
         }
     }
 
-    // all questions answered
-    const contModal = new bootstrap.Modal(continueModalElement);
-    contModal.show();
-    continueModalElement.addEventListener("hidden.bs.modal", function () {
-        window.location.href = "selectPatient.html";
-    }, { once: true });
-    return true;
+    return wrapper;
 }
 
+function validateDate(dateStr) {
+    const regex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/\d{4}$/;
+    if (!regex.test(dateStr)) {
+        const el = document.querySelector("#dobInput");
+        if (el) el.classList.add("invalid");
+        return false;
+    }
+    const [month, day, year] = dateStr.split("/").map(Number);
+    const dateObj = new Date(year, month - 1, day);
+    const isValid =
+        dateObj.getMonth() + 1 === month &&
+        dateObj.getDate() === day &&
+        dateObj.getFullYear() === year;
+    const el = document.querySelector("#dobInput");
+    if (!isValid && el) el.classList.add("invalid");
+    else if (el) el.classList.remove("invalid");
+    return isValid;
+}
 
-
-// modal element references reused by verifyFields
-const continueModalElement = document.getElementById("continueModal");
-const errorModalElement = document.getElementById("errorModal");
+function autoCorrectDate() {
+    const dateInput = document.querySelector("#dobInput");
+    if (!dateInput) return;
+    let parts = dateInput.value.replace(/\s+/g, "").split("/");
+    if (parts.length === 3) {
+        let [month, day, year] = parts;
+        if (month.length === 1) month = "0" + month;
+        if (day.length === 1) day = "0" + day;
+        if (year.length === 2) {
+            const currentYear = new Date().getFullYear();
+            const currentCentury = Math.floor(currentYear / 100) * 100;
+            let fullYear = currentCentury + parseInt(year, 10);
+            if (currentYear - fullYear > 120) fullYear += 100;
+            else if (fullYear - currentYear > 0) fullYear -= 100;
+            year = fullYear.toString();
+        } else if (year.length === 1) year = "000" + year;
+        else if (year.length === 3) year = "0" + year;
+        dateInput.value = `${month}/${day}/${year}`;
+        validateDate(dateInput.value);
+    }
+}
 
 function verifyFields() {
-    // list of required input ids in the order we want to validate/focus
-    const inputs = [
-        { id: "fNameInput", label: "First Name" },
-        { id: "lNameInput", label: "Last Name" },
-        { id: "dobInput", label: "Date of Birth" },
-        { id: "emailInput", label: "Email Address" },
-        { id: "sexInput", label: "Birth Sex" },
-        { id: "heightInput", label: "Height" },
-        { id: "massInput", label: "Mass" }
-    ];
+    for (const field of patientPersonalInfoFormSchema) {
+        if (!field.required) continue;
 
-    for (const field of inputs) {
-        const el = document.getElementById(field.id);
-        if (!el) continue; // should not happen
-
-        const value = el.value.trim();
-        const isEmpty = value === "";
-        const invalidDate = field.id === "dobInput" && value !== "" && !validateDate(value);
-
-        if (isEmpty || invalidDate) {
-            // show error and focus the problematic element
-            const errModal = new bootstrap.Modal(errorModalElement);
-            errModal.show();
-            el.focus();
-            // ensure focus is restored after the modal closes
-            errorModalElement.addEventListener("hidden.bs.modal", () => el.focus(), { once: true });
-            return false;
+        if (field.type === "single-choice") {
+            const checked = form.querySelector(
+                `input[name="${field.name}"]:checked`
+            );
+            if (!checked) {
+                alert(`Please answer: ${field.label}`);
+                return false;
+            }
+        } else {
+            const el = form.querySelector(`[name="${field.name}"]`);
+            if (!el) continue;
+            const val = el.value.trim();
+            if (!val) {
+                alert(`Please fill out: ${field.label}`);
+                el.focus();
+                return false;
+            }
+            if (field.type === "date" && !validateDate(val)) {
+                alert("Please enter a valid date.");
+                el.focus();
+                return false;
+            }
+            if (field.type === "float") {
+                const num = parseFloat(val);
+                if (isNaN(num)) {
+                    alert(`${field.label} must be a number`);
+                    el.focus();
+                    return false;
+                }
+            }
         }
     }
-
-    // all fields have values (and dob is valid)
-    const contModal = new bootstrap.Modal(continueModalElement);
-    contModal.show();
-    continueModalElement.addEventListener("hidden.bs.modal", function () {
-        window.location.href = "createPatientMed.html";
-    }, { once: true });
+    // build JSON object for patient info and log it to console
+    const patientData = {
+        firstName: document.querySelector('[name="fName"]').value.trim(),
+        lastName: document.querySelector('[name="lName"]').value.trim(),
+        dateOfBirth: document.querySelector('[name="dob"]').value.trim(),
+        email: document.querySelector('[name="email"]').value.trim(),
+        sex: document.querySelector('input[name="sex"]:checked')?.value || null,
+        height: parseFloat(document.querySelector('[name="height"]').value.trim()),
+        mass: parseFloat(document.querySelector('[name="mass"]').value.trim())
+    };
+    console.log("Patient Personal Info JSON:", patientData);
+    alert("Patient personal information submitted successfully!");
+    window.location.href = "createPatientMed.html";
     return true;
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+    patientPersonalInfoFormSchema.forEach(f => form.appendChild(createQuestion(f)));
 
-
-
-
-// Loop through each question block
-    document.querySelectorAll('.questionType1').forEach(questionBlock1 => {
-        const noOption = questionBlock1.querySelector('.noOption');
-        const otherOptions = questionBlock1.querySelectorAll('.option:not(.otherOption)');
-        const otherCheckbox = questionBlock1.querySelector('.otherOption');
-        const otherInput = questionBlock1.querySelector('.other-input');
-
-        // If "No" is selected, uncheck all others in this question
-        noOption.addEventListener('change', function () {
-            if (this.checked) {
-                [...otherOptions, otherCheckbox].forEach(opt => opt.checked = false);
-                otherInput.style.display = 'none';
-                otherInput.value = '';
-            }
-        });
-
-        // If any other option is selected, uncheck "No" in this question
-        [...otherOptions, otherCheckbox].forEach(opt => {
-            opt.addEventListener('change', function () {
-                if (this.checked) {
-                    noOption.checked = false;
-                }
-            });
-        });
-
-        // Show/hide "Other" text box
-        otherCheckbox.addEventListener('change', function () {
-            if (this.checked) {
-                otherInput.style.display = 'block';
-                noOption.checked = false; // Ensure "No" is unchecked
-            } else {
-                otherInput.style.display = 'none';
-                otherInput.value = '';
-            }
-        });
-    });
-
-
-    // Loop through each question block
-    document.querySelectorAll('.questionType2').forEach(questionBlock2 => {
-        const noOption = questionBlock2.querySelector('.noOption');
-        const otherOptions = questionBlock2.querySelectorAll('.option:not(.otherOption)');
-        const otherCheckbox = questionBlock2.querySelector('.otherOption');
-
-        // If "No" is selected, uncheck all others in this question
-        noOption.addEventListener('change', function () {
-            if (this.checked) {
-                [...otherOptions, otherCheckbox].forEach(opt => opt.checked = false);
-                otherInput.style.display = 'none';
-                otherInput.value = '';
-            }
-        });
-
-        // If any other option is selected, uncheck "No" in this question
-        [...otherOptions, otherCheckbox].forEach(opt => {
-            opt.addEventListener('change', function () {
-                if (this.checked) {
-                    noOption.checked = false;
-                }
-            });
-        });
-
-        
-    });
-
-
-    // Initialize Flatpickr
     const dateInput = document.querySelector("#dobInput");
-    const calendarBtn = document.querySelector("#calendarButton");
+    if (dateInput) {
+        const fp = flatpickr(dateInput, {
+            dateFormat: "m/d/Y",
+            allowInput: true
+        });
+        const calendarBtn = document.querySelector("#calendarButton");
+        if (calendarBtn) calendarBtn.addEventListener("click", () => fp.open());
 
-    const fp = flatpickr(dateInput, {
-        dateFormat: "m/d/Y",
-        allowInput: true // allow manual typing
-    });
-
-    // Open calendar when icon is clicked
-    calendarBtn.addEventListener("click", () => {
-        fp.open();
-    });
-
-// Auto-insert slashes while typing
-    dateInput.addEventListener("input", (e) => {
-        let value = e.target.value.replace(/\D/g, "");
-        if (value.length >= 3 && value.length <= 4) {
-            value = value.slice(0, 2) + "/" + value.slice(2);
-        } else if (value.length > 4) {
-            value = value.slice(0, 2) + "/" + value.slice(2, 4) + "/" + value.slice(4, 8);
-        }
-        e.target.value = value;
-        validateDate(e.target.value);
-    });
-
-    // Auto-correct on blur or Enter
-    dateInput.addEventListener("blur", autoCorrectDate);
-    dateInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            autoCorrectDate();
-        }
-    });
-
-    function autoCorrectDate() {
-        let parts = dateInput.value.replace(/\s+/g, "").split("/");
-        if (parts.length === 3) {
-            let [month, day, year] = parts;
-
-            // Pad month/day
-            if (month.length === 1) month = "0" + month;
-            if (day.length === 1) day = "0" + day;
-
-            // Smart year guessing
-            if (year.length === 2) {
-                const currentYear = new Date().getFullYear();
-                const currentCentury = Math.floor(currentYear / 100) * 100;
-                const fullYear = currentCentury + parseInt(year, 10);
-
-                // If guessed year is more than 120 years ago, shift forward a century
-                if (currentYear - fullYear > 120) {
-                    year = (fullYear + 100).toString();
-                }
-                // If guessed year is more than 0 years in the future, shift back a century
-                else if (fullYear - currentYear > 0) {
-                    year = (fullYear - 100).toString();
-                } else {
-                    year = fullYear.toString();
-                }
-            } else if (year.length === 1) {
-                year = "000" + year; // unlikely, but keep consistent
-            } else if (year.length === 3) {
-                year = "0" + year;
+        dateInput.addEventListener("input", e => {
+            let value = e.target.value.replace(/\D/g, "");
+            if (value.length >= 3 && value.length <= 4) {
+                value = value.slice(0, 2) + "/" + value.slice(2);
+            } else if (value.length > 4) {
+                value =
+                    value.slice(0, 2) +
+                    "/" +
+                    value.slice(2, 4) +
+                    "/" +
+                    value.slice(4, 8);
             }
-
-            const corrected = `${month}/${day}/${year}`;
-            dateInput.value = corrected;
-            validateDate(corrected);
-        }
+            e.target.value = value;
+            validateDate(e.target.value);
+        });
+        dateInput.addEventListener("blur", autoCorrectDate);
+        dateInput.addEventListener("keydown", e => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                autoCorrectDate();
+            }
+        });
     }
 
-    // Validate date in MM/DD/YYYY format
-    function validateDate(dateStr) {
-        const regex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/\d{4}$/;
-        if (!regex.test(dateStr)) {
-            dateInput.classList.add("invalid");
-            return false;
+    document
+        .getElementById("createPatientBtn")
+        .addEventListener("click", verifyFields);
+});
+
+//need to post request this to the backend with fetch
+fetch("/api/patient", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(patientData)
+})
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
         }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Patient data saved successfully:", data);
+        alert("Patient personal information submitted successfully!");
+        window.location.href = "createPatientMed.html";
+    })
+    .catch(error => {
+        console.error("Error saving patient data:", error);
+        alert("There was an error submitting the patient information. Please try again.");
+    });
 
-        const [month, day, year] = dateStr.split("/").map(Number);
-        const dateObj = new Date(year, month - 1, day);
-        const isValid = dateObj.getMonth() + 1 === month &&
-                        dateObj.getDate() === day &&
-                        dateObj.getFullYear() === year;
-
-        if (!isValid) {
-            dateInput.classList.add("invalid");
-            return false;
-        }
-
-        dateInput.classList.remove("invalid");
-        return true;
-    }
+    

@@ -7,6 +7,11 @@ body {
 
 /* Create Patient Button and Finish Patient Button*/
 
+.other-text {
+    display: none;
+    margin-left: 20px;
+}
+
 .finishButton,
 .createButton {
     background-color: #007e93;
@@ -43,95 +48,14 @@ body {
     outline-offset: 1px;
 }
 
-
-/* Background overlay */
-#overlay {
-display: none; /* Hidden by default */
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: rgba(0, 0, 0, 0.6); /* Semi-transparent black */
-z-index: 999;
+label {
+    display: block; /* Ensures label is above the input */
+    font-weight: bold;
+    margin-bottom: 5px;
 }
 
-
-/* Modal box NEED TO MESS WITH POSITIONING ON THE WINDOW TO MAKE IT MOVE WITH SCROLL -KW */
-/*
-#modal {
-position: fixed;
-top: 150px;
-left: 50%;
-transform: translate(-50%, -50%);
-background: white;
-padding: 20px;
-border-radius: 8px;
-width: 300px;
-max-width: 90%;
-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-text-align: center;
-font-family: Arial, sans-serif;
-}
-
-/* Message text */
-/*
-#modal-message {
-margin-bottom: 15px;
-font-size: 16px;
-color: #333;
-}
-
-/* Close button */
-/*
-.modalContinueButton {
-padding: 8px 15px;
-background-color: #28a745;
-color: white;
-border: none;
-border-radius: 5px;
-cursor: pointer;
-font-size: 14px;
-}
-
-.modalContinueButton:hover {
-background-color: #218838;
-}
-
-/* Close button */
-/*
-.modalErrorButton {
-padding: 8px 15px;
-background-color: #e70909;
-color: white;
-border: none;
-border-radius: 5px;
-cursor: pointer;
-font-size: 14px;
-}
-
-.modalErrorButton:hover {
-background-color: #c91515;
-}
-
-/* Close button */
-/*
-.modalDoneButton {
-padding: 8px 15px;
-background-color: #28a745;
-color: white;
-border: none;
-border-radius: 5px;
-cursor: pointer;
-font-size: 14px;
-}
-
-.modalDoneButton:hover {
-background-color: #218838;
-}
-*/
-
-.questionType0 { /* Type 0 is text box - make edits to this container to change the positioning of the text boxes within the flex box -KW */
+/* Textbox question */
+.questionTextboxShort { 
  display: flex;
  flex-direction: column;
  margin-bottom: 10px; /* Space between boxes */
@@ -143,124 +67,30 @@ background-color: #218838;
 }
 
 /*Focus effect (when clicked or tabbed into)*/
-.questionType0:focus {
+.questionTextboxShort:focus {
     outline: 2px solid #cc9ba1;
     outline-offset: 1px;
 }
 
-label {
-    display: block; /* Ensures label is above the input */
-    font-weight: bold;
-    margin-bottom: 5px;
+.questionTextboxShort.hidden-question {
+    display: none !important;
 }
 
-/*makes text boxes center on page*/
-.flex-container-cP { 
- display: block; /* Keep this as it is to make container start after the body text -KW */
- justify-content: center; /* Horizontal center */ 
- align-items: center; /* Vertical center */ 
- height: 100px; /* Container height */ 
- border: none; 
- margin-top: 20px;
+.questionTextboxLong { /* Type 0 is text box - make edits to this container to change the positioning of the text boxes within the flex box -KW */
+ display: flex;
+ flex-direction: column;
+ margin-bottom: 10px; /* Space between boxes */
+ width: 500px;
+ padding: 8px;
+ font-size: 14px;
+ border-radius: 6px;
+ border: 2px solid #9fabaf;
 }
 
-
-/* For new modal trial */
-.continueButton {
-    background-color: #00930c;
-    color: #f9f9f9;
-    border-radius: 6px;
-    cursor: pointer;
-    padding: 8px 18px;
-    transition: background-color 0.3s ease, transform 0.1s ease;
+.questionTextboxLong:focus {
+    outline: 2px solid #cc9ba1;
+    outline-offset: 1px;
 }
-
-.continueButton:hover {
-    background-color: #00b41a; /* Slightly lighter */
-    transform: scale(1.03);    /* Slightly enlarge */
-}
-
-.errorButton {
-    background-color: #e70909;
-    color: #f9f9f9;
-    border-radius: 6px;
-    cursor: pointer;
-    padding: 8px 18px;
-    transition: background-color 0.3s ease, transform 0.1s ease;
-}
-
-.errorButton:hover {
-    background-color: #c91515; /* Slightly darker */
-    transform: scale(1.03);    /* Slightly enlarge */
-}   
-
-.doneButton {
-    background-color: #00930c;
-    color: #f9f9f9;
-    border-radius: 6px;
-    cursor: pointer;
-    padding: 8px 18px;
-    transition: background-color 0.3s ease, transform 0.1s ease;
-}
-
-.doneButton:hover {
-    background-color: #00b41a; /* Slightly lighter */
-    transform: scale(1.03);    /* Slightly enlarge */
-}
-
-.continueModal .modal-header {
-    background-color: #28a745;
-    color: white;
-    border-bottom: none;
-}
-
-.continueModal .modal-body {
-    font-size: 16px;
-    color: #333;
-}
-
-.errorModal .modal-header {
-    background-color: #e70909;
-    color: white;
-    border-bottom: none;
-}   
-
-.errorModal .modal-body {
-    font-size: 16px;
-    color: #333;
-}   
-
-.doneModal .modal-header {
-    background-color: #28a745;
-    color: white;
-    border-bottom: none;
-}   
-
-.doneModal .modal-body {
-    font-size: 16px;
-    color: #333;
-}
-
-.questionType1 {
-        margin-bottom: 20px;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-.questionType1 h3 {
-        margin-top: 0;
-    }
-
-.exclusive {
-        font-weight: bold;
-        color: red;
-    }
-.other-input {
-        display: none;
-        margin-left: 20px;
-        margin-top: 5px;
-    }
-
 
 .date-picker-wrapper {
     position: relative;
@@ -291,8 +121,29 @@ label {
     height: 20px;
 }
 
-.invalid {
-    border-color: red;
-    background-color: #ffe6e6;
+.questionSelectOne {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
 }
+.questionSelectOne.hidden-question {
+    display: none !important;
+}
+/* ensure each option within question blocks is on its own line */
+.questionSelectOne label,
+.questionSelectAllOtherExclusive label {
+    display: block;
+    margin-bottom: 5px;
+}
+/* fieldset/legend structure from createPatientScript.js already stacks options by default */
 
+
+.questionSelectAllOtherExclusive {
+        margin-bottom: 20px;
+        padding: 10px;
+        border: none;
+    }
+
+    .questionSelectAllOtherExclusive h3 {
+        margin-top: 0;
+    }
