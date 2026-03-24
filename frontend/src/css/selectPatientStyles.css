@@ -59,7 +59,8 @@ body {
 }
 
 /* Style the input used for patient selection (replaces .dropbtn rules) */
-.patient-select input {
+.patient-select input,
+.patient-select select {
     display: inline-block;
     padding: 5px 14px;
     font-size: 15px;
@@ -74,11 +75,20 @@ body {
     font-family: Tahoma, sans-serif;
 }
 
+.patient-select select {
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 36px;
+}
+
 .patient-select input::placeholder { 
     color: #f9f9f9;
 }
 
-.patient-select input:hover {
+.patient-select input:hover,
+.patient-select select:hover {
     background-color: #009cb7;
     transform: scale(1.03);
 }

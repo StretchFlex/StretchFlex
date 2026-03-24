@@ -32,8 +32,13 @@
 <button class="lookupButton" id="lookupButton">Lookup Patient ID</button>
 
     <h2 class="patient-heading">Edit Patient Information</h2>
-    <p>This page needs to go to a login page for HIPPA? Then go to editing the patient information.</p>
-<button class="editButton" id="editButton">Edit Patient Information</button>
+    <p>Select an existing patient and click edit to update data.</p>
+    <div class="patient-select">
+        <label for="editPatientInput">Patient:</label>
+        <input id="editPatientInput" name="editPatient" list="editPatientsList" placeholder="Type to search patient..." autocomplete="off">
+        <datalist id="editPatientsList"></datalist>
+        <button class="editButton" id="editButton">Edit Selected Patient</button>
+    </div>
 
     <!-- Output area -->
     <div id="output"></div>
