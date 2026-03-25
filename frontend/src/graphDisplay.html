@@ -4,24 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Graph Display</title>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	<link rel="stylesheet" href="css/graphDisplayStyles.css">
+
+    <link rel="stylesheet" href="css/graphDisplayStyles.css">
     <link rel="stylesheet" href="css/universalStyles.css">
-
 </head>
-<body>
 
+<body>
 
 <div class="fixed-container">
     <div class="graph-top-box">
-    <!-- Chart Area -->
-    <canvas id="lineChart"></canvas>    
+        <!-- Chart Area -->
+        <canvas id="lineChart"></canvas>
     </div>
-    
+
     <div class="bottom-row">
         <div class="bottom-box">
             <h2>Graph + Statistics</h2>
-            <p>Click Generate Graph to update with your selections</p>
+            <p>Select graphs from the dropdowns below</p>
+
             <table class="stats-table">
                 <thead>
                     <tr>
@@ -32,15 +34,13 @@
                         <th>Max</th>
                     </tr>
                 </thead>
+
                 <tbody>
                     <tr id="row-1">
                         <td>
                             <label for="graphInput1" class="hidden-label">Graph 1</label>
                             <select id="graphInput1" name="graph1" class="single-graph-select">
                                 <option value="">Select Graph 1</option>
-                                <option value="sampleGraphsJasTest/smooth_distance_curve_4min_linear.csv">Smooth Distance Curve (4min, Linear)</option>
-                                <!-- <option value="sampleGraphsJasTest/Graph B">Graph B</option>
-                                <option value="sampleGraphsJasTest/Graph C">Graph C</option> -->
                             </select>
                         </td>
                         <td class="stat-mean">...</td>
@@ -48,14 +48,12 @@
                         <td class="stat-min">...</td>
                         <td class="stat-max">...</td>
                     </tr>
+
                     <tr id="row-2">
                         <td>
                             <label for="graphInput2" class="hidden-label">Graph 2</label>
                             <select id="graphInput2" name="graph2" class="single-graph-select">
                                 <option value="">Select Graph 2</option>
-                                <option value="sampleGraphsJasTest/smooth_distance_curve_4min_linear.csv">Smooth Distance Curve (4min, Linear)</option>
-                                <!-- <option value="sampleGraphsJasTest/Graph B">Graph B</option>
-                                <option value="sampleGraphsJasTest/Graph C">Graph C</option> -->
                             </select>
                         </td>
                         <td class="stat-mean">...</td>
@@ -63,14 +61,12 @@
                         <td class="stat-min">...</td>
                         <td class="stat-max">...</td>
                     </tr>
+
                     <tr id="row-3">
                         <td>
                             <label for="graphInput3" class="hidden-label">Graph 3</label>
                             <select id="graphInput3" name="graph3" class="single-graph-select">
                                 <option value="">Select Graph 3</option>
-                                <option value="sampleGraphsJasTest/smooth_distance_curve_4min_linear.csv">Smooth Distance Curve (4min, Linear)</option>
-                                <!-- <option value="sampleGraphsJasTest/Graph B">Graph B</option>
-                                <option value="sampleGraphsJasTest/Graph C">Graph C</option> -->
                             </select>
                         </td>
                         <td class="stat-mean">...</td>
@@ -78,14 +74,12 @@
                         <td class="stat-min">...</td>
                         <td class="stat-max">...</td>
                     </tr>
+
                     <tr id="row-4">
                         <td>
                             <label for="graphInput4" class="hidden-label">Graph 4</label>
                             <select id="graphInput4" name="graph4" class="single-graph-select">
                                 <option value="">Select Graph 4</option>
-                                <option value="sampleGraphsJasTest/smooth_distance_curve_4min_linear.csv">Smooth Distance Curve (4min, Linear)</option>
-                                <!-- <option value="sampleGraphsJasTest/Graph B">Graph B</option>
-                                <option value="sampleGraphsJasTest/Graph C">Graph C</option> -->
                             </select>
                         </td>
                         <td class="stat-mean">...</td>
@@ -95,13 +89,13 @@
                     </tr>
                 </tbody>
             </table>
-            <button class="generateButton">Generate Graph & Stats </button>
+
             <button class="clearChartButton">Clear Graph & Stats</button>
-
-
-    </div> 
+        </div>
+    </div>
 </div>
 
+<!-- JS Modules -->
 <script type="module" src="js/calculations.js"></script>
 <script type="module" src="js/graphDisplayScript-chartGeneration.js"></script>
 <script type="module" src="js/statisticsScript.js"></script>
