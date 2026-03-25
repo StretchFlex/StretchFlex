@@ -31,8 +31,8 @@ function createBlankChart() {
                 annotation: { annotations: {} }
             },
             scales: {
-                x: { title: { display: true, text: 'Time (s)' } },
-                y: { title: { display: true, text: 'Stretch Distance (mm)' }, beginAtZero: true }
+                x: { title: { display: true, text: 'Time (s)' }, beginAtZero: true, ticks: { callback: function(value) { return value.toFixed(2); } } },
+                y: { title: { display: true, text: 'Stretch Distance (mm)' }, beginAtZero: true, ticks: { callback: function(value) { return value.toFixed(2); } } }
             }
         }
     });
@@ -98,10 +98,26 @@ function renderMultiChart() {
                 legend: { position: "bottom" },
                 title: { display: true, text: "Multi‑Graph Display (Raw Only)" },
                 annotation: { annotations: {} }
+            },
+            scales: {
+                x: {
+                    title: { display: true, text: "Time (s)" },
+                    ticks: {
+                        callback: value => Number(value).toFixed(2)
+                    }
+                },
+                y: {
+                    title: { display: true, text: "Stretch Distance (mm)" },
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => Number(value).toFixed(2)
+                    }
+                }
             }
         }
     });
 }
+
 
 // ============================================================
 // DROPDOWN LISTENERS
