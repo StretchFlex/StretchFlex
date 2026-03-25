@@ -50,6 +50,35 @@
 
         window.currentChartData = [];
 
+        // Listen for dropdown changes → load CSV → graph it
+document.querySelectorAll('.single-graph-select').forEach(select => {
+    select.addEventListener('change', async function () {
+        const filePath = this.value;
+
+        if (!filePath) return; // User selected "Select Graph"
+
+        try {
+            const response = await fetch(filePath);
+            if (!response.ok) throw new Error("Could not load CSV");
+
+            const csvText = await response.text();
+            const { labels, data } = parseCSV(csvText);
+
+            renderChart(labels, data);
+
+            if (typeof updateStatsTable === 'function') {
+                updateStatsTable();
+            }
+
+        } catch (err) {
+            console.error("Error loading CSV:", err);
+            alert("Failed to load selected CSV file.");
+        }
+    });
+});
+
+        
+        
         // Function to create/update chart and update statistics
         function renderChart(labels, data) {
             if (chartInstance) {
@@ -142,43 +171,43 @@
             }
         });
 
-        async function populateGraphSelects() {
-            const selects = document.querySelectorAll('.single-graph-select');
+        // async function populateGraphSelects() {
+        //     const selects = document.querySelectorAll('.single-graph-select');
 
-            try {
-                const response = await fetch('/csv-graphs/graphs.json');
-                if (!response.ok) throw new Error('Failed to fetch graph list');
-                const graphs = await response.json();
-                if (!Array.isArray(graphs)) throw new Error('Unexpected graphs payload');
+        //     try {
+        //         const response = await fetch('/csv-graphs/graphs.json');
+        //         if (!response.ok) throw new Error('Failed to fetch graph list');
+        //         const graphs = await response.json();
+        //         if (!Array.isArray(graphs)) throw new Error('Unexpected graphs payload');
 
-                selects.forEach(select => {
-                    // Clear existing options except the first
-                    while (select.options.length > 1) {
-                        select.remove(1);
-                    }
-                    graphs.forEach(graph => {
-                        const opt = document.createElement('option');
-                        opt.value = graph;
-                        opt.textContent = graph;
-                        select.appendChild(opt);
-                    });
-                });
-            } catch (error) {
-                console.error('Error loading graph list:', error);
-                // Fallback
-                selects.forEach(select => {
-                    while (select.options.length > 1) {
-                        select.remove(1);
-                    }
-                    ['Curve Graph', 'Linear Graph'].forEach(graph => {
-                        const opt = document.createElement('option');
-                        opt.value = graph;
-                        opt.textContent = graph;
-                        select.appendChild(opt);
-                    });
-                });
-            }
-        }
+        //         selects.forEach(select => {
+        //             // Clear existing options except the first
+        //             while (select.options.length > 1) {
+        //                 select.remove(1);
+        //             }
+        //             graphs.forEach(graph => {
+        //                 const opt = document.createElement('option');
+        //                 opt.value = graph;
+        //                 opt.textContent = graph;
+        //                 select.appendChild(opt);
+        //             });
+        //         });
+        //     } catch (error) {
+        //         console.error('Error loading graph list:', error);
+        //         // Fallback
+        //         selects.forEach(select => {
+        //             while (select.options.length > 1) {
+        //                 select.remove(1);
+        //             }
+        //             ['Curve Graph', 'Linear Graph'].forEach(graph => {
+        //                 const opt = document.createElement('option');
+        //                 opt.value = graph;
+        //                 opt.textContent = graph;
+        //                 select.appendChild(opt);
+        //             });
+        //         });
+        //     }
+        // }
 
         // Call on DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', populateGraphSelects); 
+        //document.addEventListener('DOMContentLoaded', populateGraphSelects); 
