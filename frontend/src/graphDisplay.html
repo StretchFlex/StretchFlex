@@ -15,7 +15,6 @@
 
 <div class="fixed-container">
     <div class="graph-top-box">
-        <!-- Chart Area -->
         <canvas id="lineChart"></canvas>
     </div>
 
@@ -42,6 +41,7 @@
                             <select id="graphInput1" name="graph1" class="single-graph-select">
                                 <option value="">Select Graph 1</option>
                             </select>
+                            <button class="remove-graph-btn" data-target="graph1">Remove</button>
                         </td>
                         <td class="stat-mean">...</td>
                         <td class="stat-std">...</td>
@@ -55,6 +55,7 @@
                             <select id="graphInput2" name="graph2" class="single-graph-select">
                                 <option value="">Select Graph 2</option>
                             </select>
+                            <button class="remove-graph-btn" data-target="graph2">Remove</button>
                         </td>
                         <td class="stat-mean">...</td>
                         <td class="stat-std">...</td>
@@ -68,6 +69,7 @@
                             <select id="graphInput3" name="graph3" class="single-graph-select">
                                 <option value="">Select Graph 3</option>
                             </select>
+                            <button class="remove-graph-btn" data-target="graph3">Remove</button>
                         </td>
                         <td class="stat-mean">...</td>
                         <td class="stat-std">...</td>
@@ -81,6 +83,7 @@
                             <select id="graphInput4" name="graph4" class="single-graph-select">
                                 <option value="">Select Graph 4</option>
                             </select>
+                            <button class="remove-graph-btn" data-target="graph4">Remove</button>
                         </td>
                         <td class="stat-mean">...</td>
                         <td class="stat-std">...</td>
@@ -90,12 +93,11 @@
                 </tbody>
             </table>
 
-            <button class="clearChartButton">Clear Graph & Stats</button>
         </div>
     </div>
 </div>
 
-<!-- JS Modules -->
+<!-- JS Modules (deferred automatically) -->
 <script type="module" src="js/calculations.js"></script>
 <script type="module" src="js/graphDisplayScript-chartGeneration.js"></script>
 <script type="module" src="js/statisticsScript.js"></script>
