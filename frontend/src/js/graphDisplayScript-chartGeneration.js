@@ -1,3 +1,12 @@
+// Stores data for each dropdown row
+const graphSelections = {
+    graph1: null,
+    graph2: null,
+    graph3: null,
+    graph4: null
+};
+
+        
         const ctx = document.getElementById('lineChart').getContext('2d');
         
         //Added to load blank chart initially
@@ -50,25 +59,54 @@
 
         window.currentChartData = [];
 
-        // Listen for dropdown changes → load CSV → graph it
+//         // Listen for dropdown changes → load CSV → graph it
+// document.querySelectorAll('.single-graph-select').forEach(select => {
+//     select.addEventListener('change', async function () {
+//         const filePath = this.value;
+
+//         if (!filePath) return; // User selected "Select Graph"
+
+//         try {
+//             const response = await fetch(filePath);
+//             if (!response.ok) throw new Error("Could not load CSV");
+
+//             const csvText = await response.text();
+//             const { labels, data } = parseCSV(csvText);
+
+//             renderChart(labels, data);
+
+//             if (typeof updateStatsTable === 'function') {
+//                 updateStatsTable();
+//             }
+
+//         } catch (err) {
+//             console.error("Error loading CSV:", err);
+//             alert("Failed to load selected CSV file.");
+//         }
+//     });
+// });
+
 document.querySelectorAll('.single-graph-select').forEach(select => {
     select.addEventListener('change', async function () {
         const filePath = this.value;
+        const key = this.name; // graph1, graph2, graph3, graph4
 
-        if (!filePath) return; // User selected "Select Graph"
+        if (!filePath) {
+            graphSelections[key] = null;
+            renderMultiChart();
+            updateStatsTable();
+            return;
+        }
 
         try {
             const response = await fetch(filePath);
-            if (!response.ok) throw new Error("Could not load CSV");
-
             const csvText = await response.text();
             const { labels, data } = parseCSV(csvText);
 
-            renderChart(labels, data);
+            graphSelections[key] = { labels, data };
 
-            if (typeof updateStatsTable === 'function') {
-                updateStatsTable();
-            }
+            renderMultiChart();
+            updateStatsTable();
 
         } catch (err) {
             console.error("Error loading CSV:", err);
@@ -76,46 +114,82 @@ document.querySelectorAll('.single-graph-select').forEach(select => {
         }
     });
 });
+    
+        // // Function to create/update chart and update statistics
+        // function renderChart(labels, data) {
+        //     if (chartInstance) {
+        //         chartInstance.destroy(); // Avoid duplicate charts
+        //     }
+        //     window.currentChartData = Array.isArray(data) ? data : [];
 
-        
-        
-        // Function to create/update chart and update statistics
-        function renderChart(labels, data) {
-            if (chartInstance) {
-                chartInstance.destroy(); // Avoid duplicate charts
-            }
-            window.currentChartData = Array.isArray(data) ? data : [];
+        //     chartInstance = new Chart(ctx, {
+        //         type: 'line',
+        //         data: {
+        //             labels: labels,
+        //             datasets: [{
+        //                 label: 'CSV Data',
+        //                 data: data,
+        //                 borderColor: 'blue',
+        //                 //backgroundColor: 'rgba(0, 0, 255, 0.1)',
+        //                 fill: false,
+        //                 tension: 0.3
+        //             }]
+        //         },
+        //         options: {
+        //             responsive: true,
+        //             plugins: {
+        //                 legend: { position: 'bottom' },
+        //                 title: { display: true, text: 'Line Chart from CSV' }
+        //             },
+        //             scales: {
+        //                 y: { beginAtZero: true }
+        //             }
+        //         }
+        //     });
 
-            chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'CSV Data',
-                        data: data,
-                        borderColor: 'blue',
-                        //backgroundColor: 'rgba(0, 0, 255, 0.1)',
-                        fill: false,
-                        tension: 0.3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { position: 'bottom' },
-                        title: { display: true, text: 'Line Chart from CSV' }
-                    },
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
-                }
+        //     if (typeof updateStatsTable === 'function') {
+        //         updateStatsTable();
+        //     }
+        // }
+
+function renderMultiChart() {
+    if (chartInstance) chartInstance.destroy();
+
+    const datasets = [];
+    let labels = [];
+
+    const colors = ["blue", "red", "green", "purple"];
+
+    Object.keys(graphSelections).forEach((key, index) => {
+        const entry = graphSelections[key];
+        if (entry) {
+            if (labels.length === 0) labels = entry.labels;
+
+            datasets.push({
+                label: key,
+                data: entry.data,
+                borderColor: colors[index],
+                fill: false,
+                tension: 0.3
             });
+        }
+    });
 
-            if (typeof updateStatsTable === 'function') {
-                updateStatsTable();
+    chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' },
+                title: { display: true, text: 'Multi‑Graph Display' }
+            },
+            scales: {
+                y: { beginAtZero: true }
             }
         }
-
+    });
+}
 
         // Call fetchAndRenderChart on page load or based on user action
         //fetchAndRenderChart(); // Uncomment to load chart on page load    
@@ -209,5 +283,34 @@ document.querySelectorAll('.single-graph-select').forEach(select => {
         //     }
         // }
 
+
+    async function populateGraphSelects() {
+    const selects = document.querySelectorAll('.single-graph-select');
+
+    try {
+        const response = await fetch("sampleGraphsJasTest/graphs.json");
+        const files = await response.json();
+
+        selects.forEach(select => {
+            // Remove old options except the first
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+
+            files.forEach(file => {
+                const opt = document.createElement("option");
+                opt.value = `sampleGraphsJasTest/${file}`;
+                opt.textContent = file;
+                select.appendChild(opt);
+            });
+        });
+
+    } catch (err) {
+        console.error("Error loading CSV list:", err);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", populateGraphSelects);
+    
         // Call on DOMContentLoaded
         //document.addEventListener('DOMContentLoaded', populateGraphSelects); 
