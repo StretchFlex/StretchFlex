@@ -62,24 +62,3 @@
             });
         }
 
-    const selectAll = document.getElementById('selectAll');
-    const deselectAll = document.getElementById('deselectAll');
-    const items = document.querySelectorAll('.item');
-
-    // "Select All" toggles all
-    selectAll.addEventListener('click', function () {
-        items.forEach(item => item.checked = true);
-    });
-
-    // "Deselect All" button
-    deselectAll.addEventListener('click', function () {
-        items.forEach(item => item.checked = false);
-    });
-
-    /*// Update "Select All" based on individual items
-    items.forEach(item => {
-        item.addEventListener('change', function () {
-            selectAll.checked = [...items].every(i => i.checked);
-        });
-    }); 
-    */     
