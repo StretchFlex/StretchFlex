@@ -2,7 +2,7 @@
 // DROPDOWN‑ONLY MULTI‑GRAPH SYSTEM WITH FILTERING
 // ============================================================
 
-import { calculateKeyPoints, createPointAnnotations } from 'js/calculations.js';
+import { calculateKeyPoints, createPointAnnotations } from 'js/calculations.js'; 
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     window.currentChartData = [];
 
     // ============================================================
-    // CHART SETUP
+    // CHART SETUP BLANK INITIALLY
     // ============================================================
     const ctx = document.getElementById('lineChart').getContext('2d');
 
