@@ -54,7 +54,8 @@ app.MapPost("/api/patient/create", async (HttpRequest request) =>
             return Results.BadRequest("Invalid JSON.");
         }
 
-        using var connection = new Npgsql.NpgsqlConnection(connectionString);
+        using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
 
         var patientSQL = @"
             INSERT INTO stretchflex_db.patients (first_name, last_name, email)
@@ -106,7 +107,8 @@ app.MapPost("/api/patient/medical-history/create", async (HttpRequest request, I
             return Results.BadRequest("Invalid JSON.");
         }
 
-        using var connection = new Npgsql.NpgsqlConnection(connectionString);
+        using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
 
         var histroySql = @"
             UPDATE stretchflex_db.medical_history SET
@@ -162,6 +164,8 @@ app.MapGet("/api/patient/find/id/{firstName}-{lastName}", async (string firstNam
     try
     {
         using var connection = new Npgsql.NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
+
         var sql = @"
             SELECT p.patient_id AS PatientId, 
                    p.first_name AS FirstName, 
@@ -195,6 +199,7 @@ app.MapGet("/api/patient/personal/{id}", async (int id) =>
     try
     {
         using var connection = new Npgsql.NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
 
         var sql = @"
             SELECT 
@@ -235,6 +240,8 @@ app.MapGet("/api/patient/medical-history/{id}", async (int id) =>
     try
     {
         using var connection = new Npgsql.NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
+
         var sql = @"
             SELECT
                 mh.history_of_pf,
@@ -316,6 +323,7 @@ app.MapPut("/api/patient/personal-info/update/{id}", async (int id, PatientPerso
     try
     {
         using var connection = new Npgsql.NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
 
         var sql = @"
                 UPDATE stretchflex_db.patients
@@ -368,6 +376,7 @@ app.MapPut("/api/patient/update/medical-history/{id}", async (int id, PatientMed
     try
     {
         using var connection = new Npgsql.NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
 
         var sql = @"
             UPDATE stretchflex_db.medical_history
@@ -422,6 +431,36 @@ app.MapPut("/api/patient/update/medical-history/{id}", async (int id, PatientMed
     catch (Exception ex)
     {
         Log.Error(ex, "Error updating patient medical history.");
+        return Results.StatusCode(500);
+    }
+});
+
+app.MapGet("/api/patient/list", async () =>
+{
+    try
+    {
+        using var connection = new Npgsql.NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        var sql = @"
+            SELECT patient_id
+            FROM stretchflex_db.medical_history
+            ORDER BY patient_id";
+
+        var patientList = await connection.QueryAsync<int>(sql);
+
+        if (!patientList.Any())
+        {
+            Log.Warning("No Patients");
+            return Results.Ok("No patients found.");
+        }
+
+        Log.Information("Returning list of all patient IDs.");
+        return Results.Ok(patientList);
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error retrieving patients.");
         return Results.StatusCode(500);
     }
 });
