@@ -24,12 +24,6 @@ body {
 }
 
 
-/*For messages if invalid csv are selected	*/
-#output {
-	margin-top: 15px;
-	font-weight: bold;
-}
-
 /*For graph canvas*/
 canvas { 
 	max-width: 100%;
@@ -143,7 +137,7 @@ canvas {
 }
 
 .single-graph-select {
-    width: 100%;
+    width: 250px;
     padding: 4px 8px;
     margin-bottom: 4px;
     box-sizing: border-box;
@@ -159,17 +153,7 @@ canvas {
 .single-graph-select:hover {
     background-color: #009cb7;
     transform: scale(1.03);
-}    padding: 10px;
-    border-radius: 4px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    overflow-y: auto;
-    overflow-x: auto;
-}
+}    
 
 @media (max-width: 800px) {
     .bottom-row {
@@ -181,7 +165,7 @@ canvas {
 }
 
 
-.clearChartButton {
+.clearGraphButton {
     padding: 8px 12px;
     font-size: 14px;
     margin-left: 5px;
@@ -193,7 +177,7 @@ canvas {
 }
 
 
-.clearChartButton:hover {
+.clearGraphButton:hover {
     background-color: #d32f2f;
     transform: scale(1.03);
 }
@@ -209,48 +193,5 @@ input[type="checkbox"]:checked + .stats-toggle-box {
     color: #f9f9f9;
 }
 
-
-.stats-toggle-box {
-    display: inline-flex;
-    margin-bottom: 10px;
-    align-items: center;
-    justify-content: center;
-    width: 110px;
-    height: 30px;
-    border: 2px solid #007e93;
-    border-radius: 4px;
-    background-color: #f9f9f9;
-    color: #007e93;
-    font-weight: bold;
-    transition: background-color 0.2s ease, color 0.2s ease;
-    cursor: pointer;
-    -webkit-user-select: none;
-    user-select: none;
-}
-
-.stats-toggle-box-container {
-    display: flex;
-    flex-direction: column;
-    margin-top: 20px; /* Change distance between the Select/Deselect All buttons and the option Buttons */
-}
-
-.stats-action-button {
-    padding: 8px 12px;
-    border: 2px solid #007e93;
-    border-radius: 4px; 
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.stats-selectAll-button {
-    background-color: #007e93;
-    color: #f9f9f9
-}
-
-.stats-deselectAll-button {
-    background-color: #f9f9f9;
-    color: #007e93;
-}
 
 
