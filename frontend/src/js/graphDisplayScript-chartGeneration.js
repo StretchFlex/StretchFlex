@@ -81,7 +81,7 @@ function renderMultiChart() {
         if (labels.length === 0) labels = time;
 
         datasets.push({
-            label: `${key} Raw`,
+            label: `${key}`,
             data: raw,
             borderColor: colors[index],
             borderWidth: 2,
@@ -96,7 +96,7 @@ function renderMultiChart() {
             responsive: true,
             plugins: {
                 legend: { position: "bottom" },
-                title: { display: true, text: "Multi‑Graph Display (Raw Only)" },
+                title: { display: true, text: "Multi‑Graph Display" },
                 annotation: { annotations: {} }
             },
             scales: {
@@ -155,7 +155,7 @@ function setupDropdownListeners() {
 // REMOVE GRAPH BUTTONS
 // ============================================================
 function setupRemoveButtons() {
-    document.querySelectorAll(".remove-graph-btn").forEach(btn => {
+    document.querySelectorAll(".clearGraphButton").forEach(btn => {
         btn.addEventListener("click", () => {
             const key = btn.dataset.target;
 

@@ -100,6 +100,8 @@ canvas {
     height: auto;
     background-color: #f9f9f9;
     border: 1px solid #100c0c;
+    border-radius: 4px;
+    padding: 10px;
 }
 
 .stats-table {
