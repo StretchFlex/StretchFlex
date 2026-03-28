@@ -9,28 +9,36 @@
 
 </head>
 <body>
+
+<div class="flex-container" id="selectContainer">
     <h2 class="patient-heading">Select Patient</h2>
-    <p>Type to search or pick from the list. For new patients, click the "Create" button.</p>
-<div class="patient-select">
-    <label for="patientInput">Patient:</label>
-    <input id="patientInput" name="patient" list="patientsList" placeholder="Type to search patient..." autocomplete="off">
-    <datalist id="patientsList">
-        <option value="Patient 1"></option>
-        <option value="Patient 2"></option>
-        <option value="Patient 3"></option>
-    </datalist>
+    <p>Type to search or pick from the list to see patient stretching data.</p>
+    <div class="patient-select">
+        <label for="patientInput">Patient:</label>
+        <input id="patientInput" name="patient" list="patientsList" placeholder="Type to search patient..." autocomplete="off">
+        <datalist id="patientsList">
+            <option value="Patient 1"></option>
+            <option value="Patient 2"></option>
+            <option value="Patient 3"></option>
+        </datalist>
+        <button class="goButton" id="goButton">Go</button>
+    </div>
+
+</div> 
+
+<div class="flex-container" id="createContainer">
+    <h2 class="patient-heading">Create New Patient</h2> 
+    <p>Click the button below to create a new patient record.</p>
+    <button class="createButton" id="createButton">+ Create New Patient</button>
 </div>
 
-<button class="goButton" id="goButton">Go</button>
-
-
-    <h2 class="patient-heading">Create New Patient</h2> 
-<button class="createButton" id="createButton">+ Create New Patient</button>
-
+<div class="flex-container" id="lookupContainer">
     <h2 class="patient-heading">Lookup Patient ID</h2>
-    <p>This page needs to go to a login page for HIPPA? Then go to searching the matrix. Can we reuse the login Page and check crednetials again?</p>
-<button class="lookupButton" id="lookupButton">Lookup Patient ID</button>
+    <p>This page redirects to another login page before showing patient information for HIPPA Compliance.</p>
+    <button class="lookupButton" id="lookupButton">Lookup Patient ID</button>
+</div>
 
+<div class="flex-container" id="editContainer">
     <h2 class="patient-heading">Edit Patient Information</h2>
     <p>Select an existing patient and click edit to update data.</p>
     <div class="patient-select">
@@ -39,10 +47,7 @@
         <datalist id="editPatientsList"></datalist>
         <button class="editButton" id="editButton">Edit Selected Patient</button>
     </div>
-
-    <!-- Output area -->
-    <div id="output"></div>
-
+</div>
 
 
 <script src="js/selectPatientScript.js"></script>
