@@ -396,43 +396,12 @@ document.getElementById("finishBtn").addEventListener("click", async function ()
         otherRelevantComments: jsonData.otherRelevantComments || ""
     };
 
-    //without fetch, just for reference
-    // document.getElementById("output").textContent =
-    //     JSON.stringify(outputObject, null, 4);
-
-    // alert("Patient medical information submitted successfully!");
-    // window.location.href = "selectPatient.html";
-
 
 if (!patientId) {
     alert('Patient ID not found; please go back to the patient list and select a patient before entering medical info.');
     return;
 }
 
-// // need to post request the json object to the backend with fetch
-// fetch("/api/patient/medical-history/create", {
-//     method: "POST",
-//     headers: {
-//         "Content-Type": "application/json"
-//     },
-//     body: JSON.stringify(outputObject)
-// })
-//     .then(response => {
-//         if (!response.ok) {
-//             throw new Error("Network response was not ok");
-//         }
-//         return response.text();
-//     })
-//     .then(data => {
-//         console.log("Success");
-//         alert("Patient medical information submitted successfully! Your patient ID is: " + patientId);
-//         window.location.href = "selectPatient.html";
-//     })
-//     .catch(error => {
-//         console.error("Error:", error);
-//         alert("There was an error submitting the information. Please try again.");
-//     });
-// });
 
     try {
         const response = await fetch("/api/patient/medical-history/create", {

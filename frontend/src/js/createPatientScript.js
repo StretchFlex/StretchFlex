@@ -42,7 +42,7 @@ const patientPersonalInfoFormSchema = [
         name: "sex",
         label: "Birth Sex",
         type: "single-choice",
-        options: ["male", "female", "RND"],
+        options: ["Male", "Female", "RND"],
         required: true
        
     },
@@ -68,10 +68,11 @@ const patientPersonalInfoFormSchema = [
         name: "bmi",
         label: "BMI (kg/m²)",
         type: "float",
-        required: true,
+        required: false,
         id: "bmiInput",
-        placeholder: "Type here...",
-        step: "0.01"
+        placeholder: "Calculated automatically",
+        step: "0.01",
+        readonly: true
     }
 ];
 
@@ -132,6 +133,7 @@ function createQuestion(field) {
         if (field.maxLength) input.maxLength = field.maxLength;
         if (field.step) input.step = field.step;
         input.autocomplete = field.autocomplete || "off";
+        if (field.readonly) input.disabled = true;
         wrapper.appendChild(input);
 
         if (field.type === "date") {
@@ -190,6 +192,24 @@ function autoCorrectDate() {
     }
 }
 
+function calculateBMI() {
+    const heightInput = document.querySelector('[name="height"]');
+    const massInput = document.querySelector('[name="mass"]');
+    const bmiInput = document.querySelector('[name="bmi"]');
+    
+    if (!heightInput || !massInput || !bmiInput) return;
+    
+    const height = parseFloat(heightInput.value);
+    const mass = parseFloat(massInput.value);
+    
+    if (!isNaN(height) && !isNaN(mass) && height > 0) {
+        const bmi = mass / (height * height);
+        bmiInput.value = bmi.toFixed(2);
+    } else {
+        bmiInput.value = "";
+    }
+}
+
 async function verifyFields() {
     for (const field of patientPersonalInfoFormSchema) {
         if (!field.required) continue;
@@ -236,38 +256,7 @@ async function verifyFields() {
         height: parseFloat(document.querySelector('[name="height"]').value.trim()),
         mass: parseFloat(document.querySelector('[name="mass"]').value.trim())
     };
-    //Replaced by fetch call to backend, but keeping for reference
-    // alert("Patient personal information submitted successfully!");
-    // window.location.href = "createPatientMed.html";
-    // return true;
 
-// //need to post request this to the backend with fetch
-// fetch("/api/patient/create", {
-//     method: "POST",
-//     headers: {
-//         "Content-Type": "application/json"
-//     },
-//     body: JSON.stringify(patientData)
-// })
-//     .then(response => {
-//         if (!response.ok) {
-//             throw new Error("Network response was not ok");
-//         }
-//         return response.json();
-//     })
-//     .then(data => {
-//
-//         if (data?.PatientId) {
-//             sessionStorage.setItem('selectedPatientId', data.PatientId);
-//             sessionStorage.setItem('selectedPatient', `${patientData.firstName} ${patientData.lastName}`);
-//         }
-//         alert("Patient personal information submitted successfully!");
-//         window.location.href = "createPatientMed.html";
-//     })
-//     .catch(error => {
-//         console.error("Error saving patient data:", error);
-//         alert("There was an error submitting the patient information. Please try again.");
-//     });
 
     try {
         const response = await fetch("/api/patient/create", {
@@ -335,6 +324,11 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    const heightInput = document.querySelector('[name="height"]');
+    const massInput = document.querySelector('[name="mass"]');
+    if (heightInput) heightInput.addEventListener("input", calculateBMI);
+    if (massInput) massInput.addEventListener("input", calculateBMI);
 
     document
         .getElementById("createPatientBtn")

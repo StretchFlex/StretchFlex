@@ -8,7 +8,7 @@ const patientPersonalInfoFormSchema = [
     { name: "sex", label: "Birth Sex", type: "single-choice", options: ["male", "female", "RND"], required: true },
     { name: "height", label: "Height (m)", type: "float", required: true, id: "heightInput", placeholder: "Type here...", step: "0.01" },
     { name: "mass", label: "Mass (kg)", type: "float", required: true, id: "massInput", placeholder: "Type here...", step: "0.01" },
-    { name: "bmi", label: "BMI (kg/m²)", type: "float", required: true, id: "bmiInput", placeholder: "Type here...", step: "0.01" }
+    { name: "bmi", label: "BMI (kg/m²)", type: "float", required: false, id: "bmiInput", placeholder: "Calculated automatically", step: "0.01", readonly: true }
 ];
 
 const form = document.getElementById("patientPersonalInfoForm");
@@ -59,6 +59,7 @@ function createQuestion(field) {
     if (field.maxLength) input.maxLength = field.maxLength;
     if (field.step) input.step = field.step;
     input.autocomplete = field.autocomplete || "off";
+    if (field.readonly) input.disabled = true;
     wrapper.appendChild(input);
 
     if (field.type === "date") {
@@ -112,6 +113,24 @@ function autoCorrectDate() {
     }
 }
 
+function calculateBMI() {
+    const heightInput = document.querySelector('[name="height"]');
+    const massInput = document.querySelector('[name="mass"]');
+    const bmiInput = document.querySelector('[name="bmi"]');
+    
+    if (!heightInput || !massInput || !bmiInput) return;
+    
+    const height = parseFloat(heightInput.value);
+    const mass = parseFloat(massInput.value);
+    
+    if (!isNaN(height) && !isNaN(mass) && height > 0) {
+        const bmi = mass / (height * height);
+        bmiInput.value = bmi.toFixed(2);
+    } else {
+        bmiInput.value = "";
+    }
+}
+
 function getPatientId() {
     const fromSession = sessionStorage.getItem('selectedPatientId');
     if (fromSession && !isNaN(parseInt(fromSession, 10))) {
@@ -137,7 +156,7 @@ function populateForm(data) {
     }
     document.querySelector('[name="height"]').value = data.heightM ?? "";
     document.querySelector('[name="mass"]').value = data.weightKg ?? "";
-    document.querySelector('[name="bmi"]').value = data.bmi ?? "";
+    calculateBMI();
     originalPatientData = {
         firstName: data.firstName || "",
         lastName: data.lastName || "",
@@ -146,7 +165,7 @@ function populateForm(data) {
         sex: data.sex || "",
         height: data.heightM ?? "",
         mass: data.weightKg ?? "",
-        bmi: data.bmi ?? ""
+        bmi: (data.weightKg ?? 0) / Math.pow(data.heightM ?? 1, 2)
     };
 }
 
@@ -311,6 +330,11 @@ function refreshPageDependencies() {
             }
         });
     }
+
+    const heightInput = document.querySelector('[name="height"]');
+    const massInput = document.querySelector('[name="mass"]');
+    if (heightInput) heightInput.addEventListener('input', calculateBMI);
+    if (massInput) massInput.addEventListener('input', calculateBMI);
 }
 
 // init
