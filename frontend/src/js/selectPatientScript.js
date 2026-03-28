@@ -4,7 +4,7 @@ async function populateDatalist(){
     dl.innerHTML = '';
 
     try {
-        const response = await fetch('/api/patient/list');
+        const response = await fetch('/api/patient/list/');
         if (!response.ok) throw new Error('Failed to fetch patient list');
 
         const list = await response.json();
@@ -31,7 +31,7 @@ async function populateEditDropdown(){
     listNode.innerHTML = '';
 
     try {
-        const response = await fetch('/api/patient/list');
+        const response = await fetch('/api/patient/list/');
         if (!response.ok) throw new Error('Failed to fetch patient list');
         const list = await response.json();
 
