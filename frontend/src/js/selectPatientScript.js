@@ -12,7 +12,7 @@ async function populateDatalist(){
 
         list.forEach(p => {
             const opt = document.createElement('option');
-            opt.value = `${p.patientId}`;
+            opt.value = `${p}`;
             dl.appendChild(opt);
         });
     } catch (error) {
@@ -39,7 +39,7 @@ async function populateEditDropdown(){
 
         list.forEach(p => {
             const option = document.createElement('option');
-            option.value = `${p.patientId}`;
+            option.value = `${p}`;
             listNode.appendChild(option);
         });
 
