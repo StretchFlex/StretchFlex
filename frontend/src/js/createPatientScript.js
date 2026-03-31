@@ -247,14 +247,19 @@ async function verifyFields() {
         }
     }
     // build JSON object for patient info and log it to console
+    const height = parseFloat(document.querySelector('[name="height"]').value.trim());
+    const mass = parseFloat(document.querySelector('[name="mass"]').value.trim());
+    const bmi = (height > 0) ? (mass / (height * height)).toFixed(2) : null;
+
     const patientData = {
-        firstName: document.querySelector('[name="fName"]').value.trim(),
-        lastName: document.querySelector('[name="lName"]').value.trim(),
-        dateOfBirth: document.querySelector('[name="dob"]').value.trim(),
+        firstName: document.querySelector('[name="firstName"]').value.trim(),
+        lastName: document.querySelector('[name="lastName"]').value.trim(),
+        dateOfBirth: document.querySelector('[name="dateOfBirth"]').value.trim(),
         email: document.querySelector('[name="email"]').value.trim(),
         sex: document.querySelector('input[name="sex"]:checked')?.value || null,
-        height: parseFloat(document.querySelector('[name="height"]').value.trim()),
-        mass: parseFloat(document.querySelector('[name="mass"]').value.trim())
+        height: height,
+        mass: mass,
+        bmi: parseFloat(bmi)
     };
 
 
@@ -268,21 +273,29 @@ async function verifyFields() {
         });
 
         if (!response.ok) {
-            throw new Error("Network response was not ok");
+            const errorText = await response.text();
+            throw new Error(`API returned ${response.status}: ${errorText}`);
         }
 
         const data = await response.json();
+        console.log("API response data:", data);
 
-        if (data?.PatientId) {
-            sessionStorage.setItem('selectedPatientId', data.PatientId);
+        if (data?.patientId) {
+            sessionStorage.setItem('selectedPatientId', data.patientId);
             sessionStorage.setItem('selectedPatient', `${patientData.firstName} ${patientData.lastName}`);
+            // Pass patient ID as URL query parameter for reliability
+            console.log("Patient created with ID:", data.patientId);
+            alert("Patient personal information submitted successfully!");
+            window.location.href = `createPatientMed.html?id=${data.patientId}`;
+        } else {
+            console.error("Response object:", data);
+            console.error("Response keys:", Object.keys(data));
+            throw new Error(`No patientId received from server. Response: ${JSON.stringify(data)}`);
         }
-
-        alert("Patient personal information submitted successfully!");
-        window.location.href = "createPatientMed.html";
 
     } catch (error) {
         console.error("Error saving patient data:", error);
+        console.error("Request payload:", patientData);
         alert("There was an error submitting the patient information. Please try again.");
     }
 

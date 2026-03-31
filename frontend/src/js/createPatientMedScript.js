@@ -4,13 +4,15 @@ function loadSelectedPatientId() {
     const stored = sessionStorage.getItem('selectedPatientId');
     if (stored && !isNaN(parseInt(stored, 10))) {
         patientId = parseInt(stored, 10);
-        //console.log("Using selected patient ID:", patientId);
+        console.log("Using selected patient ID from sessionStorage:", patientId);
     } else {
         const search = new URLSearchParams(window.location.search);
         const queryId = search.get('id');
         if (queryId && !isNaN(parseInt(queryId, 10))) {
             patientId = parseInt(queryId, 10);
-            //console.log("Using patient ID from query:", patientId);
+            console.log("Using patient ID from query parameter:", patientId);
+        } else {
+            console.warn("No patient ID found in sessionStorage or query parameters");
         }
     }
 }
@@ -183,6 +185,13 @@ function createQuestion(field) {
         if (field.type === "integer") {
             input.step = "0.01";
             input.min = "1";
+        }
+        if (field.readOnly) {
+            input.readOnly = true;
+        }
+        // populate patientId field with the actual value
+        if (field.name === "patientId" && patientId) {
+            input.value = patientId;
         }
         wrapper.appendChild(input);
     } else if (field.type === "single-choice") {
@@ -396,12 +405,23 @@ document.getElementById("finishBtn").addEventListener("click", async function ()
         otherRelevantComments: jsonData.otherRelevantComments || ""
     };
 
+    // Fallback: if patientId wasn't loaded from sessionStorage, try to read it from the form
+    if (!patientId) {
+        const patientIdInput = form.querySelector('[name="patientId"]');
+        if (patientIdInput && patientIdInput.value) {
+            patientId = parseInt(patientIdInput.value, 10);
+            console.log("Fallback: read patient ID from form input:", patientId);
+        }
+    }
 
-if (!patientId) {
-    alert('Patient ID not found; please go back to the patient list and select a patient before entering medical info.');
-    return;
-}
+    if (!patientId) {
+        console.error("Patient ID is null. SessionStorage:", sessionStorage.getItem('selectedPatientId'));
+        alert('Patient ID not found; please go back to the patient list and select a patient before entering medical info.');
+        return;
+    }
 
+    console.log("Using patient ID for submission:", patientId);
+    outputObject.patientId = patientId;  // Ensure it's set in the output object
 
     try {
         const response = await fetch("/api/patient/medical-history/create", {
