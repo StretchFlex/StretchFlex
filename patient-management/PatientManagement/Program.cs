@@ -159,6 +159,96 @@ app.MapPost("/api/patient/medical-history/create", async (HttpRequest request, I
     }
 });
 
+app.MapPost("/api/patient/complete", async (HttpRequest request) =>
+{
+    try
+    {
+        var dto = await request.ReadFromJsonAsync<CompletePatientDto>();
+        if (dto == null)
+        {
+            Log.Warning("Invalid JSON.");
+            return Results.BadRequest("Invalid JSON.");
+        }
+
+        using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
+        using var transaction = await connection.BeginTransactionAsync();
+
+        try
+        {
+            // Create patient
+            var patientSQL = @"
+                INSERT INTO stretchflex_db.patients (first_name, last_name, email)
+                VALUES (@firstName, @lastName, @email)
+                RETURNING patient_id";
+
+            var patientId = await connection.ExecuteScalarAsync<int>(patientSQL, new
+            {
+                dto.PatientInfo.firstName,
+                dto.PatientInfo.lastName,
+                dto.PatientInfo.email
+            }, transaction);
+
+            // Create medical history
+            var histroySql = @"
+                INSERT INTO stretchflex_db.medical_history (patient_id, date_of_birth, sex, height_m, weight_kg, bmi,
+                    history_of_pf, history_of_pf_right_foot, history_of_pf_left_foot, history_of_pf_additional_notes,
+                    right_foot_condition, right_foot_condition_additional_notes,
+                    left_foot_condition, left_foot_condition_additional_notes,
+                    surgery_right_foot, surgery_right_foot_additional_notes,
+                    surgery_left_foot, surgery_left_foot_additional_notes,
+                    treatments, treatments_comments, other_relevant_comments)
+                VALUES
+                (@patientId, @dateOfBirth, @sex, @height, @mass, @bmi,
+                 @HistoryOfPF, @RightFoot, @LeftFoot, @AdditionalComments,
+                 @RightFootConditions, @RightFootConditionsAdditionalComments,
+                 @LeftFootConditions, @LeftFootConditionsAdditionalComments,
+                 @SurgeryRight, @SurgeryRightComment,
+                 @SurgeryLeft, @SurgeryLeftComment,
+                 @Treatments, @TreatmentsComments, @OtherRelevantComments)";
+
+            await connection.ExecuteAsync(histroySql, new
+            {
+                patientId,
+                dto.PatientInfo.dateOfBirth,
+                dto.PatientInfo.sex,
+                dto.PatientInfo.height,
+                dto.PatientInfo.mass,
+                dto.PatientInfo.bmi,
+                HistoryOfPF = dto.MedicalHistory.HistoryOfPF?.ResponseOfHistory,
+                RightFoot = dto.MedicalHistory.HistoryOfPF?.RightFoot,
+                LeftFoot = dto.MedicalHistory.HistoryOfPF?.LeftFoot,
+                AdditionalComments = dto.MedicalHistory.HistoryOfPF?.AdditionalComments,
+                RightFootConditions = dto.MedicalHistory.RightFootConditions?.Conditions,
+                RightFootConditionsAdditionalComments = dto.MedicalHistory.RightFootConditions?.AdditionalComments,
+                LeftFootConditions = dto.MedicalHistory.LeftFootConditions?.Conditions,
+                LeftFootConditionsAdditionalComments = dto.MedicalHistory.LeftFootConditions?.AdditionalComments,
+                SurgeryRight = dto.MedicalHistory.SurgeryRight?.SurgeryPerformed,
+                SurgeryRightComment = dto.MedicalHistory.SurgeryRight?.AdditionalComments,
+                SurgeryLeft = dto.MedicalHistory.SurgeryLeft?.SurgeryPerformed,
+                SurgeryLeftComment = dto.MedicalHistory.SurgeryLeft?.AdditionalComments,
+                Treatments = dto.MedicalHistory.Treatments?.Treatments,
+                TreatmentsComments = dto.MedicalHistory.Treatments?.TreatmentsComments,
+                OtherRelevantComments = dto.MedicalHistory.OtherRelevantComments
+            }, transaction);
+
+            await transaction.CommitAsync();
+            Log.Information("Complete patient created with ID {PatientId}", patientId);
+            return Results.Ok(new { PatientId = patientId });
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error processing request.");
+        return Results.StatusCode(500);
+    }
+});
+
 app.MapGet("/api/patient/find/id/{firstName}-{lastName}", async (string firstName, string lastName) =>
 {
     try

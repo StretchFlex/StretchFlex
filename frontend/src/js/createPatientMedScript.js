@@ -1,34 +1,17 @@
-// get patient id from previous selection/session
-let patientId = null;
-function loadSelectedPatientId() {
-    const stored = sessionStorage.getItem('selectedPatientId');
-    if (stored && !isNaN(parseInt(stored, 10))) {
-        patientId = parseInt(stored, 10);
-        console.log("Using selected patient ID from sessionStorage:", patientId);
-    } else {
-        const search = new URLSearchParams(window.location.search);
-        const queryId = search.get('id');
-        if (queryId && !isNaN(parseInt(queryId, 10))) {
-            patientId = parseInt(queryId, 10);
-            console.log("Using patient ID from query parameter:", patientId);
-        } else {
-            console.warn("No patient ID found in sessionStorage or query parameters");
-        }
-    }
-}
-loadSelectedPatientId();
+// Note: No patientId needed for new patient creation - we create both patient and medical history together
 
 // rest of the code that builds the form and handles submission
 
 const patientMedicalInfoFormSchema = [
-    //section to display patient ID for reference, not editable
-    {
-        name: "patientId",
-        label: "Patient ID",
-        type: "string",
-        required: false,
-        readOnly: true
-    },
+    // Note: Patient ID field removed since we're creating a new patient
+    // //section to display patient ID for reference, not editable
+    // {
+    //     name: "patientId",
+    //     label: "Patient ID",
+    //     type: "string",
+    //     required: false,
+    //     readOnly: true
+    // },
     
     // history of plantar fasciitis section
     { // historyOfPF
@@ -405,31 +388,35 @@ document.getElementById("finishBtn").addEventListener("click", async function ()
         otherRelevantComments: jsonData.otherRelevantComments || ""
     };
 
-    // Fallback: if patientId wasn't loaded from sessionStorage, try to read it from the form
-    if (!patientId) {
-        const patientIdInput = form.querySelector('[name="patientId"]');
-        if (patientIdInput && patientIdInput.value) {
-            patientId = parseInt(patientIdInput.value, 10);
-            console.log("Fallback: read patient ID from form input:", patientId);
-        }
-    }
+    // For new patient creation, we don't need patientId - we'll create it
+    console.log("Patient ID for submission: New patient (will be created)");
+    // Remove patientId from outputObject since we're creating a complete patient
+    // outputObject.patientId = patientId;  // Remove this line
 
-    if (!patientId) {
-        console.error("Patient ID is null. SessionStorage:", sessionStorage.getItem('selectedPatientId'));
-        alert('Patient ID not found; please go back to the patient list and select a patient before entering medical info.');
+    // Retrieve stored patient data from sessionStorage
+    const storedPatientData = sessionStorage.getItem('pendingPatientData');
+    if (!storedPatientData) {
+        alert('Patient personal information not found. Please start the patient creation process again.');
+        window.location.href = 'createPatient.html';
         return;
     }
 
-    console.log("Using patient ID for submission:", patientId);
-    outputObject.patientId = patientId;  // Ensure it's set in the output object
+    const patientInfo = JSON.parse(storedPatientData);
+    console.log("Retrieved patient info:", patientInfo);
+
+    // Create complete payload with both personal and medical info
+    const completePayload = {
+        patientInfo: patientInfo,
+        medicalHistory: outputObject
+    };
 
     try {
-        const response = await fetch("/api/patient/medical-history/create", {
+        const response = await fetch("/api/patient/complete", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(outputObject)
+            body: JSON.stringify(completePayload)
         });
 
         if (!response.ok) {
@@ -437,16 +424,18 @@ document.getElementById("finishBtn").addEventListener("click", async function ()
         }
 
         // Backend returns plain text, so parse as text
-        const data = await response.text();
+        const data = await response.json();
+        console.log("Complete patient creation success:", data);
 
-        console.log("Success:", data);
+        // Clear the temporary data
+        sessionStorage.removeItem('pendingPatientData');
 
-        alert("Patient medical information submitted successfully! Your patient ID is: " + patientId);
+        alert("Patient created successfully! Your patient ID is: " + data.patientId);
         window.location.href = "selectPatient.html";
 
     } catch (error) {
-        console.error("Error submitting medical history:", error);
-        alert("There was an error submitting the information. Please try again.");
+        console.error("Error completing patient creation:", error);
+        alert("There was an error completing the patient creation. Please try again.");
     }
 
 });
