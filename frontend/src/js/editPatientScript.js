@@ -149,7 +149,19 @@ function populateForm(data) {
     document.querySelector('[name="firstName"]').value = data.firstName || "";
     document.querySelector('[name="lastName"]').value = data.lastName || "";
     document.querySelector('[name="email"]').value = data.email || "";
-    document.querySelector('[name="dateOfBirth"]').value = data.dateOfBirth || "";
+    
+    // Convert date from yyyy-mm-dd format to mm/dd/yyyy format
+    if (data.dateOfBirth) {
+        const dateObj = new Date(data.dateOfBirth + 'T00:00:00Z');
+        const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getUTCDate()).padStart(2, '0');
+        const year = dateObj.getUTCFullYear();
+        const formattedDate = `${month}/${day}/${year}`;
+        document.querySelector('[name="dateOfBirth"]').value = formattedDate;
+    } else {
+        document.querySelector('[name="dateOfBirth"]').value = "";
+    }
+    
     if (data.sex) {
         const sexInput = document.querySelector(`input[name="sex"][value="${data.sex}"]`);
         if (sexInput) sexInput.checked = true;
