@@ -377,7 +377,6 @@ document.getElementById("finishBtn").addEventListener("click", async function ()
 
     // reformat into the nested object required by back end / user request
     const outputObject = {
-        patientId: patientId, // include the patient ID from the earlier fetch
         historyOfPF: {
             responseOfHistory: jsonData.responseOfHistory || "",
             rightFoot: jsonData.rightFoot || "",

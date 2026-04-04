@@ -275,7 +275,7 @@ async function verifyFields() {
     personalFormDirty = false;
     // Store patient data temporarily in sessionStorage instead of submitting to API
     sessionStorage.setItem('pendingPatientData', JSON.stringify(patientData));
-    console.log("Patient personal information stored temporarily:", patientData);
+    console.log("Patient personal information stored temporarily:", JSON.stringify(patientData, null, 2));
     
     alert("Patient personal information saved temporarily. Please complete the medical information.");
     window.location.href = "createPatientMed.html";
