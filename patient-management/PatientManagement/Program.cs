@@ -99,38 +99,54 @@ app.MapPost("/api/patient/create", async (HttpRequest request) =>
 
         using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync();
+        using var transaction = await connection.BeginTransactionAsync();
 
-        var patientSQL = @"
-            INSERT INTO stretchflex_db.patients (first_name, last_name, email)
-            VALUES (@firstName, @lastName, @email)
-            RETURNING patient_id
-            ";
-        
-        var patientId = await connection.ExecuteScalarAsync<int>(patientSQL, new
+        try
         {
-            dto.firstName,
-            dto.lastName,
-            dto.email
-        });
+            var patientSQL = @"
+                INSERT INTO stretchflex_db.patients (first_name, last_name, email)
+                VALUES (@firstName, @lastName, @email)
+                RETURNING patient_id";
 
-        var histroySql = @"
-            INSERT INTO stretchflex_db.medical_history (patient_id, date_of_birth, sex, height_m, weight_kg, bmi)
-            VALUES
-            (@patientId, @dateOfBirth, @sex, @height, @mass, @bmi)
-            ";
+            var patientId = await connection.ExecuteScalarAsync<int>(patientSQL, new
+            {
+                dto.firstName,
+                dto.lastName,
+                dto.email
+            }, transaction);
 
-        await connection.ExecuteAsync(histroySql, new
+            var historySql = @"
+                INSERT INTO stretchflex_db.medical_history
+                    (patient_id, date_of_birth, sex, height_m, weight_kg, bmi)
+                VALUES
+                    (@patientId, @dateOfBirth, @sex, @height, @mass, @bmi)";
+
+            var affected = await connection.ExecuteAsync(historySql, new
+            {
+                patientId,
+                dto.dateOfBirth,
+                dto.sex,
+                dto.height,
+                dto.mass,
+                dto.bmi
+            }, transaction);
+
+            if (affected == 0)
+            {
+                await transaction.RollbackAsync();
+                Log.Error("medical_history INSERT affected 0 rows for patient ID {PatientId}.", patientId);
+                return Results.StatusCode(500);
+            }
+
+            await transaction.CommitAsync();
+            Log.Information("Patient created with ID {PatientId}", patientId);
+            return Results.Ok(new { PatientId = patientId });
+        }
+        catch
         {
-            patientId,
-            dto.dateOfBirth,
-            dto.sex,
-            dto.height,
-            dto.mass,
-            dto.bmi
-        });
-
-        Log.Information("Patient created with ID {PatientId}", patientId);
-        return Results.Ok(new { PatientId = patientId });
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
     catch (Exception ex)
     {
@@ -150,10 +166,16 @@ app.MapPost("/api/patient/medical-history/create", async (HttpRequest request, I
             return Results.BadRequest("Invalid JSON.");
         }
 
+        if (!IsValidMedicalHistory(dto))
+        {
+            Log.Warning("Incomplete medical history payload for patient ID {PatientId}.", dto?.PatientId);
+            return Results.BadRequest("Missing required medical history fields.");
+        }
+
         using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync();
 
-        var histroySql = @"
+        var historySql = @"
             UPDATE stretchflex_db.medical_history SET
                 history_of_pf = @HistoryOfPF,
                 history_of_pf_right_foot = @RightFoot,
@@ -172,7 +194,7 @@ app.MapPost("/api/patient/medical-history/create", async (HttpRequest request, I
                 other_relevant_comments = @OtherRelevantComments
             WHERE patient_id = @PatientId";
 
-        await connection.ExecuteAsync(histroySql, new
+        var affected = await connection.ExecuteAsync(historySql, new
         {
             dto.PatientId,
             HistoryOfPF = dto.HistoryOfPF?.ResponseOfHistory,
@@ -192,6 +214,12 @@ app.MapPost("/api/patient/medical-history/create", async (HttpRequest request, I
             OtherRelevantComments = dto.OtherRelevantComments
         });
 
+        if (affected == 0)
+        {
+            Log.Warning("Patient ID {PatientId} not found for medical history update.", dto.PatientId);
+            return Results.NotFound($"Patient with ID {dto.PatientId} not found.");
+        }
+
         Log.Information("Medical history updated for patient ID {PatientId}", dto.PatientId);
         return Results.Ok("Medical history updated.");
     }
@@ -202,6 +230,7 @@ app.MapPost("/api/patient/medical-history/create", async (HttpRequest request, I
     }
 });
 
+// No changes needed — transaction, column mapping, and param counts were all correct.
 app.MapPost("/api/patient/complete", async (HttpRequest request) =>
 {
     try
@@ -225,7 +254,6 @@ app.MapPost("/api/patient/complete", async (HttpRequest request) =>
 
         try
         {
-            // Create patient
             var patientSQL = @"
                 INSERT INTO stretchflex_db.patients (first_name, last_name, email)
                 VALUES (@firstName, @lastName, @email)
@@ -238,8 +266,7 @@ app.MapPost("/api/patient/complete", async (HttpRequest request) =>
                 dto.PatientInfo.email
             }, transaction);
 
-            // Create medical history
-            var histroySql = @"
+            var historySql = @"
                 INSERT INTO stretchflex_db.medical_history (patient_id, date_of_birth, sex, height_m, weight_kg, bmi,
                     history_of_pf, history_of_pf_right_foot, history_of_pf_left_foot, history_of_pf_additional_notes,
                     right_foot_condition, right_foot_condition_additional_notes,
@@ -256,7 +283,7 @@ app.MapPost("/api/patient/complete", async (HttpRequest request) =>
                  @SurgeryLeft, @SurgeryLeftComment,
                  @Treatments, @TreatmentsComments, @OtherRelevantComments)";
 
-            await connection.ExecuteAsync(histroySql, new
+            await connection.ExecuteAsync(historySql, new
             {
                 patientId,
                 dto.PatientInfo.dateOfBirth,
@@ -314,9 +341,9 @@ app.MapGet("/api/patient/find/id/{firstName}-{lastName}", async (string firstNam
             FROM stretchflex_db.patients p
             JOIN stretchflex_db.medical_history mh ON p.patient_id = mh.patient_id
             WHERE LOWER(p.first_name) = LOWER(@firstName) AND LOWER(p.last_name) = LOWER(@lastName)";
-        
+
         var patients = await connection.QueryAsync<PatientResponse>(sql, new { firstName, lastName });
-        
+
         if (!patients.Any())
         {
             Log.Warning("Patient not found.");
@@ -462,14 +489,34 @@ app.MapPut("/api/patient/personal-info/update/{id}", async (int id, PatientPerso
     {
         using var connection = new Npgsql.NpgsqlConnection(connectionString);
         await connection.OpenAsync();
+        using var transaction = await connection.BeginTransactionAsync();
 
-        var sql = @"
+        try
+        {
+            var updatePatientSql = @"
                 UPDATE stretchflex_db.patients
                 SET
                     first_name = @FirstName,
                     last_name = @LastName,
                     email = @Email
-                WHERE patient_id = @Id;
+                WHERE patient_id = @Id";
+
+            var patientsAffected = await connection.ExecuteAsync(updatePatientSql, new
+            {
+                Id = id,
+                updateDto.FirstName,
+                updateDto.LastName,
+                updateDto.Email
+            }, transaction);
+
+            if (patientsAffected == 0)
+            {
+                await transaction.RollbackAsync();
+                Log.Warning("Patient with ID {PatientId} not found for personal info update.", id);
+                return Results.NotFound($"Patient with ID {id} not found.");
+            }
+
+            var updateHistorySql = @"
                 UPDATE stretchflex_db.medical_history
                 SET
                     date_of_birth = @DateOfBirth,
@@ -477,30 +524,34 @@ app.MapPut("/api/patient/personal-info/update/{id}", async (int id, PatientPerso
                     height_m = @HeightM,
                     weight_kg = @WeightKg,
                     bmi = @Bmi
-                WHERE patient_id = @Id;
-                ";
+                WHERE patient_id = @Id";
 
-        var affected = await connection.ExecuteAsync(sql, new
-        {
-            Id          = id,
-            updateDto.FirstName,
-            updateDto.LastName,
-            updateDto.Email,
-            updateDto.DateOfBirth,
-            updateDto.Sex,
-            updateDto.HeightM,
-            updateDto.WeightKg,
-            updateDto.Bmi
-        });
+            var historyAffected = await connection.ExecuteAsync(updateHistorySql, new
+            {
+                Id = id,
+                updateDto.DateOfBirth,
+                updateDto.Sex,
+                updateDto.HeightM,
+                updateDto.WeightKg,
+                updateDto.Bmi
+            }, transaction);
 
-        if (affected == 0)
-        {
-            Log.Warning("Patient with ID {PatientId} not found for personal info update.", id);
-            return Results.NotFound($"Patient with ID {id} not found.");
+            if (historyAffected == 0)
+            {
+                await transaction.RollbackAsync();
+                Log.Error("medical_history row missing for existing patient ID {PatientId}.", id);
+                return Results.StatusCode(500);
+            }
+
+            await transaction.CommitAsync();
+            Log.Information("Patient personal info with ID {PatientId} updated.", id);
+            return Results.NoContent();
         }
-
-        Log.Information("Patient personal info with ID {PatientId} updated.", id);
-        return Results.NoContent();
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
     catch (Exception ex)
     {
@@ -534,8 +585,7 @@ app.MapPut("/api/patient/update/medical-history/{id}", async (int id, PatientMed
                 treatments = @Treatments,
                 treatments_comments = @TreatmentsComments,
                 other_relevant_comments = @OtherRelevantComments
-            WHERE patient_id = @Id
-        ";
+            WHERE patient_id = @Id";
 
         var affected = await connection.ExecuteAsync(sql, new
         {
@@ -582,7 +632,7 @@ app.MapGet("/api/patient/list", async () =>
 
         var sql = @"
             SELECT patient_id
-            FROM stretchflex_db.medical_history
+            FROM stretchflex_db.patients
             ORDER BY patient_id";
 
         var patientList = await connection.QueryAsync<int>(sql);
