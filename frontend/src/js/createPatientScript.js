@@ -77,6 +77,17 @@ const patientPersonalInfoFormSchema = [
 ];
 
 const form = document.getElementById("patientPersonalInfoForm");
+let personalFormDirty = false;
+
+function markPersonalDirty() {
+    personalFormDirty = true;
+}
+
+window.addEventListener("beforeunload", function (event) {
+    if (personalFormDirty) {
+        event.preventDefault();
+    }
+});
 
 function createQuestion(field) {
     const fieldId = field.id || `${field.name}Input`;
@@ -261,7 +272,7 @@ async function verifyFields() {
         mass: mass,
         bmi: parseFloat(bmi)
     };
-
+    personalFormDirty = false;
     // Store patient data temporarily in sessionStorage instead of submitting to API
     sessionStorage.setItem('pendingPatientData', JSON.stringify(patientData));
     console.log("Patient personal information stored temporarily:", patientData);
@@ -313,9 +324,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (heightInput) heightInput.addEventListener("input", calculateBMI);
     if (massInput) massInput.addEventListener("input", calculateBMI);
 
+    form.addEventListener("input", markPersonalDirty);
+    form.addEventListener("change", markPersonalDirty);
+
     document
         .getElementById("createPatientBtn")
-        .addEventListener("click", verifyFields);
+        .addEventListener("click", function (event) {
+            event.preventDefault();
+            verifyFields();
+        });
 });
 
  

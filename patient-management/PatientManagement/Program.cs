@@ -30,6 +30,43 @@ builder.Host.UseSerilog();
 
 Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
 
+static bool IsValidPatientInfo(CreatePatientDto? dto)
+{
+    return dto != null
+        && !string.IsNullOrWhiteSpace(dto.firstName)
+        && !string.IsNullOrWhiteSpace(dto.lastName)
+        && !string.IsNullOrWhiteSpace(dto.email)
+        && !string.IsNullOrWhiteSpace(dto.dateOfBirth)
+        && !string.IsNullOrWhiteSpace(dto.sex)
+        && dto.height.HasValue
+        && dto.mass.HasValue
+        && dto.bmi.HasValue;
+}
+
+static bool IsValidMedicalHistory(CreateMedicalHistoryDto? dto)
+{
+    return dto != null
+        && dto.HistoryOfPF != null
+        && !string.IsNullOrWhiteSpace(dto.HistoryOfPF.ResponseOfHistory)
+        && dto.RightFootConditions != null
+        && !string.IsNullOrWhiteSpace(dto.RightFootConditions.Conditions)
+        && dto.LeftFootConditions != null
+        && !string.IsNullOrWhiteSpace(dto.LeftFootConditions.Conditions)
+        && dto.SurgeryRight != null
+        && !string.IsNullOrWhiteSpace(dto.SurgeryRight.SurgeryPerformed)
+        && dto.SurgeryLeft != null
+        && !string.IsNullOrWhiteSpace(dto.SurgeryLeft.SurgeryPerformed)
+        && dto.Treatments != null
+        && !string.IsNullOrWhiteSpace(dto.Treatments.Treatments);
+}
+
+static bool IsValidCompletePatient(CompletePatientDto? dto)
+{
+    return dto != null
+        && IsValidPatientInfo(dto.PatientInfo)
+        && IsValidMedicalHistory(dto.MedicalHistory);
+}
+
 var dbUser = File.ReadAllText("/run/secrets/db_user").Trim();
 var dbPassword = File.ReadAllText("/run/secrets/db_password").Trim();
 var connectionStringTemplate = builder.Configuration.GetConnectionString("Postgres");
@@ -52,6 +89,12 @@ app.MapPost("/api/patient/create", async (HttpRequest request) =>
         {
             Log.Warning("Invalid JSON.");
             return Results.BadRequest("Invalid JSON.");
+        }
+
+        if (!IsValidPatientInfo(dto))
+        {
+            Log.Warning("Incomplete patient personal info payload.");
+            return Results.BadRequest("Missing required patient personal information.");
         }
 
         using var connection = new NpgsqlConnection(connectionString);
@@ -168,6 +211,12 @@ app.MapPost("/api/patient/complete", async (HttpRequest request) =>
         {
             Log.Warning("Invalid JSON.");
             return Results.BadRequest("Invalid JSON.");
+        }
+
+        if (!IsValidCompletePatient(dto))
+        {
+            Log.Warning("Incomplete complete patient payload.");
+            return Results.BadRequest("Incomplete patient creation payload.");
         }
 
         using var connection = new NpgsqlConnection(connectionString);

@@ -144,6 +144,23 @@ const patientMedicalInfoFormSchema = [
 ];
 
 const form = document.getElementById("patientMedicalInfoForm");
+let medicalFormDirty = false;
+
+function markMedicalDirty() {
+    medicalFormDirty = true;
+}
+
+window.addEventListener("beforeunload", function (event) {
+    if (medicalFormDirty) {
+        event.preventDefault();
+    }
+});
+
+const storedPatientData = sessionStorage.getItem('pendingPatientData');
+if (!storedPatientData) {
+    alert('Patient personal information not found. Please start the patient creation process again.');
+    window.location.href = 'createPatient.html';
+}
 
 // helper that creates a single question block and wires dependency metadata
 function createQuestion(field) {
@@ -247,6 +264,8 @@ function refreshDependencies() {
 
 // listen for changes to update dependencies, show other-text fields and enforce exclusivity rules
 form.addEventListener("change", function (e) {
+    medicalFormDirty = true;
+
     // show/hide "other" text box
     if (e.target.classList.contains("other-option")) {
         const textField = e.target.closest("label").nextElementSibling;
@@ -427,6 +446,7 @@ document.getElementById("finishBtn").addEventListener("click", async function ()
         const data = await response.json();
         console.log("Complete patient creation success:", data);
 
+        medicalFormDirty = false;
         // Clear the temporary data
         sessionStorage.removeItem('pendingPatientData');
 
