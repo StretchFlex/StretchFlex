@@ -46,8 +46,8 @@ let chartInstance = createBlankChart();
 function parseCSV(text) {
     const lines = text.trim().split("\n");
     const header = lines[0].split(",");
-    const timeIndex = header.indexOf("time");
-    const distIndex = header.indexOf("distance");
+    const timeIndex = header.indexOf("Stop Watch time"); //change to column name needed
+    const distIndex = header.indexOf("LH"); //change to column name needed
 
     const time = [];
     const distance = [];
