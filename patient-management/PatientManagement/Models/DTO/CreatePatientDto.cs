@@ -10,6 +10,12 @@ public class CreatePatientDto
     public float? bmi { get; set; }
 }
 
+public class CompletePatientDto
+{
+    public CreatePatientDto? PatientInfo { get; set; }
+    public CreateMedicalHistoryDto? MedicalHistory { get; set; }
+}
+
 public class PatientResponse
 {
     public int PatientId { get; set; }

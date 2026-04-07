@@ -200,12 +200,12 @@ function fillFormFromApi(data) {
     setFieldValue('rightConditionsComments', data.rightFootConditions?.additionalComments);
     setFieldValue('leftConditions', data.leftFootConditions?.conditions);
     setFieldValue('leftConditionsComments', data.leftFootConditions?.additionalComments);
-    setFieldValue('surgeryRight', data.surgeryRight?.surgeryPerformed);
-    setFieldValue('surgeryRightComments', data.surgeryRight?.additionalComments);
-    setFieldValue('surgeryLeft', data.surgeryLeft?.surgeryPerformed);
-    setFieldValue('surgeryLeftComments', data.surgeryLeft?.additionalComments);
-    setFieldValue('treatments', data.treatments?.treatments);
-    setFieldValue('treatmentsComments', data.treatments?.treatmentsComments);
+    setFieldValue('surgeryRight', data.surgeryRightFoot?.surgery);
+    setFieldValue('surgeryRightComments', data.surgeryRightFoot?.additionalComments);
+    setFieldValue('surgeryLeft', data.surgeryLeftFoot?.surgery);
+    setFieldValue('surgeryLeftComments', data.surgeryLeftFoot?.additionalComments);
+    setFieldValue('treatments', data.otherTreatments?.treatments);
+    setFieldValue('treatmentsComments', data.otherTreatments?.treatmentsComments);
     setFieldValue('otherRelevantComments', data.otherRelevantComments);
     refreshDependencies();
 }
@@ -245,15 +245,15 @@ function collectMedicalFormData() {
             conditions: Array.from(form.querySelectorAll('input[name="leftConditions"]:checked')).map(cb => cb.value).join(', '),
             additionalComments: form.querySelector('[name="leftConditionsComments"]')?.value.trim() || ''
         },
-        surgeryRight: {
-            surgeryPerformed: form.querySelector('input[name="surgeryRight"]:checked')?.value || '',
+        surgeryRightFoot: {
+            surgery: form.querySelector('input[name="surgeryRight"]:checked')?.value || '',
             additionalComments: form.querySelector('[name="surgeryRightComments"]')?.value.trim() || ''
         },
-        surgeryLeft: {
-            surgeryPerformed: form.querySelector('input[name="surgeryLeft"]:checked')?.value || '',
+        surgeryLeftFoot: {
+            surgery: form.querySelector('input[name="surgeryLeft"]:checked')?.value || '',
             additionalComments: form.querySelector('[name="surgeryLeftComments"]')?.value.trim() || ''
         },
-        treatments: {
+        otherTreatments: {
             treatments: Array.from(form.querySelectorAll('input[name="treatments"]:checked')).map(cb => cb.value).join(', '),
             treatmentsComments: form.querySelector('[name="treatmentsComments"]')?.value.trim() || ''
         },

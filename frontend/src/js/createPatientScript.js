@@ -77,6 +77,17 @@ const patientPersonalInfoFormSchema = [
 ];
 
 const form = document.getElementById("patientPersonalInfoForm");
+let personalFormDirty = false;
+
+function markPersonalDirty() {
+    personalFormDirty = true;
+}
+
+window.addEventListener("beforeunload", function (event) {
+    if (personalFormDirty) {
+        event.preventDefault();
+    }
+});
 
 function createQuestion(field) {
     const fieldId = field.id || `${field.name}Input`;
@@ -261,43 +272,13 @@ async function verifyFields() {
         mass: mass,
         bmi: parseFloat(bmi)
     };
-
-
-    try {
-        const response = await fetch("/api/patient/create", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(patientData)
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`API returned ${response.status}: ${errorText}`);
-        }
-
-        const data = await response.json();
-        console.log("API response data:", data);
-
-        if (data?.patientId) {
-            sessionStorage.setItem('selectedPatientId', data.patientId);
-            sessionStorage.setItem('selectedPatient', `${patientData.firstName} ${patientData.lastName}`);
-            // Pass patient ID as URL query parameter for reliability
-            console.log("Patient created with ID:", data.patientId);
-            alert("Patient personal information submitted successfully!");
-            window.location.href = `createPatientMed.html?id=${data.patientId}`;
-        } else {
-            console.error("Response object:", data);
-            console.error("Response keys:", Object.keys(data));
-            throw new Error(`No patientId received from server. Response: ${JSON.stringify(data)}`);
-        }
-
-    } catch (error) {
-        console.error("Error saving patient data:", error);
-        console.error("Request payload:", patientData);
-        alert("There was an error submitting the patient information. Please try again.");
-    }
+    personalFormDirty = false;
+    // Store patient data temporarily in sessionStorage instead of submitting to API
+    sessionStorage.setItem('pendingPatientData', JSON.stringify(patientData));
+    console.log("Patient personal information stored temporarily:", JSON.stringify(patientData, null, 2));
+    
+    alert("Patient personal information saved temporarily. Please complete the medical information.");
+    window.location.href = "createPatientMed.html";
 
 
 } //end of verifyFields
@@ -343,9 +324,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (heightInput) heightInput.addEventListener("input", calculateBMI);
     if (massInput) massInput.addEventListener("input", calculateBMI);
 
+    form.addEventListener("input", markPersonalDirty);
+    form.addEventListener("change", markPersonalDirty);
+
     document
         .getElementById("createPatientBtn")
-        .addEventListener("click", verifyFields);
+        .addEventListener("click", function (event) {
+            event.preventDefault();
+            verifyFields();
+        });
 });
 
  
