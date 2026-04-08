@@ -1,7 +1,7 @@
 
 /*For main body of page*/
 body {
-	background-color: #f9f9f9; 
+	background-color: #f6ffff; 
     position: absolute; /*Position it relative to the container */
     top: 40%; /* Move down %% of the container height */
     left: 50%; /* Move right %% of the container width */
@@ -35,7 +35,7 @@ body {
 
 /*Focus effect (when clicked or tabbed into)*/
 .input-field:focus {
-    outline: 2px solid #cc9ba1;
+    outline: 2px solid #df7c87;
     outline-offset: 1px;
 }
  
