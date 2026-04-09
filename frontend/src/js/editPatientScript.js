@@ -5,7 +5,7 @@ const patientPersonalInfoFormSchema = [
     { name: "lastName", label: "Last Name", type: "string", required: true, id: "lNameInput", placeholder: "Type here...", maxLength: 20 },
     { name: "email", label: "Email Address", type: "string", required: true, id: "emailInput", placeholder: "Type here...", maxLength: 100, pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },
     { name: "dateOfBirth", label: "Date of Birth", type: "date", required: true, id: "dobInput" },
-    { name: "sex", label: "Birth Sex", type: "single-choice", options: ["male", "female", "RND"], required: true },
+    { name: "sex", label: "Birth Sex", type: "single-choice", options: ["Male", "Female", "RND"], required: true },
     { name: "height", label: "Height (m)", type: "float", required: true, id: "heightInput", placeholder: "Type here...", step: "0.01" },
     { name: "mass", label: "Mass (kg)", type: "float", required: true, id: "massInput", placeholder: "Type here...", step: "0.01" },
     { name: "bmi", label: "BMI (kg/m²)", type: "float", required: false, id: "bmiInput", placeholder: "Calculated automatically", step: "0.01", readonly: true }
@@ -164,6 +164,7 @@ function populateForm(data) {
     
     if (data.sex) {
         const sexInput = document.querySelector(`input[name="sex"][value="${data.sex}"]`);
+        console.log(sexInput);
         if (sexInput) sexInput.checked = true;
     }
     document.querySelector('[name="height"]').value = data.heightM ?? "";
