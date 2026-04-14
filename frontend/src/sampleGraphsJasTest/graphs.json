@@ -3,12 +3,6 @@
     "serial_data_20260407_112415.csv",
     "serial_data_20260407_113041.csv",
     "serial_data_20260407_113639.csv",
-    "original.csv",
-    "original_noisy.csv",
-    "variant1.csv",
-    "variant1_noisy.csv",
-    "variant2.csv",
-    "variant2_noisy.csv",
-    "variant3.csv",
-    "variant3_noisy.csv"
+    "20260414_164547_serial_data_20260407_113041-filtered.csv",
+    "20260414_164547_serial_data_20260407_113041"
 ]
