@@ -1,5 +1,19 @@
 version: '3.8'
 services:
+  auth:
+    image: stretchflex-auth
+    expose:
+      - "8081"
+    networks:
+      - stretchflex-network
+    secrets:
+      - db_user
+      - db_password
+      - jwt_secret
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
   frontend:
     image: stretchflex-frontend
     expose:
@@ -51,6 +65,7 @@ services:
       - kibana
       - data-ingest
       - patient-management
+      - auth
     networks:
       - stretchflex-network
     deploy:
@@ -112,19 +127,20 @@ services:
     secrets:
       - db_user
       - db_password
+      - admin_user
+      - admin_pass
     environment:
       POSTGRES_USER_FILE: /run/secrets/db_user
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
       POSTGRES_DB: patient_database
     volumes:
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./db/bootstrap.sh:/docker-entrypoint-initdb.d/02-bootstrap.sh:ro
       - postgres-data:/var/lib/postgresql/data
     networks:
       - stretchflex-network
     deploy:
       replicas: 1
-      restart_policy:
-        condition: on-failure
       placement:
         constraints:
           - node.role == manager
@@ -149,9 +165,15 @@ secrets:
     external: true
   db_password:
     external: true
+  admin_user:
+    external: true
+  admin_pass:
+    external: true
   rabbit_user:
     external: true
   rabbit_pass:
+    external: true
+  jwt_secret:
     external: true
 
 networks:

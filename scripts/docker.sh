@@ -7,6 +7,7 @@ elif [ "$1" = "build" ]; then
     docker build -t stretchflex-frontend ./frontend
     docker build -t stretchflex-data-ingest ./data-ingest
     docker build -t stretchflex-patient-management ./patient-management
+    docker build -t stretchflex-auth ./auth
 elif [ "$1" = "run" ]; then
     docker stack deploy -c docker-compose.yml stretchflex --detach=false
 elif [ "$1" = "stop" ]; then
