@@ -1,173 +1,185 @@
-// ------------------------------------------------------------
-// Robust detection of Point A (local min), Point B (local max),
-// and Point C (steady-state) using slope-based logic.
-// ------------------------------------------------------------
+/**
+ * detectABC - Identify points A, B, C from time (x) and distance (y)
+ * @param {number[]} x - time vector (seconds)
+ * @param {number[]} y - distance vector
+ * @returns {{A:number[], B:number[], C:number[]}} - A, B, C as [time, distance]
+ */
 
-// Compute slopes using central difference
-export function computeSlopes(time, distance) {
-    const slopes = new Array(distance.length).fill(0);
+function detectABC(x, y) {
+  // Ensure arrays are copies and have same length
+  x = Array.from(x);
+  y = Array.from(y);
+  const n = x.length;
+  if (n < 3) throw new Error('Need at least 3 samples');
 
-    for (let i = 1; i < distance.length - 1; i++) {
-        const dy = distance[i + 1] - distance[i - 1];
-        const dt = time[i + 1] - time[i - 1];
-        slopes[i] = dy / dt;
-    }
+  // Helpers
+  const diff = arr => arr.slice(1).map((v, i) => v - arr[i]);
+  const argMin = arr => arr.reduce((bestIdx, v, i, a) => v < a[bestIdx] ? i : bestIdx, 0);
+  const argMax = arr => arr.reduce((bestIdx, v, i, a) => v > a[bestIdx] ? i : bestIdx, 0);
+  const findFirstIndex = (arr, pred) => {
+    for (let i = 0; i < arr.length; i++) if (pred(arr[i], i)) return i;
+    return -1;
+  };
+  const findIndices = (arr, pred) => {
+    const out = [];
+    for (let i = 0; i < arr.length; i++) if (pred(arr[i], i)) out.push(i);
+    return out;
+  };
 
-    slopes[0] = slopes[1];
-    slopes[slopes.length - 1] = slopes[slopes.length - 2];
+  // Compute slope between consecutive points (dy/dt)
+  const dt = diff(x);
+  const dy = diff(y);
+  const slope = dy.map((d, i) => d / dt[i]); // length n-1
+  const tSlope = dt.map((dti, i) => x[i] + dti / 2); // midpoints, length n-1
 
-    return slopes;
-}
+  // Helper: find index range within time limit from start
+  const maxA_t = x[0] + 30; // A must be within 30 seconds from start
 
-// Helper: check if index is local minimum in ±window neighborhood
-function isLocalMin(distance, i, window = 10) {
-    const start = Math.max(0, i - window);
-    const end = Math.min(distance.length - 1, i + window);
-    const val = distance[i];
+  // 1) Find Point A
+  const tol = 1e-8;
+  const signSlope = slope.map(s => {
+    if (Math.abs(s) < tol) return 0;
+    return Math.sign(s);
+  });
 
-    for (let j = start; j <= end; j++) {
-        if (distance[j] < val) return false;
-    }
-    return true;
-}
-
-// Helper: check if index is local maximum in ±window neighborhood
-function isLocalMax(distance, i, window = 10) {
-    const start = Math.max(0, i - window);
-    const end = Math.min(distance.length - 1, i + window);
-    const val = distance[i];
-
-    for (let j = start; j <= end; j++) {
-        if (distance[j] > val) return false;
-    }
-    return true;
-}
-
-// Point A: first robust local minimum
-export function findPointA(
-    time,
-    distance,
-    slopes,
-    maxTimeSeconds = 60
-) {
-    for (let i = 1; i < slopes.length; i++) {
-        if (time[i] > maxTimeSeconds) break;  // don’t look past 60 s
-
-        if (slopes[i - 1] < 0 && slopes[i] >= 0) {
-            // optional: keep or remove local-min check
-            // if (isLocalMin(distance, i)) {
-            //     return { index: i, time: time[i], value: distance[i] };
-            // }
-            return { index: i, time: time[i], value: distance[i] };
+  let A_idx = -1;
+  for (let k = 0; k < signSlope.length - 1; k++) {
+    const t_k = tSlope[k + 1];
+    if (t_k <= maxA_t) {
+      if (signSlope[k] <= 0 && signSlope[k + 1] > 0) {
+        // candidate transition between slope sample k and k+1
+        const trans_time = tSlope[k + 1];
+        const withinMask = x.map(xi => xi <= trans_time);
+        const indices = findIndices(withinMask, v => v);
+        if (indices.length > 0) {
+          const yWithin = indices.map(i => y[i]);
+          const relMin = argMin(yWithin);
+          A_idx = indices[relMin];
+          break;
         }
+      }
+    } else {
+      break;
     }
+  }
 
-    return null;
-}
+  // Fallback: minima in distance before 30s
+  if (A_idx === -1) {
+    const withinMask = x.map(xi => xi <= maxA_t);
+    const indices = findIndices(withinMask, v => v);
+    if (indices.length > 0) {
+      const yWithin = indices.map(i => y[i]);
+      const relMin = argMin(yWithin);
+      A_idx = indices[relMin];
+    } else {
+      A_idx = 0;
+    }
+  }
 
-// Point B: first robust local maximum AFTER Point A
-export function findPointB(
-    time,
-    distance,
-    slopes,
-    indexA,
-    maxTimeAfterA = 60   // search up to 60 s after A
-) {
-    if (indexA == null) return null;
+  const A = [x[A_idx], y[A_idx]];
 
-    const start = indexA + 1;
-    let end = slopes.length - 1;
-
-    // optional: limit search window in time
-    const maxTime = time[indexA] + maxTimeAfterA;
-    for (let i = start; i < slopes.length; i++) {
-        if (time[i] > maxTime) {
-            end = i;
+  // 2) Find Point B
+  const maxB_t = A[0] + 60;
+  const startSlopeIdx = findFirstIndex(tSlope, t => t > A[0]);
+  let B_idx = -1;
+  if (startSlopeIdx !== -1) {
+    for (let k = startSlopeIdx; k < signSlope.length - 1; k++) {
+      if (tSlope[k + 1] <= maxB_t) {
+        if (signSlope[k] >= 0 && signSlope[k + 1] < 0) {
+          const trans_time = tSlope[k + 1];
+          const rngMask = x.map(xi => xi >= A[0] && xi <= trans_time);
+          const indices = findIndices(rngMask, v => v);
+          if (indices.length > 0) {
+            const yRange = indices.map(i => y[i]);
+            const relMax = argMax(yRange);
+            B_idx = indices[relMax];
             break;
+          }
         }
+      } else {
+        break;
+      }
     }
+  }
 
-    // find global max distance between A and end
-    let bestIdx = null;
-    let bestVal = -Infinity;
-
-    for (let i = start; i <= end; i++) {
-        if (distance[i] > bestVal) {
-            bestVal = distance[i];
-            bestIdx = i;
-        }
+  // Fallback: max distance between A and A+60s
+  if (B_idx === -1) {
+    const rngMask = x.map(xi => xi >= A[0] && xi <= maxB_t);
+    const indices = findIndices(rngMask, v => v);
+    if (indices.length > 0) {
+      const yRange = indices.map(i => y[i]);
+      const relMax = argMax(yRange);
+      B_idx = indices[relMax];
+    } else {
+      B_idx = n - 1;
     }
+  }
 
-    if (bestIdx == null) return null;
+  const B = [x[B_idx], y[B_idx]];
 
-    return { index: bestIdx, time: time[bestIdx], value: distance[bestIdx] };
-}
+  // 3) Find Point C
+  // C is after B where slope trend tries to level out
+  const slopeThresh = 0.06;
+  const minDuration = 20; // seconds
+  const minSamples = Math.max(1, Math.floor(minDuration * 6)); // 6 Hz assumption
+  let C_idx = -1;
 
-// Point C: steady-state after Point B
-export function findPointC(
-    time,
-    distance,
-    slopes,
-    indexB,
-    consecutiveSeconds = 5,   // only need 5 seconds of low slope
-    sampleRate = 6,
-    slopeThreshold = 0.01     // more realistic for noisy data
-) {
-    const needed = consecutiveSeconds * sampleRate;
-    let count = 0;
+  const startCtime = B[0] + 10; // offset
 
-    for (let i = indexB + 1; i < slopes.length; i++) {
-        if (Math.abs(slopes[i]) < slopeThreshold) {
-            count++;
-            if (count >= needed) {
-                const idx = i - Math.floor(needed / 2);
-                return { index: idx, time: time[idx], value: distance[idx] };
-            }
-        } else {
-            count = 0; // reset if slope rises again
-        }
+  // slopes after B
+  const maskAfterB = tSlope.map(t => t >= startCtime);
+  const slopeAfterB = findIndices(maskAfterB, v => v).map(i => slope[i]);
+  const tAfterB = findIndices(maskAfterB, v => v).map(i => tSlope[i]);
+
+  // find where slope is near zero
+  const lowSlope = slopeAfterB.map(s => Math.abs(s) < slopeThresh);
+
+  // find first run of consecutive low-slope samples
+  let runLength = 0;
+  for (let i = 0; i < lowSlope.length; i++) {
+    if (lowSlope[i]) {
+      runLength += 1;
+    } else {
+      runLength = 0;
     }
-
-    // fallback: last point
-    const last = distance.length - 1;
-    return { index: last, time: time[last], value: distance[last] };
-}
-
-
-// Main wrapper
-export function calculateKeyPoints(time, distance) {
-    const slopes = computeSlopes(time, distance);
-
-    const pointA = findPointA(time, distance, slopes);
-    const pointB = pointA ? findPointB(time, distance, slopes, pointA.index) : null;
-    const pointC = pointB ? findPointC(time, distance, slopes, pointB.index) : null;
-
-    return { pointA, pointB, pointC, slopes };
-}
-
-// Chart.js annotation helpers
-export function createPointAnnotations(points) {
-    const ann = {};
-
-    for (const [label, p] of Object.entries(points)) {
-        if (!p) continue;
-
-        ann[label] = {
-            type: 'point',
-            xValue: p.time,
-            yValue: p.value,
-            backgroundColor: label === "pointA" ? "blue" :
-                             label === "pointB" ? "orange" : "purple",
-            radius: 6,
-            borderWidth: 2,
-            borderColor: "black",
-            label: {
-                display: true,
-                content: `${label.toUpperCase()} (${p.time.toFixed(1)}s, ${p.value.toFixed(1)}mm)`,
-                position: 'top'
-            }
-        };
+    if (runLength >= minSamples) {
+      const tC = tAfterB[i - runLength + 1];
+      C_idx = findFirstIndex(x, xi => xi >= tC);
+      if (C_idx === -1) C_idx = n - 1;
+      break;
     }
+  }
 
-    return ann;
+  // If not found, use rolling 10s windows in last 30s of data
+  if (C_idx === -1) {
+    const win10 = 10;
+    const last30start = Math.max(x[n - 1] - 30, startCtime);
+    const candidateTimes = x.filter(xi => xi >= last30start);
+    let found = false;
+    for (let ct of candidateTimes) {
+      const t0 = ct;
+      const t1 = t0 + win10;
+      const inWin = tSlope.map(t => t >= t0 && t <= t1);
+      const winIndices = findIndices(inWin, v => v);
+      if (winIndices.length === 0) continue;
+      const s = winIndices.map(i => {
+        const sv = slope[i];
+        if (Math.abs(sv) < tol) return 0;
+        return Math.sign(sv);
+      });
+      const allNonNeg = s.every(si => si >= 0);
+      const allNonPos = s.every(si => si <= 0);
+      if (allNonNeg || allNonPos) {
+        const idxX = findFirstIndex(x, xi => xi >= t0);
+        C_idx = idxX === -1 ? n - 1 : idxX;
+        found = true;
+        break;
+      }
+    }
+    if (!found) C_idx = n - 1;
+  }
+
+  const C = [x[C_idx], y[C_idx]];
+
+  return { A, B, C };
 }
