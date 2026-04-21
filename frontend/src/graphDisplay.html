@@ -4,106 +4,120 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Graph Display</title>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	<link rel="stylesheet" href="css/graphDisplayStyles.css">
+
+    <link rel="stylesheet" href="css/graphDisplayStyles.css">
     <link rel="stylesheet" href="css/universalStyles.css">
-
 </head>
-<body>
 
+<body>
 
 <div class="fixed-container">
     <div class="graph-top-box">
-    <!-- Chart Area -->
-    <canvas id="lineChart"></canvas>    
+        <canvas id="lineChart"></canvas>
     </div>
-    
+
     <div class="bottom-row">
         <div class="bottom-box">
-    <h2>Graph Selection</h2>
-    <p>Click Generate Graph to update with your selections</p>
-    
-<div class="graph-select">
-    <label for="graphInput1">Graph 1:</label>
-    <input id="graphInput1" name="graph" list="graphsList" placeholder="Start typing to search..." autocomplete="off">
-    <datalist id="graphsList">
-        <option value="Curve Graph"></option>
-        <option value="Linear Graph"></option>
-    </datalist>
+            <h2>Graph + Statistics</h2>
+            <p>Select graphs from the dropdowns below</p>
 
-    <label for="graphInput2">Graph 2:</label>
-    <input id="graphInput2" name="graph" list="graphsList" placeholder="Start typing to search..." autocomplete="off">
-    <datalist id="graphsList">
-        <option value="Curve Graph"></option>
-        <option value="Linear Graph"></option>
-    </datalist>
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th>Graph Selection</th>
+                        <th>Stretch Overshoot</th>
+                        <th>Reflex Relaxation Point</th>
+                        <th>Muscle Relaxation Limit</th>
+                        <th>Patient Confidence</th>
+                        <th>Muscle Relaxation</th>
+                        <th>Average Muscle Relaxation Rate</th>
+                        <th>Approximate Extensibility Index</th>
+                    </tr>
+                </thead>
 
-    <label for="graphInput3">Graph 3:</label>
-    <input id="graphInput3" name="graph" list="graphsList" placeholder="Start typing to search..." autocomplete="off">
-    <datalist id="graphsList">
-        <option value="Curve Graph"></option>
-        <option value="Linear Graph"></option>
-    </datalist>
+                <tbody>
+                    <tr id="row-1">
+                        <td>
+                            <label for="graphInput1" class="hidden-label">Graph 1</label>
+                            <select id="graphInput1" name="graph1" class="single-graph-select">
+                                <option value="">Select Graph 1</option>
+                            </select>
+                            <button class="clearGraphButton" data-target="graph1">Remove Graph 1</button>
+                        </td>
+                        <td class="stat-mean">...</td>
+                        <td class="stat-std">...</td>
+                        <td class="stat-min">...</td>
+                        <td class="stat-max">...</td>
+                        <td class="stat-std">...</td>
+                        <td class="stat-min">...</td>
+                        <td class="stat-max">...</td>
+                    </tr>
 
-    <label for="graphInput4">Graph 4:</label>
-    <input id="graphInput4" name="graph" list="graphsList" placeholder="Start typing to search..." autocomplete="off">
-    <datalist id="graphsList">
-        <option value="Curve Graph"></option>
-        <option value="Linear Graph"></option>
-    </datalist>
+                    <tr id="row-2">
+                        <td>
+                            <label for="graphInput2" class="hidden-label">Graph 2</label>
+                            <select id="graphInput2" name="graph2" class="single-graph-select">
+                                <option value="">Select Graph 2</option>
+                            </select>
+                            <button class="clearGraphButton" data-target="graph2">Remove Graph 2</button>
+                        </td>
+                        <td class="stat-mean">...</td>
+                        <td class="stat-std">...</td>
+                        <td class="stat-min">...</td>
+                        <td class="stat-max">...</td>
+                        <td class="stat-std">...</td>
+                        <td class="stat-min">...</td>
+                        <td class="stat-max">...</td>
+                    </tr>
+
+                    <tr id="row-3">
+                        <td>
+                            <label for="graphInput3" class="hidden-label">Graph 3</label>
+                            <select id="graphInput3" name="graph3" class="single-graph-select">
+                                <option value="">Select Graph 3</option>
+                            </select>
+                            <button class="clearGraphButton" data-target="graph3">Remove Graph 3</button>
+                        </td>
+                        <td class="stat-mean">...</td>
+                        <td class="stat-std">...</td>
+                        <td class="stat-min">...</td>
+                        <td class="stat-max">...</td>
+                        <td class="stat-std">...</td>
+                        <td class="stat-min">...</td>
+                        <td class="stat-max">...</td>
+
+                    </tr>
+
+                    <tr id="row-4">
+                        <td>
+                            <label for="graphInput4" class="hidden-label">Graph 4</label>
+                            <select id="graphInput4" name="graph4" class="single-graph-select">
+                                <option value="">Select Graph 4</option>
+                            </select>
+                            <button class="clearGraphButton" data-target="graph4">Remove Graph 4</button>
+                        </td>
+                        <td class="stat-mean">...</td>
+                        <td class="stat-std">...</td>
+                        <td class="stat-min">...</td>
+                        <td class="stat-max">...</td>
+                        <td class="stat-std">...</td>
+                        <td class="stat-min">...</td>
+                        <td class="stat-max">...</td>
+
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
 </div>
 
-
-<button class="generateButton">Generate Graph</button>
-
-<!--need to create a dropdown menu next to each graph to select chart line color-->
-
-
-    <!-- Output area -->
-    <div id="output"></div>
-
-        </div>
-        
-        
-        <div class="bottom-box">
-        <h2>Statistics Selection</h2>
-        <p>Select Statistics to show in box</p>
-        <div class="stats-checkbox-container">
-            <label>
-                <input type="checkbox" id="selectAll">
-                <span class="stats-action-button stats-selectAll-button">Select All</span>
-            
-            </label>
-
-            <label>
-                <input type="checkbox" id="deselectAll">
-                <span class="stats-action-button stats-deselectAll-button">Deselect All</span>
-            
-            </label>
-
-        </div>
-
-        <div class="stats-toggle-box-container">
-            <label>
-                <input type="checkbox" class="item">
-                <span class="stats-toggle-box">Option 1</span>
-            </label>
-
-            <label>
-                <input type="checkbox" class="item">
-                <span class="stats-toggle-box">Option 2</span>
-            </label>
-
-        </div>
-        
-        
-
-    </div> 
-</div>
-
-
-<script src="js/graphDisplayScript-chartGeneration.js"></script>
-<script src="js/statisticsScript.js"></script>
+<!-- JS Modules (deferred automatically) -->
+<script type="module" src="js/calculations.js"></script>
+<script type="module" src="js/graphDisplayScript-chartGeneration.js"></script>
+<script type="module" src="js/statisticsScript.js"></script>
 
 </body>
 </html>

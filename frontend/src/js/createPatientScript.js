@@ -42,7 +42,7 @@ const patientPersonalInfoFormSchema = [
         name: "sex",
         label: "Birth Sex",
         type: "single-choice",
-        options: ["male", "female", "RND"],
+        options: ["Male", "Female", "RND"],
         required: true
        
     },
@@ -68,14 +68,26 @@ const patientPersonalInfoFormSchema = [
         name: "bmi",
         label: "BMI (kg/m²)",
         type: "float",
-        required: true,
+        required: false,
         id: "bmiInput",
-        placeholder: "Type here...",
-        step: "0.01"
+        placeholder: "Calculated automatically",
+        step: "0.01",
+        readonly: true
     }
 ];
 
 const form = document.getElementById("patientPersonalInfoForm");
+let personalFormDirty = false;
+
+function markPersonalDirty() {
+    personalFormDirty = true;
+}
+
+window.addEventListener("beforeunload", function (event) {
+    if (personalFormDirty) {
+        event.preventDefault();
+    }
+});
 
 function createQuestion(field) {
     const fieldId = field.id || `${field.name}Input`;
@@ -132,6 +144,7 @@ function createQuestion(field) {
         if (field.maxLength) input.maxLength = field.maxLength;
         if (field.step) input.step = field.step;
         input.autocomplete = field.autocomplete || "off";
+        if (field.readonly) input.disabled = true;
         wrapper.appendChild(input);
 
         if (field.type === "date") {
@@ -190,7 +203,25 @@ function autoCorrectDate() {
     }
 }
 
-function verifyFields() {
+function calculateBMI() {
+    const heightInput = document.querySelector('[name="height"]');
+    const massInput = document.querySelector('[name="mass"]');
+    const bmiInput = document.querySelector('[name="bmi"]');
+    
+    if (!heightInput || !massInput || !bmiInput) return;
+    
+    const height = parseFloat(heightInput.value);
+    const mass = parseFloat(massInput.value);
+    
+    if (!isNaN(height) && !isNaN(mass) && height > 0) {
+        const bmi = mass / (height * height);
+        bmiInput.value = bmi.toFixed(2);
+    } else {
+        bmiInput.value = "";
+    }
+}
+
+async function verifyFields() {
     for (const field of patientPersonalInfoFormSchema) {
         if (!field.required) continue;
 
@@ -227,44 +258,28 @@ function verifyFields() {
         }
     }
     // build JSON object for patient info and log it to console
+    const height = parseFloat(document.querySelector('[name="height"]').value.trim());
+    const mass = parseFloat(document.querySelector('[name="mass"]').value.trim());
+    const bmi = (height > 0) ? (mass / (height * height)).toFixed(2) : null;
+
     const patientData = {
-        firstName: document.querySelector('[name="fName"]').value.trim(),
-        lastName: document.querySelector('[name="lName"]').value.trim(),
-        dateOfBirth: document.querySelector('[name="dob"]').value.trim(),
+        firstName: document.querySelector('[name="firstName"]').value.trim(),
+        lastName: document.querySelector('[name="lastName"]').value.trim(),
+        dateOfBirth: document.querySelector('[name="dateOfBirth"]').value.trim(),
         email: document.querySelector('[name="email"]').value.trim(),
         sex: document.querySelector('input[name="sex"]:checked')?.value || null,
-        height: parseFloat(document.querySelector('[name="height"]').value.trim()),
-        mass: parseFloat(document.querySelector('[name="mass"]').value.trim())
+        height: height,
+        mass: mass,
+        bmi: parseFloat(bmi)
     };
-    //Replaced by fetch call to backend, but keeping for reference
-    // console.log("Patient Personal Info JSON:", patientData);
-    // alert("Patient personal information submitted successfully!");
-    // window.location.href = "createPatientMed.html";
-    // return true;
+    personalFormDirty = false;
+    // Store patient data temporarily in sessionStorage instead of submitting to API
+    sessionStorage.setItem('pendingPatientData', JSON.stringify(patientData));
+    console.log("Patient personal information stored temporarily:", JSON.stringify(patientData, null, 2));
+    
+    alert("Patient personal information saved temporarily. Please complete the medical information.");
+    window.location.href = "createPatientMed.html";
 
-//need to post request this to the backend with fetch
-fetch("/api/patient", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(patientData)
-})
-    .then(response => {
-        if (!response.ok) {
-            throw new Error("Network response was not ok");
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log("Patient data saved successfully:", data);
-        alert("Patient personal information submitted successfully!");
-        window.location.href = "createPatientMed.html";
-    })
-    .catch(error => {
-        console.error("Error saving patient data:", error);
-        alert("There was an error submitting the patient information. Please try again.");
-    });
 
 } //end of verifyFields
 
@@ -304,9 +319,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    const heightInput = document.querySelector('[name="height"]');
+    const massInput = document.querySelector('[name="mass"]');
+    if (heightInput) heightInput.addEventListener("input", calculateBMI);
+    if (massInput) massInput.addEventListener("input", calculateBMI);
+
+    form.addEventListener("input", markPersonalDirty);
+    form.addEventListener("change", markPersonalDirty);
+
     document
         .getElementById("createPatientBtn")
-        .addEventListener("click", verifyFields);
+        .addEventListener("click", function (event) {
+            event.preventDefault();
+            verifyFields();
+        });
 });
 
  

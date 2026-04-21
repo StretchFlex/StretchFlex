@@ -1,117 +1,212 @@
-        const ctx = document.getElementById('lineChart').getContext('2d');
-        
-        //Added to load blank chart initially
-        let chartInstanceBlank = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'CSV Data',
-                    data: [],
-                    borderColor: 'blue',
-                    borderWidth: 2,
-                    //backgroundColor: 'rgba(0, 0, 255, 0.1)',
-                    fill: false,
-                    tension: 0.3
-                }]
+// ============================================================
+// DROPDOWN‑ONLY MULTI‑GRAPH SYSTEM — RAW DATA ONLY
+// ============================================================
+
+import { calculateKeyPoints, createPointAnnotations } from './calculations.js';
+
+// Stores data for each dropdown row
+const graphSelections = {
+    graph1: null,
+    graph2: null,
+    graph3: null,
+    graph4: null
+};
+
+window.currentChartData = [];
+
+// ============================================================
+// CHART SETUP BLANK INITIALLY
+// ============================================================
+const ctx = document.getElementById('lineChart').getContext('2d');
+
+function createBlankChart() {
+    return new Chart(ctx, {
+        type: 'line',
+        data: { labels: [], datasets: [] },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' },
+                title: { display: true, text: 'Blank Chart Waiting for Selection' },
+                annotation: { annotations: {} }
             },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'bottom' },
-                    title: { display: true, text: 'Blank Chart Waiting for Selection' }
-                },
-                scales: {
-                    x: { title: { display: true, text: 'Time (s)' }, beginAtZero: true },
-                    y: { title: { display: true, text: 'Stretch Distance (mm)' }, beginAtZero: true }
-                }
+            scales: {
+                x: { title: { display: true, text: 'Time (s)' }, beginAtZero: true, ticks: { callback: function(value) { return value.toFixed(2); } } },
+                y: { title: { display: true, text: 'Stretch Distance (mm)' }, beginAtZero: true, ticks: { callback: function(value) { return value.toFixed(2); } } }
             }
-        });
-
-        chartInstance = chartInstanceBlank;
-        //end of initial blank chart addition
-        
-        // Function to parse CSV text into arrays
-        function parseCSV(text) {
-            const rows = text.trim().split("\n");
-            const labels = [];
-            const data = [];
-
-            for (let i = 1; i < rows.length; i++) { // Skip header row
-                const cols = rows[i].split(",");
-                if (cols.length >= 2) {
-                    labels.push(cols[0].trim());
-                    const value = parseFloat(cols[1]);
-                    data.push(isNaN(value) ? null : value);
-                }
-            }
-            return { labels, data };
         }
+    });
+}
 
-        // Function to create/update chart and update statistics
-        function renderChart(labels, data) {
-            if (chartInstance) {
-                chartInstance.destroy(); // Avoid duplicate charts
-            }
-            chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'CSV Data',
-                        data: data,
-                        borderColor: 'blue',
-                        //backgroundColor: 'rgba(0, 0, 255, 0.1)',
-                        fill: false,
-                        tension: 0.3
-                    }]
+let chartInstance = createBlankChart();
+
+// ============================================================
+// CSV PARSER
+// ============================================================
+function parseCSV(text) {
+    const lines = text.trim().split("\n");
+    const header = lines[0].split(",");
+    const timeIndex = header.indexOf("Stop Watch time"); //change to column name needed
+    const distIndex = header.indexOf("LH"); //change to column name needed
+
+    const time = [];
+    const distance = [];
+
+    for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(",");
+        time.push(parseFloat(cols[timeIndex]));
+        distance.push(parseFloat(cols[distIndex]));
+    }
+
+    return { time, distance };
+}
+
+// ============================================================
+// RENDER MULTI‑CHART (RAW ONLY)
+// ============================================================
+function renderMultiChart() {
+    if (chartInstance) chartInstance.destroy();
+
+    const datasets = [];
+    let labels = [];
+
+    const colors = ["blue", "green", "purple", "orange"];
+
+    Object.keys(graphSelections).forEach((key, index) => {
+        const entry = graphSelections[key];
+        if (!entry) return;
+
+        const { time, raw } = entry;
+
+        if (labels.length === 0) labels = time;
+
+        datasets.push({
+            label: `${key}`,
+            data: raw,
+            borderColor: colors[index],
+            borderWidth: 2,
+            fill: false
+        });
+    });
+
+    chartInstance = new Chart(ctx, {
+        type: "line",
+        data: { labels, datasets },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: "bottom" },
+                title: { display: true, text: "Multi‑Graph Display" },
+                annotation: { annotations: {} }
+            },
+            scales: {
+                x: {
+                    title: { display: true, text: "Time (s)" },
+                    ticks: {
+                        callback: value => Number(value).toFixed(2)
+                    }
                 },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { position: 'bottom' },
-                        title: { display: true, text: 'Line Chart from CSV' }
-                    },
-                    scales: {
-                        y: { beginAtZero: true }
+                y: {
+                    title: { display: true, text: "Stretch Distance (mm)" },
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => Number(value).toFixed(2)
                     }
                 }
-            });
-            //updateStats(data);
+            }
         }
+    });
+}
 
 
-        // Call fetchAndRenderChart on page load or based on user action
-        //fetchAndRenderChart(); // Uncomment to load chart on page load    
+// ============================================================
+// DROPDOWN LISTENERS
+// ============================================================
+function setupDropdownListeners() {
+    document.querySelectorAll(".single-graph-select").forEach(select => {
+        select.addEventListener("change", async function () {
+            const filePath = this.value;
+            const key = this.name;
 
-        // Button to manually trigger data fetch and chart rendering
-        const generateButton = document.querySelector('.generateButton'); // Assuming there's a button with class 'generateButton'
-        generateButton.addEventListener('click', fetchAndRenderChart);     
+            if (!filePath) {
+                graphSelections[key] = null;
+                renderMultiChart();
+                return;
+            }
 
-
-        /* Need to update this function to match backend API and pull the chart selected by user
-        //Function to fetch CSV from backend and render chart - replace URL with actual endpoint
-        async function fetchAndRenderChart() {
             try {
-                const response = await fetch('/api/get-chart-data'); // Example endpoint
-                if (!response.ok) throw new Error('Network response was not ok');
+                const response = await fetch(filePath);
                 const csvText = await response.text();
-                const { labels, data } = parseCSV(csvText);
-                renderChart(labels, data);
-            } catch (error) {
-                console.error('Error fetching chart data:', error);
-                alert('Failed to load chart data from server.');
-            }
-        }
-  */
+                const { time, distance } = parseCSV(csvText);
 
-        // Button to clear chart and stats
-        const clearChartButton = document.querySelector('.clearChartButton');
-        clearChartButton.addEventListener('click', function() {
-            if (chartInstance) {
-                chartInstance.destroy();
-                chartInstance = chartInstanceBlank; // Reset to blank chart
-            }
-            statsContainer.innerHTML = ''; //does this need to be changed to stats-toggle-box-container?
+                graphSelections[key] = { time, raw: distance };
 
-        }); 
+                renderMultiChart();
+
+            } catch (err) {
+                console.error("Error loading CSV:", err);
+                alert("Failed to load selected CSV file.");
+            }
+        });
+    });
+}
+
+// ============================================================
+// REMOVE GRAPH BUTTONS
+// ============================================================
+function setupRemoveButtons() {
+    document.querySelectorAll(".clearGraphButton").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const key = btn.dataset.target;
+
+            graphSelections[key] = null;
+
+            const select = document.querySelector(`select[name="${key}"]`);
+            if (select) select.value = "";
+
+            const rowNum = key.replace("graph", "");
+            const row = document.getElementById(`row-${rowNum}`);
+            if (row) {
+                row.querySelector(".stat-mean").textContent = "...";
+                row.querySelector(".stat-std").textContent = "...";
+                row.querySelector(".stat-min").textContent = "...";
+                row.querySelector(".stat-max").textContent = "...";
+            }
+
+            renderMultiChart();
+        });
+    });
+}
+
+// ============================================================
+// POPULATE DROPDOWNS
+// ============================================================
+async function populateGraphSelects() {
+    const selects = document.querySelectorAll(".single-graph-select");
+
+    try {
+        const response = await fetch("sampleGraphsJasTest/graphs.json");
+        const files = await response.json();
+
+        selects.forEach(select => {
+            while (select.options.length > 1) select.remove(1);
+
+            files.forEach(file => {
+                const opt = document.createElement("option");
+                opt.value = `sampleGraphsJasTest/${file}`;
+                opt.textContent = file;
+                select.appendChild(opt);
+            });
+        });
+
+    } catch (err) {
+        console.error("Error loading CSV list:", err);
+    }
+}
+
+// ============================================================
+// INITIALIZE EVERYTHING
+// ============================================================
+setupDropdownListeners();
+setupRemoveButtons();
+populateGraphSelects();

@@ -1,24 +1,27 @@
 /* For main body of Page */
 body {
-        font-family: Tahoma, sans-serif;
-        padding: 20px;
-        /*color: #a334c5;*/
+        font-family: Poppins-Regular-400, sans-serif;
+        padding: 30px;
+        background-color: #f6ffff;
     }
 
 /* Patient Heading */
 .patient-heading {
-	font-size: 28px;
+	font-size: 26px;
 	color: #251829;
-	margin-bottom: 50px;
-    margin-top: 0px;
-    font-family: Tahoma, sans-serif;
+	margin-bottom: 20px;
+    margin-top: 10px;
+    font-family: Poppins-Regular-400, sans-serif;
     text-align: center;
 }
 
-/* Go Button */
+
 .goButton{
     padding: 8px 12px;
     font-size: 15px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 10px;
     background-color: #067b40;
     color: #f9f9f9;
     border-radius: 6px;
@@ -27,30 +30,71 @@ body {
     box-sizing: border-box;
     height: 40px;
     text-align: center;
-    font-family: Tahoma, sans-serif;
+    font-family: Poppins-Regular-400, sans-serif;
 }
+
+.editButton {
+    padding: 8px 12px;
+    font-size: 15px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 10px;
+    background-color: #d1473d;
+    color: #f9f9f9;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid #251829;
+    box-sizing: border-box;
+    height: 40px;
+    text-align: center;
+    font-family: Poppins-Regular-400, sans-serif;
+}
+
+.createButton{
+    padding: 8px 12px;
+    font-size: 15px;
+    margin-left: 5px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border: none; 
+    background-color: transparent;
+    color: #251829; 
+    cursor: pointer;
+    font-family: Poppins-Regular-400, sans-serif;
+}
+
 
 .goButton:hover {
     background-color: #069c51;
     transform: scale(1.03);
 }
 
-/* Create Patient Button */
-.createButton{
-    padding: 8px 12px;
-    font-size: 15px;
-    margin-left: 5px;
-    border: none; 
-    background-color: transparent;
-    color: #251829; 
-    cursor: pointer;
-    font-family: Tahoma, sans-serif;
+.editButton:hover {
+    background-color: #ee5449;
+    transform: scale(1.03);
 }
 
 .createButton:hover {
     text-decoration: underline;
     transform: scale(1.03);
 }
+
+
+  .goButton:active {
+    background-color: #066937; /* Slightly darker */
+    transform: scale(0.99);    /* Slightly shrink */
+  }
+  
+ .editButton:active {
+    background-color: #a21c13; /* Slightly darker */
+    transform: scale(0.99);    /* Slightly shrink */
+  }
+
+ .createButton:active {
+    text-decoration: none;
+    transform: scale(0.99);    /* Slightly shrink */
+  }
+
 
 /* Patient select container (replaces old dropdown) */
 .patient-select {
@@ -59,10 +103,15 @@ body {
 }
 
 /* Style the input used for patient selection (replaces .dropbtn rules) */
-.patient-select input {
+.patient-select input,
+.patient-select select,
+.lookupButton {
     display: inline-block;
     padding: 5px 14px;
     font-size: 15px;
+    margin-bottom: 20px;
+    margin-left: 10px;
+    margin-top: 20px;
     background-color: #007e93;
     color: #f9f9f9;
     border-radius: 6px;
@@ -71,14 +120,24 @@ body {
     box-sizing: border-box;
     height: 40px;
     text-align: left;
-    font-family: Tahoma, sans-serif;
+    font-family: Poppins-Regular-400, sans-serif;
+}
+
+.patient-select select {
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 36px;
 }
 
 .patient-select input::placeholder { 
     color: #f9f9f9;
 }
 
-.patient-select input:hover {
+.patient-select input:hover,
+.patient-select select:hover, 
+.lookupButton:hover {
     background-color: #009cb7;
     transform: scale(1.03);
 }
@@ -91,4 +150,17 @@ datalist {
 datalist option {
     background-color: #d32f2f;
     color: #f9f9f9;
+}
+
+.flex-container {
+    display: flex;
+    margin: 0 auto;
+    flex-direction: column;
+    align-items: center;
+    max-width: 600px;
+    margin-bottom: 40px;
+    border-radius: 5px;
+    border: 1px solid #251829;
+    padding: 20px;
+    background-color: #ffffff;
 }

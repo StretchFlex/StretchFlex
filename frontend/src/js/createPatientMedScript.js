@@ -1,24 +1,17 @@
-//do a GET request to the backend to get the latest patient ID and store it in a variable for use in the medical info form submission
-let patientId = null;
-fetch("/api/patients/latest")
-    .then(response => response.json())
-    .then(data => {
-        patientId = data.id; // assuming the response contains the new patient's ID in an 'id' field
-        console.log("Received patient ID:", patientId);
-    })
-    .catch(error => console.error("Error fetching latest patient ID:", error));
+// Note: No patientId needed for new patient creation - we create both patient and medical history together
 
 // rest of the code that builds the form and handles submission
 
 const patientMedicalInfoFormSchema = [
-    //section to display patient ID for reference, not editable
-    {
-        name: "patientId",
-        label: "Patient ID",
-        type: "string",
-        required: false,
-        readOnly: true
-    },
+    // Note: Patient ID field removed since we're creating a new patient
+    // //section to display patient ID for reference, not editable
+    // {
+    //     name: "patientId",
+    //     label: "Patient ID",
+    //     type: "string",
+    //     required: false,
+    //     readOnly: true
+    // },
     
     // history of plantar fasciitis section
     { // historyOfPF
@@ -151,6 +144,23 @@ const patientMedicalInfoFormSchema = [
 ];
 
 const form = document.getElementById("patientMedicalInfoForm");
+let medicalFormDirty = false;
+
+function markMedicalDirty() {
+    medicalFormDirty = true;
+}
+
+window.addEventListener("beforeunload", function (event) {
+    if (medicalFormDirty) {
+        event.preventDefault();
+    }
+});
+
+const storedPatientData = sessionStorage.getItem('pendingPatientData');
+if (!storedPatientData) {
+    alert('Patient personal information not found. Please start the patient creation process again.');
+    window.location.href = 'createPatient.html';
+}
 
 // helper that creates a single question block and wires dependency metadata
 function createQuestion(field) {
@@ -175,6 +185,13 @@ function createQuestion(field) {
         if (field.type === "integer") {
             input.step = "0.01";
             input.min = "1";
+        }
+        if (field.readOnly) {
+            input.readOnly = true;
+        }
+        // populate patientId field with the actual value
+        if (field.name === "patientId" && patientId) {
+            input.value = patientId;
         }
         wrapper.appendChild(input);
     } else if (field.type === "single-choice") {
@@ -247,6 +264,8 @@ function refreshDependencies() {
 
 // listen for changes to update dependencies, show other-text fields and enforce exclusivity rules
 form.addEventListener("change", function (e) {
+    medicalFormDirty = true;
+
     // show/hide "other" text box
     if (e.target.classList.contains("other-option")) {
         const textField = e.target.closest("label").nextElementSibling;
@@ -314,7 +333,7 @@ function verifyFieldsMed() {
 }
 
 // convert form to JSON and run validation on finish
-document.getElementById("finishBtn").addEventListener("click", function () {
+document.getElementById("finishBtn").addEventListener("click", async function () {
     if (!verifyFieldsMed()) return;
 
     const jsonData = {};
@@ -358,7 +377,6 @@ document.getElementById("finishBtn").addEventListener("click", function () {
 
     // reformat into the nested object required by back end / user request
     const outputObject = {
-        patientId: patientId, // include the patient ID from the earlier fetch
         historyOfPF: {
             responseOfHistory: jsonData.responseOfHistory || "",
             rightFoot: jsonData.rightFoot || "",
@@ -388,36 +406,55 @@ document.getElementById("finishBtn").addEventListener("click", function () {
         otherRelevantComments: jsonData.otherRelevantComments || ""
     };
 
-    //without fetch, just for reference
-    // console.log("Patient Medical Info JSON:", outputObject);
-    // document.getElementById("output").textContent =
-    //     JSON.stringify(outputObject, null, 4);
+    // For new patient creation, we don't need patientId - we'll create it
+    console.log("Patient ID for submission: New patient (will be created)");
+    // Remove patientId from outputObject since we're creating a complete patient
+    // outputObject.patientId = patientId;  // Remove this line
 
-    // alert("Patient medical information submitted successfully!");
-    // window.location.href = "selectPatient.html";
+    // Retrieve stored patient data from sessionStorage
+    const storedPatientData = sessionStorage.getItem('pendingPatientData');
+    if (!storedPatientData) {
+        alert('Patient personal information not found. Please start the patient creation process again.');
+        window.location.href = 'createPatient.html';
+        return;
+    }
 
+    const patientInfo = JSON.parse(storedPatientData);
+    console.log("Retrieved patient info:", patientInfo);
 
-//need to post request the json object to the back end with fetch
-fetch("/api/patients/medical-info", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(outputObject)
-})
-    .then(response => {
+    // Create complete payload with both personal and medical info
+    const completePayload = {
+        patientInfo: patientInfo,
+        medicalHistory: outputObject
+    };
+
+    try {
+        const response = await fetch("/api/patient/complete", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(completePayload)
+        });
+
         if (!response.ok) {
             throw new Error("Network response was not ok");
         }
-        return response.json();
-    })
-    .then(data => {
-        console.log("Success:", data);
-        alert("Patient medical information submitted successfully! Your patient ID is: " + patientId);
+
+        // Backend returns plain text, so parse as text
+        const data = await response.json();
+        console.log("Complete patient creation success:", data);
+
+        medicalFormDirty = false;
+        // Clear the temporary data
+        sessionStorage.removeItem('pendingPatientData');
+
+        alert("Patient created successfully! Your patient ID is: " + data.patientId);
         window.location.href = "selectPatient.html";
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        alert("There was an error submitting the information. Please try again.");
-    });
+
+    } catch (error) {
+        console.error("Error completing patient creation:", error);
+        alert("There was an error completing the patient creation. Please try again.");
+    }
+
 });
