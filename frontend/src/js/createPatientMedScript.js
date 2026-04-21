@@ -429,7 +429,7 @@ document.getElementById("finishBtn").addEventListener("click", async function ()
     };
 
     try {
-        const response = await fetch("/api/patient/complete", {
+        const response = await authenticatedFetch("/api/patient/complete", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

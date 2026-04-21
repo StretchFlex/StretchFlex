@@ -1,4 +1,4 @@
-function verifyCredentials() {
+async function verifyCredentials() {
     // Get the value from the username input field
     const usernameInputField = document.getElementById("usernameInput");
     const usernameText = usernameInputField.value.trim();
@@ -9,18 +9,37 @@ function verifyCredentials() {
 
     // Validate input (that there is input)
     if (usernameText === "" || passwordText === "") {
-        document.getElementById("output").textContent = "Please enter username and password";
-        document.getElementById("output").style.color = "red";
+        alert("Please enter username and password");
         return;
     }
 
-    if (usernameText !== "d" || passwordText !== "p") {
-        document.getElementById("output").textContent = "Incorrect username and/or password";
-        document.getElementById("output").style.color = "orange";
-        return;
-    }
+    try {
+        const response = await fetch('/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: usernameText,
+                password: passwordText
+            })
+        });
 
-    window.location.href = "homePage.html";
+        if (response.ok) {
+            const data = await response.json();
+            // Store the access token
+            localStorage.setItem('accessToken', data.accessToken);
+            localStorage.setItem('role', data.role);
+            // Redirect to home page
+            window.location.href = "homePage.html";
+        } else {
+            const errorData = await response.json();
+            alert(errorData.message || "Login failed");
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        alert("An error occurred during login");
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {

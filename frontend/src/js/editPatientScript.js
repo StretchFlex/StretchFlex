@@ -273,7 +273,7 @@ function savePatientUpdates() {
         Bmi: newData.bmi
     };
 
-    fetch(`/api/patient/personal-info/update/${patientId}`, {
+    authenticatedFetch(`/api/patient/personal-info/update/${patientId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -303,7 +303,7 @@ function loadExistingPatient() {
         return;
     }
 
-    fetch(`/api/patient/personal/${patientId}`)
+    authenticatedFetch(`/api/patient/personal/${patientId}`)
         .then(res => {
             if (!res.ok) throw new Error(`Unable to fetch patient ${patientId}`);
             return res.json();

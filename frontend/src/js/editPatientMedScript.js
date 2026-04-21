@@ -217,7 +217,7 @@ function loadExistingMedicalInfo() {
         return;
     }
 
-    fetch(`/api/patient/medical-history/${patientId}`)
+    authenticatedFetch(`/api/patient/medical-history/${patientId}`)
         .then(resp => {
             if (!resp.ok) throw new Error('Failed to fetch medical history');
             return resp.json();
@@ -303,7 +303,7 @@ async function submitMedicalUpdate() {
     const payload = collectMedicalFormData();
 
     try {
-        const resp = await fetch(`/api/patient/update/medical-history/${patientId}`, {
+        const resp = await authenticatedFetch(`/api/patient/update/medical-history/${patientId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)

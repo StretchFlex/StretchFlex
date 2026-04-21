@@ -6,6 +6,8 @@ services:
       - "8081"
     networks:
       - stretchflex-network
+    environment:
+      - ASPNETCORE_URLS=http://*:8081
     secrets:
       - db_user
       - db_password
