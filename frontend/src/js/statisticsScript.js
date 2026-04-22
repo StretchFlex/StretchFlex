@@ -1,3 +1,32 @@
+import { calculateKeyPoints } from "./calculations.js";
+
+function computeAllMetrics(time, distance) {
+    const { pointA, pointB, pointC } = calculateKeyPoints(time, distance);
+
+    if (!pointA || !pointB || !pointC) {
+        return null;
+    }
+
+    const stretchOvershoot = pointB.value - pointA.value;
+    const reflexRelaxationPoint = pointB.time - pointA.time;
+    const muscleRelaxationLimit = pointC.value;
+    const patientConfidence = pointC.time - pointB.time;
+    const muscleRelaxation = pointB.value - pointC.value;
+    const avgRelaxRate = muscleRelaxation / (pointC.time - pointB.time);
+    const extensibilityIndex = pointC.value - pointA.value;
+
+    return {
+        stretchOvershoot: stretchOvershoot.toFixed(2),
+        reflexRelaxationPoint: reflexRelaxationPoint.toFixed(2),
+        muscleRelaxationLimit: muscleRelaxationLimit.toFixed(2),
+        patientConfidence: patientConfidence.toFixed(2),
+        muscleRelaxation: muscleRelaxation.toFixed(2),
+        avgRelaxRate: avgRelaxRate.toFixed(2),
+        extensibilityIndex: extensibilityIndex.toFixed(2)
+    };
+}
+        
+        
         // Placeholder for stats calculation - replace with actual logic
         function calculateStats(data) {
             if (!Array.isArray(data) || data.length === 0) return null;
@@ -17,48 +46,77 @@
             };
         }
 
-        function updateStatsForRow(rowNumber, data) {
-            const row = document.getElementById(`row-${rowNumber}`);
-            if (!row) return;
-            const statCells = {
-                mean: row.querySelector('.stat-mean'),
-                std: row.querySelector('.stat-std'),
-                min: row.querySelector('.stat-min'),
-                max: row.querySelector('.stat-max')
-            };
-            if (!data || !data.length) {
-                Object.values(statCells).forEach(cell => cell.textContent = '...');
-                return;
-            }
-            const stats = calculateStats(data);
-            if (!stats) {
-                Object.values(statCells).forEach(cell => cell.textContent = '...');
-                return;
-            }
-            statCells.mean.textContent = stats.mean;
-            statCells.std.textContent = stats.stdDev;
-            statCells.min.textContent = stats.min;
-            statCells.max.textContent = stats.max;
-        }
+function updateStatsForRow(rowNumber, time, distance) {
+    const row = document.getElementById(`row-${rowNumber}`);
+    if (!row) return;
 
-        function updateStatsTable() {
-            const graphInputs = [
-                document.getElementById('graphInput1'),
-                document.getElementById('graphInput2'),
-                document.getElementById('graphInput3'),
-                document.getElementById('graphInput4')
-            ];
+    const cells = row.querySelectorAll("td");
 
-            graphInputs.forEach((input, idx) => {
-                const value = input?.value?.trim();
-                if (!value) {
-                    updateStatsForRow(idx + 1, null);
-                } else {
-                    // placeholder for actual data retrieval per graph by name
-                    // If you have chart series per graph, replace this with that data.
-                    const chartSourceData = window.currentChartData || [12, 15, 8, 20, 18];
-                    updateStatsForRow(idx + 1, chartSourceData);
-                }
-            });
+    // If no data, clear row
+    if (!time || !distance) {
+        for (let i = 1; i < cells.length; i++) {
+            cells[i].textContent = "...";
         }
+        return;
+    }
+
+    const stats = computeAllMetrics(time, distance);
+
+    if (!stats) {
+        for (let i = 1; i < cells.length; i++) {
+            cells[i].textContent = "...";
+        }
+        return;
+    }
+
+    cells[1].textContent = stats.stretchOvershoot;
+    cells[2].textContent = stats.reflexRelaxationPoint;
+    cells[3].textContent = stats.muscleRelaxationLimit;
+    cells[4].textContent = stats.patientConfidence;
+    cells[5].textContent = stats.muscleRelaxation;
+    cells[6].textContent = stats.avgRelaxRate;
+    cells[7].textContent = stats.extensibilityIndex;
+}
+
+//         function updateStatsTable() {
+//             const graphInputs = [
+//                 document.getElementById('graphInput1'),
+//                 document.getElementById('graphInput2'),
+//                 document.getElementById('graphInput3'),
+//                 document.getElementById('graphInput4')
+//             ];
+
+//             graphInputs.forEach((input, idx) => {
+//                 const value = input?.value?.trim();
+//                 if (!value) {
+//                     updateStatsForRow(idx + 1, null);
+//                 } else {
+//                     // placeholder for actual data retrieval per graph by name
+//                     // If you have chart series per graph, replace this with that data.
+//                     const selectedGraphName = input.value.trim();
+// const dataset = window.loadedGraphs[selectedGraphName];
+
+// if (!dataset) {
+//     updateStatsForRow(idx + 1, null, null);
+// } else {
+//     updateStatsForRow(idx + 1, dataset.time, dataset.distance);
+// }
+
+//                 }
+//             });
+//         }
+
+function updateStatsTable() {
+    const rows = ["graph1", "graph2", "graph3", "graph4"];
+
+    rows.forEach((key, index) => {
+        const entry = graphSelections[key];
+
+        if (!entry) {
+            updateStatsForRow(index + 1, null, null);
+        } else {
+            updateStatsForRow(index + 1, entry.time, entry.raw);
+        }
+    });
+}
 
