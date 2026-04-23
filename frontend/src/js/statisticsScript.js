@@ -1,5 +1,17 @@
-import { calculateKeyPoints } from "./calculations.js";
+// ============================================================
+// STATISTICS + INTERACTION SCRIPT
+// - Computes biomechanical metrics
+// - Updates table rows
+// - Handles missing A/B/C errors
+// - Makes rows clickable to highlight A/B/C on chart
+// ============================================================
 
+import { calculateKeyPoints, createPointAnnotations } from "./calculations.js";
+import { graphSelections, lineChart } from "./graphDisplayScript-chartGeneration.js";
+
+// ------------------------------------------------------------
+// Compute all biomechanical metrics from A/B/C
+// ------------------------------------------------------------
 function computeAllMetrics(time, distance) {
     const { pointA, pointB, pointC } = calculateKeyPoints(time, distance);
 
@@ -25,34 +37,20 @@ function computeAllMetrics(time, distance) {
         extensibilityIndex: extensibilityIndex.toFixed(2)
     };
 }
-        
-        
-        // Placeholder for stats calculation - replace with actual logic
-        function calculateStats(data) {
-            if (!Array.isArray(data) || data.length === 0) return null;
-            const cleaned = data.filter(x => typeof x === 'number' && !isNaN(x));
-            if (cleaned.length === 0) return null;
-            const sum = cleaned.reduce((a, b) => a + b, 0);
-            const mean = sum / cleaned.length;
-            const min = Math.min(...cleaned);
-            const max = Math.max(...cleaned);
-            const variance = cleaned.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / cleaned.length;
-            const stdDev = Math.sqrt(variance);
-            return {
-                mean: mean.toFixed(2),
-                stdDev: stdDev.toFixed(2),
-                min: min.toFixed(2),
-                max: max.toFixed(2)
-            };
-        }
 
+// ------------------------------------------------------------
+// Update a single table row
+// ------------------------------------------------------------
 function updateStatsForRow(rowNumber, time, distance) {
     const row = document.getElementById(`row-${rowNumber}`);
     if (!row) return;
 
     const cells = row.querySelectorAll("td");
 
-    // If no data, clear row
+    // Reset error styling
+    row.classList.remove("stats-error");
+
+    // No data → clear row
     if (!time || !distance) {
         for (let i = 1; i < cells.length; i++) {
             cells[i].textContent = "...";
@@ -62,13 +60,18 @@ function updateStatsForRow(rowNumber, time, distance) {
 
     const stats = computeAllMetrics(time, distance);
 
+    // Missing A/B/C → show error
     if (!stats) {
-        for (let i = 1; i < cells.length; i++) {
-            cells[i].textContent = "...";
+        row.classList.add("stats-error");
+
+        cells[1].textContent = "A/B/C not found";
+        for (let i = 2; i < cells.length; i++) {
+            cells[i].textContent = "—";
         }
         return;
     }
 
+    // Normal case
     cells[1].textContent = stats.stretchOvershoot;
     cells[2].textContent = stats.reflexRelaxationPoint;
     cells[3].textContent = stats.muscleRelaxationLimit;
@@ -78,35 +81,10 @@ function updateStatsForRow(rowNumber, time, distance) {
     cells[7].textContent = stats.extensibilityIndex;
 }
 
-//         function updateStatsTable() {
-//             const graphInputs = [
-//                 document.getElementById('graphInput1'),
-//                 document.getElementById('graphInput2'),
-//                 document.getElementById('graphInput3'),
-//                 document.getElementById('graphInput4')
-//             ];
-
-//             graphInputs.forEach((input, idx) => {
-//                 const value = input?.value?.trim();
-//                 if (!value) {
-//                     updateStatsForRow(idx + 1, null);
-//                 } else {
-//                     // placeholder for actual data retrieval per graph by name
-//                     // If you have chart series per graph, replace this with that data.
-//                     const selectedGraphName = input.value.trim();
-// const dataset = window.loadedGraphs[selectedGraphName];
-
-// if (!dataset) {
-//     updateStatsForRow(idx + 1, null, null);
-// } else {
-//     updateStatsForRow(idx + 1, dataset.time, dataset.distance);
-// }
-
-//                 }
-//             });
-//         }
-
-function updateStatsTable() {
+// ------------------------------------------------------------
+// Update all rows in the table
+// ------------------------------------------------------------
+export function updateStatsTable() {
     const rows = ["graph1", "graph2", "graph3", "graph4"];
 
     rows.forEach((key, index) => {
@@ -120,3 +98,48 @@ function updateStatsTable() {
     });
 }
 
+// ------------------------------------------------------------
+// Highlight A/B/C on the chart when a row is clicked
+// ------------------------------------------------------------
+function highlightABCOnChart(time, distance) {
+    const { pointA, pointB, pointC } = calculateKeyPoints(time, distance);
+
+    if (!pointA || !pointB || !pointC) {
+        console.warn("Cannot highlight ABC — missing points");
+        return;
+    }
+
+    const annotations = createPointAnnotations({ pointA, pointB, pointC });
+
+    // Add pulse effect
+    for (const key of Object.keys(annotations)) {
+        annotations[key].radius = 10;
+        annotations[key].backgroundColor += "AA"; // add transparency
+    }
+
+    lineChart.options.plugins.annotation.annotations = {
+        ...lineChart.options.plugins.annotation.annotations,
+        ...annotations
+    };
+
+    lineChart.update();
+}
+
+// ------------------------------------------------------------
+// Make each row clickable
+// ------------------------------------------------------------
+export function setupRowClickHandlers() {
+    for (let i = 1; i <= 4; i++) {
+        const row = document.getElementById(`row-${i}`);
+        if (!row) continue;
+
+        row.addEventListener("click", () => {
+            const key = `graph${i}`;
+            const entry = graphSelections[key];
+
+            if (!entry) return;
+
+            highlightABCOnChart(entry.time, entry.raw);
+        });
+    }
+}
