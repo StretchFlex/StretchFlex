@@ -1,116 +1,63 @@
 // ============================================================
-// DROPDOWN‑ONLY MULTI‑GRAPH SYSTEM — RAW DATA ONLY
+// GRAPH DISPLAY + DATA LOADING + DROPDOWN SYSTEM
+// - Loads CSVs
+// - Stores graph selections
+// - Updates chart
+// - Triggers stats updates
+// - Exports lineChart + graphSelections
 // ============================================================
 
-import { calculateKeyPoints, createPointAnnotations } from './calculations.js';
+import { calculateKeyPoints, createPointAnnotations } from "./calculations.js";
+import { updateStatsTable, setupRowClickHandlers } from "./statisticsScript.js";
 
-// Stores data for each dropdown row
-const graphSelections = {
+// ------------------------------------------------------------
+// Exported so statisticsScript.js can access selected graph data
+// ------------------------------------------------------------
+export const graphSelections = {
     graph1: null,
     graph2: null,
     graph3: null,
     graph4: null
 };
 
-window.currentChartData = [];
+// ------------------------------------------------------------
+// Export chart instance so stats script can modify annotations
+// ------------------------------------------------------------
+export let lineChart = null;
 
 // ============================================================
-// CHART SETUP BLANK INITIALLY
+// CHART SETUP
 // ============================================================
-const ctx = document.getElementById('lineChart').getContext('2d');
+const ctx = document.getElementById("lineChart").getContext("2d");
 
 function createBlankChart() {
-    return new Chart(ctx, {
-        type: 'line',
-        data: { labels: [], datasets: [] },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: 'bottom' },
-                title: { display: true, text: 'Blank Chart Waiting for Selection' },
-                annotation: { annotations: {} }
-            },
-            scales: {
-                x: { title: { display: true, text: 'Time (s)' }, beginAtZero: true, ticks: { callback: function(value) { return value.toFixed(2); } } },
-                y: { title: { display: true, text: 'Stretch Distance (mm)' }, beginAtZero: true, ticks: { callback: function(value) { return value.toFixed(2); } } }
-            }
-        }
-    });
-}
-
-let chartInstance = createBlankChart();
-
-// ============================================================
-// CSV PARSER
-// ============================================================
-function parseCSV(text) {
-    const lines = text.trim().split("\n");
-    const header = lines[0].split(",");
-    const timeIndex = header.indexOf("Stop Watch time"); //change to column name needed
-    const distIndex = header.indexOf("LH"); //change to column name needed
-
-    const time = [];
-    const distance = [];
-
-    for (let i = 1; i < lines.length; i++) {
-        const cols = lines[i].split(",");
-        time.push(parseFloat(cols[timeIndex]));
-        distance.push(parseFloat(cols[distIndex]));
-    }
-
-    return { time, distance };
-}
-
-// ============================================================
-// RENDER MULTI‑CHART (RAW ONLY)
-// ============================================================
-function renderMultiChart() {
-    if (chartInstance) chartInstance.destroy();
-
-    const datasets = [];
-    let labels = [];
-
-    const colors = ["blue", "green", "purple", "orange"];
-
-    Object.keys(graphSelections).forEach((key, index) => {
-        const entry = graphSelections[key];
-        if (!entry) return;
-
-        const { time, raw } = entry;
-
-        if (labels.length === 0) labels = time;
-
-        datasets.push({
-            label: `${key}`,
-            data: raw,
-            borderColor: colors[index],
-            borderWidth: 2,
-            fill: false
-        });
-    });
-
-    chartInstance = new Chart(ctx, {
+    lineChart = new Chart(ctx, {
         type: "line",
-        data: { labels, datasets },
+        data: {
+            labels: [],
+            datasets: []
+        },
         options: {
             responsive: true,
+            animation: false,
             plugins: {
-                legend: { position: "bottom" },
-                title: { display: true, text: "Multi‑Graph Display" },
+                legend: {
+                    display: true,
+                    position: "bottom"   // Legend at bottom
+                },
                 annotation: { annotations: {} }
             },
             scales: {
                 x: {
                     title: { display: true, text: "Time (s)" },
                     ticks: {
-                        callback: value => Number(value).toFixed(2)
+                        callback: (value) => Number(value).toFixed(2)   // ⬅️ 2 decimals
                     }
                 },
                 y: {
-                    title: { display: true, text: "Stretch Distance (mm)" },
-                    beginAtZero: true,
+                    title: { display: true, text: "Distance (mm)" },
                     ticks: {
-                        callback: value => Number(value).toFixed(2)
+                        callback: (value) => Number(value).toFixed(2)   // ⬅️ 2 decimals
                     }
                 }
             }
@@ -119,90 +66,180 @@ function renderMultiChart() {
 }
 
 
+createBlankChart();
+
 // ============================================================
-// DROPDOWN LISTENERS
+// CSV LOADING
+// ============================================================
+async function loadCSV(url) {
+    const response = await fetch(url);
+    const text = await response.text();
+
+    const lines = text.trim().split("\n");
+
+    // Parse header row
+    const headers = lines[0].split(",").map(h => h.trim());
+
+    // Find column indices dynamically
+    const timeIndex = headers.indexOf("Stop Watch time");
+    const lhIndex = headers.indexOf("LH");
+
+    if (timeIndex === -1 || lhIndex === -1) {
+        console.error("CSV missing required columns: Stop Watch time or LH");
+        return { time: [], raw: [] };
+    }
+
+    const time = [];
+    const raw = [];
+
+    // Parse data rows
+    for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(",");
+
+        const t = Number(cols[timeIndex]);
+        const d = Number(cols[lhIndex]);
+
+        if (!isNaN(t) && !isNaN(d)) {
+            time.push(t);
+            raw.push(d);
+        }
+    }
+
+    return { time, raw };
+}
+
+
+// ============================================================
+// UPDATE CHART WHEN ANY GRAPH CHANGES
+// ============================================================
+function refreshChart() {
+    const datasets = [];
+    const annotations = {};
+
+    Object.entries(graphSelections).forEach(([key, entry]) => {
+        if (!entry) return;
+
+        datasets.push({
+            label: key,
+            data: entry.raw,
+            borderColor: entry.color,
+            borderWidth: 2,
+            fill: false
+        });
+
+        const { pointA, pointB, pointC } = calculateKeyPoints(entry.time, entry.raw);
+        const ann = createPointAnnotations({ pointA, pointB, pointC });
+
+        Object.assign(annotations, ann);
+    });
+
+    // FIX: use the first loaded graph for labels
+    const firstLoaded = Object.values(graphSelections).find(g => g && g.time);
+    lineChart.data.labels = firstLoaded ? firstLoaded.time : [];
+
+    lineChart.data.datasets = datasets;
+    lineChart.options.plugins.annotation.annotations = annotations;
+
+    lineChart.update();
+}
+
+
+// ============================================================
+// DROPDOWN HANDLING
 // ============================================================
 function setupDropdownListeners() {
-    document.querySelectorAll(".single-graph-select").forEach(select => {
-        select.addEventListener("change", async function () {
-            const filePath = this.value;
-            const key = this.name;
+    const dropdowns = document.querySelectorAll(".single-graph-select");
 
-            if (!filePath) {
+    dropdowns.forEach((select) => {
+        select.addEventListener("change", async function () {
+            const key = this.name;
+            const file = this.value;
+
+            if (!file) {
                 graphSelections[key] = null;
-                renderMultiChart();
+                refreshChart();
+                updateStatsTable();
                 return;
             }
 
-            try {
-                const response = await fetch(filePath);
-                const csvText = await response.text();
-                const { time, distance } = parseCSV(csvText);
+            // ⬇⬇⬇ THIS IS WHERE THE LINE GOES ⬇⬇⬇
+            const dataset = await loadCSV(`sampleGraphsJasTest/${file}`);
+            // ⬆⬆⬆ EXACTLY HERE ⬆⬆⬆
 
-                graphSelections[key] = { time, raw: distance };
+            graphSelections[key] = {
+                ...dataset,
+                color: pickColorForGraph(key)
+            };
 
-                renderMultiChart();
-
-            } catch (err) {
-                console.error("Error loading CSV:", err);
-                alert("Failed to load selected CSV file.");
-            }
+            refreshChart();
+            updateStatsTable();
         });
     });
 }
 
+
 // ============================================================
-// REMOVE GRAPH BUTTONS
+// REMOVE BUTTONS
 // ============================================================
 function setupRemoveButtons() {
-    document.querySelectorAll(".clearGraphButton").forEach(btn => {
+    const buttons = document.querySelectorAll(".clearGraphButton");
+
+    buttons.forEach((btn) => {
         btn.addEventListener("click", () => {
             const key = btn.dataset.target;
-
             graphSelections[key] = null;
 
             const select = document.querySelector(`select[name="${key}"]`);
             if (select) select.value = "";
 
-            const rowNum = key.replace("graph", "");
-            const row = document.getElementById(`row-${rowNum}`);
-            if (row) {
-                row.querySelector(".stat-mean").textContent = "...";
-                row.querySelector(".stat-std").textContent = "...";
-                row.querySelector(".stat-min").textContent = "...";
-                row.querySelector(".stat-max").textContent = "...";
-            }
-
-            renderMultiChart();
+            refreshChart();
+            updateStatsTable();
         });
     });
 }
 
-// ============================================================
-// POPULATE DROPDOWNS
-// ============================================================
-async function populateGraphSelects() {
-    const selects = document.querySelectorAll(".single-graph-select");
 
+// ============================================================
+// COLOR ASSIGNMENT
+// ============================================================
+function pickColorForGraph(key) {
+    const colors = {
+        graph1: "#007bff",
+        graph2: "#ff5733",
+        graph3: "#28a745",
+        graph4: "#8e44ad"
+    };
+    return colors[key] || "black";
+}
+
+
+
+async function populateGraphSelects() {
     try {
         const response = await fetch("sampleGraphsJasTest/graphs.json");
-        const files = await response.json();
+        const files = await response.json(); // <-- RAW ARRAY
 
-        selects.forEach(select => {
-            while (select.options.length > 1) select.remove(1);
+        if (!Array.isArray(files)) {
+            console.error("graphs.json is not an array");
+            return;
+        }
 
-            files.forEach(file => {
+        const selects = document.querySelectorAll(".single-graph-select");
+
+        selects.forEach((select) => {
+            files.forEach((file) => {
                 const opt = document.createElement("option");
-                opt.value = `sampleGraphsJasTest/${file}`;
+                opt.value = file;
                 opt.textContent = file;
                 select.appendChild(opt);
             });
         });
 
     } catch (err) {
-        console.error("Error loading CSV list:", err);
+        console.error("Error loading graphs.json:", err);
     }
 }
+
 
 // ============================================================
 // INITIALIZE EVERYTHING
@@ -210,3 +247,4 @@ async function populateGraphSelects() {
 setupDropdownListeners();
 setupRemoveButtons();
 populateGraphSelects();
+setupRowClickHandlers(); // NEW: makes rows clickable
