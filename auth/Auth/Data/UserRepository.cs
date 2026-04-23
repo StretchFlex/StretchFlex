@@ -12,15 +12,17 @@ public class UserRepository(IConfiguration config)
     {
         using var conn = CreateConnection();
         return await conn.QuerySingleOrDefaultAsync<User>(
-            "SELECT * FROM stretchflex_db.users WHERE username = @Username AND is_active = TRUE",
+            "SELECT * FROM stretchflex_db.\"Users\" WHERE \"Username\" = @Username AND \"IsActive\" = TRUE",
             new { Username = username });
     }
 
-    public async Task UpdateLastLoginAsync(int userId)
-    {
-        using var conn = CreateConnection();
-        await conn.ExecuteAsync(
-            "UPDATE stretchflex_db.users SET last_login = NOW() WHERE user_id = @UserId",
-            new { UserId = userId });
-    }
+public async Task UpdateLastLoginAsync(int userId)
+{
+    using var conn = CreateConnection();
+    await conn.ExecuteAsync(
+        "UPDATE stretchflex_db.\"Users\" SET \"LastLogin\" = NOW() WHERE \"UserId\" = @UserId",
+        new { UserId = userId }
+    );
+}
+
 }
