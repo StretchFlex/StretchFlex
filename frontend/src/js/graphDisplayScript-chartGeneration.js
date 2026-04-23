@@ -41,16 +41,30 @@ function createBlankChart() {
             responsive: true,
             animation: false,
             plugins: {
-                legend: { display: true },
+                legend: {
+                    display: true,
+                    position: "bottom"   // Legend at bottom
+                },
                 annotation: { annotations: {} }
             },
             scales: {
-                x: { title: { display: true, text: "Time (s)" } },
-                y: { title: { display: true, text: "Distance (mm)" } }
+                x: {
+                    title: { display: true, text: "Time (s)" },
+                    ticks: {
+                        callback: (value) => Number(value).toFixed(2)   // ⬅️ 2 decimals
+                    }
+                },
+                y: {
+                    title: { display: true, text: "Distance (mm)" },
+                    ticks: {
+                        callback: (value) => Number(value).toFixed(2)   // ⬅️ 2 decimals
+                    }
+                }
             }
         }
     });
 }
+
 
 createBlankChart();
 
@@ -199,28 +213,6 @@ function pickColorForGraph(key) {
 }
 
 
-// ============================================================
-// POPULATE DROPDOWNS FROM CSV LIST
-// ============================================================
-// async function populateGraphSelects() {
-//     try {
-//         const response = await fetch("csv/csvList.json");
-//         const files = await response.json();
-
-//         const selects = document.querySelectorAll(".single-graph-select");
-
-//         selects.forEach((select) => {
-//             files.forEach((file) => {
-//                 const opt = document.createElement("option");
-//                 opt.value = file;
-//                 opt.textContent = file;
-//                 select.appendChild(opt);
-//             });
-//         });
-//     } catch (err) {
-//         console.error("Error loading CSV list:", err);
-//     }
-// }
 
 async function populateGraphSelects() {
     try {
