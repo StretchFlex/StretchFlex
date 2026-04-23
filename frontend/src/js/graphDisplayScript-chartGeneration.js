@@ -8,7 +8,7 @@
 // ============================================================
 
 import { calculateKeyPoints, createPointAnnotations } from "./calculations.js";
-import { updateStatsTable, setupRowClickHandlers } from "./statisticsScript.js";
+import { updateStatsTable } from "./statisticsScript.js";
 
 // ------------------------------------------------------------
 // Exported so statisticsScript.js can access selected graph data
@@ -286,4 +286,4 @@ async function populateGraphSelects() {
 setupDropdownListeners();
 setupRemoveButtons();
 populateGraphSelects();
-setupRowClickHandlers(); // NEW: makes rows clickable
+//setupRowClickHandlers(); // NEW: makes rows clickable
