@@ -38,6 +38,7 @@ function computeAllMetrics(time, distance) {
     };
 }
 
+
 // ------------------------------------------------------------
 // Update a single table row
 // ------------------------------------------------------------
@@ -124,6 +125,7 @@ function highlightABCOnChart(time, distance) {
 
     lineChart.update();
 }
+
 
 // ------------------------------------------------------------
 // Make each row clickable
