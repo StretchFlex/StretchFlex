@@ -242,21 +242,65 @@ static double[] FiltFilt(double[] b, double[] a, double[] x)
 {
     int nb = b.Length;
     int na = a.Length;
-    int nfact = 3 * Math.Max(nb, na);
+    int nfact = Math.Max(1, 3 * (Math.Max(nb, na) - 1));
 
-    if (x.Length <= nfact)
+    if (x == null || x.Length == 0)
+        return Array.Empty<double>();
+
+    // Always pad by nfact on both sides to reduce startup transients
+    var pre = MirrorPadForFiltFilt(x, nfact, true);
+    var post = MirrorPadForFiltFilt(x, nfact, false);
+
+    var padded = pre.Concat(x).Concat(post).ToArray();
+    var filtered = FiltFiltInternal(b, a, padded);
+
+    // return the central part corresponding to the original signal
+    return filtered[nfact..(nfact + x.Length)];
+}
+
+static double[] MirrorPadForFiltFilt(double[] v, int padLength, bool isPre)
+{
+    if (padLength <= 0) return Array.Empty<double>();
+    if (v.Length == 0) return Enumerable.Repeat(0.0, padLength).ToArray();
+    if (v.Length == 1) return Enumerable.Repeat(v[0], padLength).ToArray();
+
+    int n = v.Length;
+    var outList = new List<double>(padLength);
+
+    if (isPre)
     {
-        int pad = nfact - x.Length + 1;
-        var pre = MirrorPad(x, pad);
-        var post = MirrorPad(x, pad);
+        // reflect about the first element: values come from v[1], v[2], ...
+        int idx = 1;
+        while (outList.Count < padLength)
+        {
+            double val = v[idx];
+            double mirrored = 2.0 * v[0] - val;
+            outList.Add(mirrored);
 
-        var padded = pre.Concat(x).Concat(post).ToArray();
-        var filtered = FiltFiltInternal(b, a, padded);
+            idx++;
+            if (idx >= n) idx = 1; // wrap around interior samples if needed
+        }
 
-        return filtered[pad..(pad + x.Length)];
+        // we built pre in forward order (closest to edge first), reverse to place farthest first
+        outList.Reverse();
+    }
+    else
+    {
+        // post padding: reflect about the last element: values come from v[n-2], v[n-3], ...
+        int idx = n - 2;
+        while (outList.Count < padLength)
+        {
+            double val = v[idx];
+            double mirrored = 2.0 * v[n - 1] - val;
+            outList.Add(mirrored);
+
+            idx--;
+            if (idx < 0) idx = n - 2; // wrap around interior samples if needed
+        }
+        // post is already in order from nearest to farthest, keep as is
     }
 
-    return FiltFiltInternal(b, a, x);
+    return outList.Take(padLength).ToArray();
 }
 
 static double[] FiltFiltInternal(double[] b, double[] a, double[] x)
@@ -273,40 +317,43 @@ static double[] Filter(double[] b, double[] a, double[] x)
     int n = x.Length;
     int nb = b.Length;
     int na = a.Length;
-    int nz = Math.Max(nb, na) - 1;
+    
+// If both numerator and denominator are length 1, simple scalar multiply
+    if (nb == 1 && na == 1)
+    {
+        var ySimple = new double[n];
+        for (int i = 0; i < n; i++)
+            ySimple[i] = b[0] * x[i] / a[0];
+        return ySimple;
+    }
 
-    var z = new double[nz];
+    // General direct form I difference equation implementation (safe for all nb, na)
     var y = new double[n];
-
     for (int i = 0; i < n; i++)
     {
-        double acc = b[0] * x[i] + z[0];
-        y[i] = acc;
+        double acc = 0.0;
 
-        for (int j = 1; j < nz; j++)
-            z[j - 1] = b[j] * x[i] - a[j] * y[i] + z[j];
+        // numerator terms b[k] * x[i-k]
+        for (int k = 0; k < nb; k++)
+        {
+            int xi = i - k;
+            if (xi >= 0)
+                acc += b[k] * x[xi];
+        }
 
-        z[nz - 1] = (nb > nz ? b[nz] : 0) * x[i] -
-                    (na > nz ? a[nz] : 0) * y[i];
+        // denominator terms -a[k] * y[i-k] for k >= 1
+        for (int k = 1; k < na; k++)
+        {
+            int yi = i - k;
+            if (yi >= 0)
+                acc -= a[k] * y[yi];
+        }
+
+        // divide by a[0] if not 1
+        y[i] = acc / (a.Length > 0 ? a[0] : 1.0);
     }
 
     return y;
-}
-
-static double[] MirrorPad(double[] v, int n)
-{
-    if (n <= 0) return Array.Empty<double>();
-    if (v.Length == 0) return Enumerable.Repeat(0.0, n).ToArray();
-
-    double[] refPart = v.Length == 1 ? v : v[1..];
-
-    var rep = new List<double>();
-    while (rep.Count < n)
-        rep.AddRange(refPart);
-
-    var padded = rep.Take(n).ToArray();
-    Array.Reverse(padded);
-    return padded;
 }
 
 app.Run();
