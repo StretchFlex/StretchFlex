@@ -176,9 +176,12 @@ app.MapPost("/api/data/upload-csv", async (HttpRequest request) =>
         double fs = 6.0;
 
 
-        //----Generated coeficients for Butterworth low-pass filter with cutoff 0.015*fs/2 = 0.045 fs/2 = 3Hz, order 4
-        double[] b = { 0.00000000373, 0.00000001491, 0.00000002237, 0.00000001491, 0.00000000373 }; MatLab generated
-        double[] a = { 1.0, -3.9590, 5.8777, -3.8785, 0.9598 }; MatLab generated
+        //--------------------------------------------------------------------------------
+        // Generated coeficients for Butterworth low-pass filter with cutoff 0.015*fs/2 = 0.045 fs/2 = 3Hz, order 4
+        //--------------------------------------------------------------------------------
+
+        double[] b = { 0.00000000373, 0.00000001491, 0.00000002237, 0.00000001491, 0.00000000373 }; //MatLab generated
+        double[] a = { 1.0, -3.9590, 5.8777, -3.8785, 0.9598 }; //MatLab generated
         //double[] b = { 0.00000013403, 0.00000053613, 0.00000080420, 0.00000053613, 0.00000013403 }; Copiolet generated
         //double[] a = { 1.0, -3.9842, 5.9529, -3.9530, 0.9843 }; Copiolet generated
         
