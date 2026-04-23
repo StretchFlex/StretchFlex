@@ -19,8 +19,8 @@ function computeAllMetrics(time, distance) {
         return null;
     }
 
-    const stretchOvershoot = pointB.value - pointA.value;
-    const reflexRelaxationPoint = pointB.time - pointA.time;
+    const stretchOvershoot = pointA.value;
+    const reflexRelaxationPoint = pointB.value;
     const muscleRelaxationLimit = pointC.value;
     const patientConfidence = pointC.time - pointB.time;
     const muscleRelaxation = pointB.value - pointC.value;
