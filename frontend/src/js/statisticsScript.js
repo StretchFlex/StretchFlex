@@ -12,6 +12,10 @@ import { graphSelections, lineChart } from "./graphDisplayScript-chartGeneration
 // ------------------------------------------------------------
 // Compute all biomechanical metrics from A/B/C
 // ------------------------------------------------------------
+function formatPointTimeDistance(point) {
+    return `${point.time.toFixed(2)}s / ${point.value.toFixed(2)}mm`;
+}
+
 function computeAllMetrics(time, distance) {
     const { pointA, pointB, pointC } = calculateKeyPoints(time, distance);
 
@@ -19,20 +23,22 @@ function computeAllMetrics(time, distance) {
         return null;
     }
 
-    const stretchOvershoot = pointA.value;
-    const reflexRelaxationPoint = pointB.value;
-    const muscleRelaxationLimit = pointC.value;
-    const patientConfidence = pointC.time - pointB.time;
-    const muscleRelaxation = pointB.value - pointC.value;
-    const avgRelaxRate = muscleRelaxation / (pointC.time - pointB.time);
-    const extensibilityIndex = pointC.value - pointA.value;
+    const stretchOvershoot = formatPointTimeDistance(pointA);
+    const reflexRelaxationPoint = formatPointTimeDistance(pointB);
+    const muscleRelaxationLimit = formatPointTimeDistance(pointC);
+    const patientConfidence = pointA.value - pointC.value;
+    const muscleRelaxationTime = Math.abs(pointC.time - pointB.time);
+    const muscleRelaxationDistance = Math.abs(pointB.value - pointC.value);
+    const muscleRelaxation = `${muscleRelaxationTime.toFixed(2)}s / ${muscleRelaxationDistance.toFixed(2)}mm`;
+    const avgRelaxRate = (pointB.value - pointC.value) / (pointC.time - pointB.time);
+    const extensibilityIndex = (pointC.value - pointB.value);
 
     return {
-        stretchOvershoot: stretchOvershoot.toFixed(2),
-        reflexRelaxationPoint: reflexRelaxationPoint.toFixed(2),
-        muscleRelaxationLimit: muscleRelaxationLimit.toFixed(2),
-        patientConfidence: patientConfidence.toFixed(2),
-        muscleRelaxation: muscleRelaxation.toFixed(2),
+        stretchOvershoot,
+        reflexRelaxationPoint,
+        muscleRelaxationLimit,
+        patientConfidence: `${patientConfidence.toFixed(2)}mm`,
+        muscleRelaxation,
         avgRelaxRate: avgRelaxRate.toFixed(2),
         extensibilityIndex: extensibilityIndex.toFixed(2)
     };

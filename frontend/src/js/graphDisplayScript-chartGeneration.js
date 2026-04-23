@@ -43,7 +43,23 @@ function createBlankChart() {
             plugins: {
                 legend: {
                     display: true,
-                    position: "bottom"   // Legend at bottom
+                    position: "bottom",
+                    onClick: function(event, legendItem, legend) {
+                        const datasets = lineChart.data.datasets;
+                        const lineIndex = datasets.findIndex(ds => ds.label === legendItem.text);
+                        if (lineIndex !== -1) {
+                            const lineMeta = lineChart.getDatasetMeta(lineIndex);
+                            lineMeta.hidden = !lineMeta.hidden;
+                            // Find and toggle scatter
+                            const scatterLabel = `${legendItem.text} Points`;
+                            const scatterIndex = datasets.findIndex(ds => ds.label === scatterLabel);
+                            if (scatterIndex !== -1) {
+                                const scatterMeta = lineChart.getDatasetMeta(scatterIndex);
+                                scatterMeta.hidden = lineMeta.hidden;
+                            }
+                            lineChart.update();
+                        }
+                    }
                 },
                 annotation: { annotations: {} }
             },
@@ -113,32 +129,55 @@ async function loadCSV(url) {
 // UPDATE CHART WHEN ANY GRAPH CHANGES
 // ============================================================
 function refreshChart() {
-    const datasets = [];
-    const annotations = {};
+    const lineDatasets = [];
+    const scatterDatasets = [];
 
     Object.entries(graphSelections).forEach(([key, entry]) => {
         if (!entry) return;
 
-        datasets.push({
+        // Add the line dataset
+        lineDatasets.push({
             label: key,
             data: entry.raw,
             borderColor: entry.color,
             borderWidth: 2,
-            fill: false
+            fill: false,
+            pointRadius: 2  // Hide default points on the line
         });
 
+        // Calculate points A, B, C
         const { pointA, pointB, pointC } = calculateKeyPoints(entry.time, entry.raw);
-        const ann = createPointAnnotations({ pointA, pointB, pointC });
 
-        Object.assign(annotations, ann);
+        // Add scatter dataset for points as circles
+        if (pointA || pointB || pointC) {
+            const pointData = [];
+            if (pointA) pointData.push({ x: pointA.time, y: pointA.value });
+            if (pointB) pointData.push({ x: pointB.time, y: pointB.value });
+            if (pointC) pointData.push({ x: pointC.time, y: pointC.value });
+
+            scatterDatasets.push({
+                type: 'scatter',
+                label: `${key} Points`,
+                data: pointData,
+                pointStyle: 'circle',
+                pointRadius: 6,
+                pointBackgroundColor: entry.color,
+                pointBorderColor: 'black',
+                pointBorderWidth: 2,
+                showLine: false,
+                legend: { display: false }
+            });
+        }
     });
+
+    const datasets = [...lineDatasets, ...scatterDatasets];
 
     // FIX: use the first loaded graph for labels
     const firstLoaded = Object.values(graphSelections).find(g => g && g.time);
     lineChart.data.labels = firstLoaded ? firstLoaded.time : [];
 
     lineChart.data.datasets = datasets;
-    lineChart.options.plugins.annotation.annotations = annotations;
+    lineChart.options.plugins.annotation.annotations = {}; // Clear annotations
 
     lineChart.update();
 }
