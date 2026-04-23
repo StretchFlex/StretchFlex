@@ -1,8 +1,7 @@
 using Serilog;
 using Serilog.Sinks.Elasticsearch;
 using Microsoft.AspNetCore.Http.Features;
-using MathNet.Filtering.IIR;
-using MathNet.Filtering;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -175,14 +174,14 @@ app.MapPost("/api/data/upload-csv", async (HttpRequest request) =>
         // --- Step 2: Butterworth low-pass filter (order 4, Wn=0.015) ---
         int filterOrder = 4;
         double fs = 6.0;
-        double nyq = fs / 2.0;
-        double frac = 0.015;
-        frac = Math.Clamp(frac, 0.01, 0.45);
-        double Wn = frac;
 
-        var coeffs = IirCoefficients.ButterworthLowPass(filterOrder, Wn);
-        double[] b = coeffs.Numerator;
-        double[] a = coeffs.Denominator;
+
+        //----Generated coeficients for Butterworth low-pass filter with cutoff 0.015*fs/2 = 0.045 fs/2 = 3Hz, order 4
+        double[] b = { 0.00000000373, 0.00000001491, 0.00000002237, 0.00000001491, 0.00000000373 }; MatLab generated
+        double[] a = { 1.0, -3.9590, 5.8777, -3.8785, 0.9598 }; MatLab generated
+        //double[] b = { 0.00000013403, 0.00000053613, 0.00000080420, 0.00000053613, 0.00000013403 }; Copiolet generated
+        //double[] a = { 1.0, -3.9842, 5.9529, -3.9530, 0.9843 }; Copiolet generated
+        
 
         // --- Step 3: Zero-phase filtering (filtfilt) ---
         double[] yFiltered = FiltFilt(b, a, yClean);
