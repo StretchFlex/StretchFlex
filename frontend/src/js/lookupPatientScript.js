@@ -1,43 +1,68 @@
-const patients = [
-    'Patient 1',
-    'Patient 2',
-    'Patient 3'
-];
-
 // Check authentication on page load (both Admin and Clinician allowed)
 document.addEventListener('DOMContentLoaded', function() {
     if (!isAuthenticated()) {
         window.top.location.href = '../index.html';
         return;
     }
-    
-    populateDatalist();
 });
 
-function populateDatalist(){
-    const dl = document.getElementById('patientsList');
-    if (!dl) return;
-    dl.innerHTML = '';
-    patients.forEach(p => {
-        const opt = document.createElement('option');
-        opt.value = p;
-        dl.appendChild(opt);
-    });
-}
 
-
-function verifySelection(){
+async function verifySelection(){
     const val = document.getElementById('patientInput').value.trim();
     if (!val) {
-        alert('Please select or type a patient');
+        alert('Please enter a patient name in the format: FirstName-LastName');
         return;
     }
-    // store selection for downstream pages
-    sessionStorage.setItem('selectedPatient', val);
-    //window.location.href = "graphDisplay.html";
-    // For lookup page, we just alert the selected patient instead of navigating to another page
-    alert(`Selected Patient ID: ${val}`);
-    
+
+    // Parse the input as firstName-lastName
+    const nameParts = val.split('-');
+    if (nameParts.length !== 2) {
+        alert('Please enter the patient name in the format: FirstName-LastName');
+        return;
+    }
+
+    const firstName = nameParts[0].trim();
+    const lastName = nameParts[1].trim();
+
+    if (!firstName || !lastName) {
+        alert('Both first name and last name are required');
+        return;
+    }
+
+    try {
+        const response = await authenticatedFetch(`/api/patient/find/id/${encodeURIComponent(firstName)}-${encodeURIComponent(lastName)}`);
+        
+        if (!response.ok) {
+            if (response.status === 404) {
+                alert('Patient not found');
+            } else {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return;
+        }
+
+        const patients = await response.json();
+        
+        if (!patients || patients.length === 0) {
+            alert('Patient not found');
+            return;
+        }
+
+        // If multiple patients found, take the first one (or could show selection)
+        const selectedPatient = patients[0];
+        
+        // Store the patient ID for downstream pages
+        sessionStorage.setItem('selectedPatient', selectedPatient.patientId);
+        
+        alert(`Patient found: ${selectedPatient.firstName} ${selectedPatient.lastName} (ID: ${selectedPatient.patientId})`);
+        
+        // Navigate to the graph display page
+        window.location.href = "graphDisplay.html";
+        
+    } catch (error) {
+        console.error('Error looking up patient:', error);
+        alert('Error looking up patient. Please try again.');
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
