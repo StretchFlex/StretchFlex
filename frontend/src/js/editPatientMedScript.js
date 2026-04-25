@@ -14,7 +14,32 @@ function loadSelectedPatientId() {
         }
     }
 }
-loadSelectedPatientId();
+
+// Check authentication and authorization on page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (!isAuthenticated()) {
+        window.top.location.href = '../index.html';
+        return;
+    }
+    
+    const userRole = getUserRole();
+    if (userRole !== 'admin') {
+        alert('Access denied. Only administrators can edit patient medical information.');
+        window.top.location.href = 'selectPatient.html';
+        return;
+    }
+    
+    loadSelectedPatientId();
+    
+    buildForm();
+    loadExistingMedicalInfo();
+    document.getElementById('updateMedicalBtn').addEventListener('click', submitMedicalUpdate);
+});
+
+function buildForm() {
+    patientMedicalInfoFormSchema.forEach(field => form.appendChild(createQuestion(field)));
+    refreshDependencies();
+}
 
 const patientMedicalInfoFormSchema = [
     { name: "patientId", label: "Patient ID", type: "string", required: false, readOnly: true },
@@ -326,10 +351,4 @@ async function submitMedicalUpdate() {
 function buildForm() {
     patientMedicalInfoFormSchema.forEach(field => form.appendChild(createQuestion(field)));
     refreshDependencies();
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-    buildForm();
-    loadExistingMedicalInfo();
-    document.getElementById('updateMedicalBtn').addEventListener('click', submitMedicalUpdate);
-}); 
+} 

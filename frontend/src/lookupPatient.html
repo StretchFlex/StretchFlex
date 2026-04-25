@@ -24,6 +24,12 @@
 <button class="goButton" id="lookupGoBtn">Go</button>
 
 
+<script src="js/auth.js"></script>
+<script>
+    if (!isAuthenticated()) {
+        window.location.href = 'index.html';
+    }
+</script>
 <script src="js/lookupPatientScript.js"></script>
 </body>
 </html>

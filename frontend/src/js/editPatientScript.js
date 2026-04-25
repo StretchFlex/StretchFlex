@@ -353,6 +353,18 @@ function refreshPageDependencies() {
 // init
 
 document.addEventListener('DOMContentLoaded', () => {
+    if (!isAuthenticated()) {
+        window.top.location.href = '../index.html';
+        return;
+    }
+    
+    const userRole = getUserRole();
+    if (userRole !== 'admin') {
+        alert('Access denied. Only administrators can edit patient information.');
+        window.top.location.href = 'selectPatient.html';
+        return;
+    }
+    
     patientPersonalInfoFormSchema.forEach(f => form.appendChild(createQuestion(f)));
     refreshPageDependencies();
 

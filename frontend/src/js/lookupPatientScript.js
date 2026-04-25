@@ -4,6 +4,16 @@ const patients = [
     'Patient 3'
 ];
 
+// Check authentication on page load (both Admin and Clinician allowed)
+document.addEventListener('DOMContentLoaded', function() {
+    if (!isAuthenticated()) {
+        window.top.location.href = '../index.html';
+        return;
+    }
+    
+    populateDatalist();
+});
+
 function populateDatalist(){
     const dl = document.getElementById('patientsList');
     if (!dl) return;
@@ -14,8 +24,6 @@ function populateDatalist(){
         dl.appendChild(opt);
     });
 }
-
-document.addEventListener('DOMContentLoaded', populateDatalist);
 
 
 function verifySelection(){

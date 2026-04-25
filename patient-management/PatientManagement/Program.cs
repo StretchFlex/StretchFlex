@@ -379,6 +379,8 @@ app.MapPut("/api/patient/update/medical-history/{id}", async (int id, PatientMed
     }
 }).RequireAuthorization("AdminOnly");
 
+// ── Admin + Clinician endpoints ────────────────────────────────────────────
+
 app.MapPost("/api/patient/complete", async (HttpRequest request) =>
 {
     try
@@ -480,9 +482,7 @@ app.MapPost("/api/patient/complete", async (HttpRequest request) =>
         Log.Error(ex, "Error processing complete patient creation request.");
         return Results.StatusCode(500);
     }
-}).RequireAuthorization("AdminOnly");
-
-// ── Admin + Clinician endpoints ────────────────────────────────────────────
+}).RequireAuthorization("AdminOrClinician");
 
 app.MapGet("/api/patient/find/id/{firstName}-{lastName}", async (string firstName, string lastName) =>
 {

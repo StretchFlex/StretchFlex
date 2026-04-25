@@ -156,11 +156,28 @@ window.addEventListener("beforeunload", function (event) {
     }
 });
 
-const storedPatientData = sessionStorage.getItem('pendingPatientData');
-if (!storedPatientData) {
-    alert('Patient personal information not found. Please start the patient creation process again.');
-    window.location.href = 'createPatient.html';
-}
+// Check authentication and authorization on page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (!isAuthenticated()) {
+        window.top.location.href = '../index.html';
+        return;
+    }
+    
+    const userRole = getUserRole();
+    if (userRole !== 'admin') {
+        alert('Access denied. Only administrators can create patients.');
+        window.top.location.href = 'selectPatient.html';
+        return;
+    }
+    
+    // If no stored patient data, redirect back
+    const storedPatientData = sessionStorage.getItem('pendingPatientData');
+    if (!storedPatientData) {
+        alert('Patient personal information not found. Please start the patient creation process again.');
+        window.location.href = 'createPatient.html';
+        return;
+    }
+});
 
 // helper that creates a single question block and wires dependency metadata
 function createQuestion(field) {

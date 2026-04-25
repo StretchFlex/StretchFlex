@@ -115,6 +115,13 @@
 </div>
 
 <!-- JS Modules (deferred automatically) -->
+<script src="js/auth.js"></script>
+<script type="module">
+    // Check authentication on page load (both Admin and Clinician allowed)
+    if (!isAuthenticated()) {
+        window.location.href = '../index.html';
+    }
+</script>
 <script type="module" src="js/calculations.js"></script>
 <script type="module" src="js/graphDisplayScript-chartGeneration.js"></script>
 <script type="module" src="js/statisticsScript.js"></script>

@@ -15,8 +15,16 @@
     <form id="patientMedicalInfoForm"></form>
     <button class="finishButton" id="updateMedicalBtn">Update Medical Information</button>
 
-    <script src="js/bootstrap/bootstrap.bundle.min.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/editPatientMedScript.js"></script>
+<script src="js/auth.js"></script>
+<script>
+    if (!isAuthenticated()) {
+        window.location.href = 'index.html';
+    } else if (getUserRole() !== 'admin') {
+        alert('Access denied. Only administrators can edit patient medical information.');
+        window.location.href = 'selectPatient.html';
+    }
+</script>
+<script src="js/bootstrap/bootstrap.bundle.min.js"></script>
+<script src="js/editPatientMedScript.js"></script>
 </body>
 </html>
