@@ -436,25 +436,24 @@ document.getElementById("finishBtn").addEventListener("click", async function ()
             },
             body: JSON.stringify(completePayload)
         });
-
+    
         if (!response.ok) {
-            throw new Error("Network response was not ok");
+            throw new Error(`Network response was not ok: ${response.status}`);
         }
-
-        // Backend returns plain text, so parse as text
+    
+        // If backend returns JSON (recommended since you use patientId)
         const data = await response.json();
+    
         console.log("Complete patient creation success:", data);
-
+    
         medicalFormDirty = false;
-        // Clear the temporary data
         sessionStorage.removeItem('pendingPatientData');
-
+    
         alert("Patient created successfully! Your patient ID is: " + data.patientId);
         window.location.href = "selectPatient.html";
-
+    
     } catch (error) {
         console.error("Error completing patient creation:", error);
         alert("There was an error completing the patient creation. Please try again.");
     }
-
 });

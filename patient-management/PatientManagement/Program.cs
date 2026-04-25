@@ -52,9 +52,10 @@ static bool IsValidPatientInfo(CreatePatientDto? dto)
         && dto.bmi.HasValue;
 }
 
-static bool IsValidMedicalHistory(CreateMedicalHistoryDto? dto)
+static bool IsValidMedicalHistory(CreateMedicalHistoryDto? dto, bool requirePatientId = true)
 {
     return dto != null
+        && (!requirePatientId || dto.PatientId > 0)
         && dto.HistoryOfPF != null
         && !string.IsNullOrWhiteSpace(dto.HistoryOfPF.ResponseOfHistory)
         && dto.RightFootConditions != null
@@ -67,6 +68,13 @@ static bool IsValidMedicalHistory(CreateMedicalHistoryDto? dto)
         && !string.IsNullOrWhiteSpace(dto.SurgeryLeft.SurgeryPerformed)
         && dto.Treatments != null
         && !string.IsNullOrWhiteSpace(dto.Treatments.Treatments);
+}
+
+static bool IsValidCompletePatient(CompletePatientDto? dto)
+{
+    return dto != null
+        && IsValidPatientInfo(dto.PatientInfo)
+        && IsValidMedicalHistory(dto.MedicalHistory, false);
 }
 
 var dbUser = File.ReadAllText("/run/secrets/db_user").Trim();
@@ -367,6 +375,109 @@ app.MapPut("/api/patient/update/medical-history/{id}", async (int id, PatientMed
     catch (Exception ex)
     {
         Log.Error(ex, "Error updating patient medical history.");
+        return Results.StatusCode(500);
+    }
+}).RequireAuthorization("AdminOnly");
+
+app.MapPost("/api/patient/complete", async (HttpRequest request) =>
+{
+    try
+    {
+        var dto = await request.ReadFromJsonAsync<CompletePatientDto>();
+        if (dto == null)
+        {
+            Log.Warning("Invalid JSON.");
+            return Results.BadRequest("Invalid JSON.");
+        }
+
+        if (!IsValidCompletePatient(dto))
+        {
+            Log.Warning("Incomplete complete patient payload.");
+            return Results.BadRequest("Missing required patient information.");
+        }
+
+        using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
+        using var transaction = await connection.BeginTransactionAsync();
+
+        try
+        {
+            var patientSQL = @"
+                INSERT INTO stretchflex_db.patients (first_name, last_name, email)
+                VALUES (@firstName, @lastName, @email)
+                RETURNING patient_id";
+
+            var patientId = await connection.ExecuteScalarAsync<int>(patientSQL, new
+            {
+                dto.PatientInfo!.firstName,
+                dto.PatientInfo.lastName,
+                dto.PatientInfo.email
+            });
+
+            var historySql = @"
+                INSERT INTO stretchflex_db.medical_history (
+                    patient_id, date_of_birth, sex, height_m, weight_kg, bmi,
+                    history_of_pf, history_of_pf_right_foot, history_of_pf_left_foot, history_of_pf_additional_notes,
+                    right_foot_condition, right_foot_condition_additional_notes,
+                    left_foot_condition, left_foot_condition_additional_notes,
+                    surgery_right_foot, surgery_right_foot_additional_notes,
+                    surgery_left_foot, surgery_left_foot_additional_notes,
+                    treatments, treatments_comments, other_relevant_comments
+                ) VALUES (
+                    @patientId, @dateOfBirth, @sex, @height, @mass, @bmi,
+                    @HistoryOfPF, @RightFoot, @LeftFoot, @AdditionalComments,
+                    @RightFootConditions, @RightFootConditionsAdditionalComments,
+                    @LeftFootConditions, @LeftFootConditionsAdditionalComments,
+                    @SurgeryRight, @SurgeryRightComment,
+                    @SurgeryLeft, @SurgeryLeftComment,
+                    @Treatments, @TreatmentsComments, @OtherRelevantComments
+                )";
+
+            var affected = await connection.ExecuteAsync(historySql, new
+            {
+                patientId,
+                dto.PatientInfo.dateOfBirth,
+                dto.PatientInfo.sex,
+                dto.PatientInfo.height,
+                dto.PatientInfo.mass,
+                dto.PatientInfo.bmi,
+                HistoryOfPF = dto.MedicalHistory!.HistoryOfPF!.ResponseOfHistory,
+                RightFoot = dto.MedicalHistory.HistoryOfPF.RightFoot,
+                LeftFoot = dto.MedicalHistory.HistoryOfPF.LeftFoot,
+                AdditionalComments = dto.MedicalHistory.HistoryOfPF.AdditionalComments,
+                RightFootConditions = dto.MedicalHistory.RightFootConditions!.Conditions,
+                RightFootConditionsAdditionalComments = dto.MedicalHistory.RightFootConditions.AdditionalComments,
+                LeftFootConditions = dto.MedicalHistory.LeftFootConditions!.Conditions,
+                LeftFootConditionsAdditionalComments = dto.MedicalHistory.LeftFootConditions.AdditionalComments,
+                SurgeryRight = dto.MedicalHistory.SurgeryRight!.SurgeryPerformed,
+                SurgeryRightComment = dto.MedicalHistory.SurgeryRight.AdditionalComments,
+                SurgeryLeft = dto.MedicalHistory.SurgeryLeft!.SurgeryPerformed,
+                SurgeryLeftComment = dto.MedicalHistory.SurgeryLeft.AdditionalComments,
+                Treatments = dto.MedicalHistory.Treatments!.Treatments,
+                TreatmentsComments = dto.MedicalHistory.Treatments.TreatmentsComments,
+                OtherRelevantComments = dto.MedicalHistory.OtherRelevantComments
+            }, transaction);
+
+            if (affected == 0)
+            {
+                await transaction.RollbackAsync();
+                Log.Error("medical_history INSERT affected 0 rows for patient ID {PatientId}.", patientId);
+                return Results.StatusCode(500);
+            }
+
+            await transaction.CommitAsync();
+            Log.Information("Complete patient created with ID {PatientId}", patientId);
+            return Results.Ok(new { PatientId = patientId });
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error processing complete patient creation request.");
         return Results.StatusCode(500);
     }
 }).RequireAuthorization("AdminOnly");

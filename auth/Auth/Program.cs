@@ -8,6 +8,5 @@ builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<AuthService>();
 
 var app = builder.Build();
-app.UseHttpsRedirection();
 app.MapControllers();
 app.Run();
