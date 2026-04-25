@@ -223,66 +223,95 @@ static double Median(double[] sorted)
 // --- Helper: zero-phase forward/backward IIR filter (mimics MATLAB filtfilt) ---
 static double[] FiltFilt(double[] b, double[] a, double[] x)
 {
-    int nb = b.Length;
-    int na = a.Length;
-    int nfact = 3 * Math.Max(nb, na); // padding length
+    int nfilt = Math.Max(a.Length, b.Length);
+    int nfact = 3 * (nfilt - 1);
 
-    if (x.Length < nfact)
+    if (x.Length <= nfact)
+        throw new ArgumentException("Input data too short for filtfilt.");
+
+    // --- 1. Mirror padding (MATLAB style) ---
+    double[] front = new double[nfact];
+    double[] back  = new double[nfact];
+
+    for (int i = 0; i < nfact; i++)
     {
-        // Mirror-pad short signals
-        var pre  = MirrorPad(x, nfact);
-        var post = MirrorPad(x, nfact);
-        var padded = pre.Concat(x).Concat(post).ToArray();
-        var filtered = FiltFiltInternal(b, a, padded);
-        return filtered[nfact..(nfact + x.Length)];
+        front[i] = 2 * x[0] - x[nfact - i];
+        back[i]  = 2 * x[^1] - x[x.Length - 2 - i];
     }
 
-    return FiltFiltInternal(b, a, x);
+    double[] padded = front
+        .Concat(x)
+        .Concat(back)
+        .ToArray();
+
+    // --- 2. Compute initial conditions (MATLAB style) ---
+    int len = padded.Length;
+    int na = a.Length;
+    int nb = b.Length;
+    int n = Math.Max(na, nb);
+
+    double[] zi = new double[n - 1];
+
+    // Normalize coefficients
+    double a0 = a[0];
+    if (a0 != 1.0)
+    {
+        for (int i = 0; i < nb; i++) b[i] /= a0;
+        for (int i = 0; i < na; i++) a[i] /= a0;
+    }
+
+    // Compute zi (initial state)
+    for (int i = 1; i < n; i++)
+    {
+        double acc = 0;
+        for (int j = 1; j < i; j++)
+            acc += (a[j] * zi[i - j - 1]);
+
+        zi[i - 1] = b[i] - acc;
+    }
+
+    // Scale zi by first input value
+    for (int i = 0; i < zi.Length; i++)
+        zi[i] *= padded[0];
+
+    // --- 3. Forward filter ---
+    double[] y = FilterWithState(b, a, padded, zi);
+
+    // --- 4. Reverse ---
+    Array.Reverse(y);
+
+    // --- 5. Backward filter ---
+    double[] y2 = FilterWithState(b, a, y, zi);
+
+    // --- 6. Reverse back ---
+    Array.Reverse(y2);
+
+    // --- 7. Remove padding ---
+    return y2[nfact..(nfact + x.Length)];
 }
 
-static double[] FiltFiltInternal(double[] b, double[] a, double[] x)
-{
-    // Forward pass
-    var forward = Filter(b, a, x);
-    // Reverse
-    Array.Reverse(forward);
-    // Backward pass
-    var backward = Filter(b, a, forward);
-    // Reverse back
-    Array.Reverse(backward);
-    return backward;
-}
-
-// Direct-form II transposed IIR filter
-static double[] Filter(double[] b, double[] a, double[] x)
+static double[] FilterWithState(double[] b, double[] a, double[] x, double[] zi)
 {
     int n = x.Length;
-    int nb = b.Length;
-    int na = a.Length;
-    int nz = Math.Max(nb, na) - 1;
-    var z = new double[nz];
-    var y = new double[n];
+    int nfilt = Math.Max(a.Length, b.Length);
+    int nz = nfilt - 1;
+
+    double[] z = (double[])zi.Clone();
+    double[] y = new double[n];
 
     for (int i = 0; i < n; i++)
     {
-        y[i] = b[0] * x[i] + z[0];
+        double acc = b[0] * x[i] + z[0];
+        y[i] = acc;
+
         for (int j = 1; j < nz; j++)
-            z[j - 1] = b[j < nb ? j : nb - 1] * x[i] - a[j < na ? j : na - 1] * y[i] + z[j];
-        z[nz - 1] = (nb > nz ? b[nz] : 0) * x[i] - (na > nz ? a[nz] : 0) * y[i];
+            z[j - 1] = b[j] * x[i] - a[j] * acc + z[j];
+
+        z[nz - 1] = b[nz] * x[i] - a[nz] * acc;
     }
 
     return y;
 }
 
-static double[] MirrorPad(double[] v, int n)
-{
-    if (n <= 0 || v.Length == 0) return Array.Empty<double>();
-    var result = new double[n];
-    var src = v.Length == 1 ? v : v[1..];
-    for (int i = 0; i < n; i++)
-        result[i] = src[i % src.Length];
-    Array.Reverse(result);
-    return result;
-}
 
 app.Run();
