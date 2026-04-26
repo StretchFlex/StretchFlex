@@ -131,6 +131,8 @@ services:
       - db_password
       - admin_user
       - admin_pass
+      - clinician_user
+      - clinician_pass
     environment:
       POSTGRES_USER_FILE: /run/secrets/db_user
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
@@ -176,6 +178,10 @@ secrets:
   rabbit_pass:
     external: true
   jwt_secret:
+    external: true
+  clinician_user:
+    external: true
+  clinician_pass:
     external: true
 
 networks:

@@ -163,13 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
-    const userRole = getUserRole();
-    if (userRole !== 'admin') {
-        alert('Access denied. Only administrators can create patients.');
-        window.top.location.href = 'selectPatient.html';
-        return;
-    }
-    
+    // Allow both admin and clinician to create patients (via shared API)
     // If no stored patient data, redirect back
     const storedPatientData = sessionStorage.getItem('pendingPatientData');
     if (!storedPatientData) {
@@ -467,7 +461,7 @@ document.getElementById("finishBtn").addEventListener("click", async function ()
         sessionStorage.removeItem('pendingPatientData');
     
         alert("Patient created successfully! Your patient ID is: " + data.patientId);
-        window.location.href = "selectPatient.html";
+        window.location.href = "homePage.html";
     
     } catch (error) {
         console.error("Error completing patient creation:", error);

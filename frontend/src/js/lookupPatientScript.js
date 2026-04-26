@@ -43,8 +43,8 @@ async function verifySelection(){
         
         alert(`Patient found: ${selectedPatient.firstName} ${selectedPatient.lastName} (ID: ${selectedPatient.patientId})`);
         
-        // Navigate to the graph display page
-        window.location.href = "graphDisplay.html";
+        // Navigate to the select patient page
+        window.location.href = "selectPatient.html";
         
     } catch (error) {
         console.error('Error looking up patient:', error);

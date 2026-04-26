@@ -116,10 +116,12 @@
 
 <!-- JS Modules (deferred automatically) -->
 <script src="js/auth.js"></script>
-<script type="module">
-    // Check authentication on page load (both Admin and Clinician allowed)
+<script src="js/rbac.js"></script>
+<script>
     if (!isAuthenticated()) {
-        window.location.href = '../index.html';
+        window.location.href = 'index.html';
+    } else if (!PermissionService.guardPage('graphDisplay.html')) {
+        // guardPage handles redirect and alert
     }
 </script>
 <script type="module" src="js/calculations.js"></script>
