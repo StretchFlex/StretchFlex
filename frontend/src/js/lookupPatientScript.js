@@ -8,24 +8,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 async function verifySelection(){
-    const val = document.getElementById('patientInput').value.trim();
-    if (!val) {
-        alert('Please enter a patient name in the format: FirstName-LastName');
-        return;
-    }
-
-    // Parse the input as firstName-lastName
-    const nameParts = val.split('-');
-    if (nameParts.length !== 2) {
-        alert('Please enter the patient name in the format: FirstName-LastName');
-        return;
-    }
-
-    const firstName = nameParts[0].trim();
-    const lastName = nameParts[1].trim();
+    const firstName = document.getElementById('firstNameInput').value.trim();
+    const lastName = document.getElementById('lastNameInput').value.trim();
 
     if (!firstName || !lastName) {
-        alert('Both first name and last name are required');
+        alert('Please enter both first name and last name');
         return;
     }
 
