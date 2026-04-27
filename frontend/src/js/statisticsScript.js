@@ -12,29 +12,38 @@ import { graphSelections, lineChart } from "./graphDisplayScript-chartGeneration
 // ------------------------------------------------------------
 // Compute all biomechanical metrics from A/B/C
 // ------------------------------------------------------------
-function computeAllMetrics(time, distance) {
+function formatPointTimeDistance(point) {
+    return `${point.time.toFixed(2)}s / ${point.value.toFixed(2)}mm`;
+}
+
+function computeAllMetrics(time, distance, slantConfig) {
     const { pointA, pointB, pointC } = calculateKeyPoints(time, distance);
 
     if (!pointA || !pointB || !pointC) {
         return null;
     }
 
-    const stretchOvershoot = pointA.value;
-    const reflexRelaxationPoint = pointB.value;
-    const muscleRelaxationLimit = pointC.value;
-    const patientConfidence = pointC.time - pointB.time;
-    const muscleRelaxation = pointB.value - pointC.value;
-    const avgRelaxRate = muscleRelaxation / (pointC.time - pointB.time);
-    const extensibilityIndex = pointC.value - pointA.value;
+    const slant = Number(slantConfig);
+    const divisor = slant === 2 ? 30 : 15;
+
+    const stretchOvershoot = formatPointTimeDistance(pointA);
+    const reflexRelaxationPoint = formatPointTimeDistance(pointB);
+    const muscleRelaxationLimit = formatPointTimeDistance(pointC);
+    const patientConfidence = pointA.value - pointC.value;
+    const muscleRelaxationTime = Math.abs(pointC.time - pointB.time);
+    const muscleRelaxationDistance = Math.abs(pointB.value - pointC.value);
+    const muscleRelaxation = `${muscleRelaxationTime.toFixed(2)}s / ${muscleRelaxationDistance.toFixed(2)}mm`;
+    const avgRelaxRate = (pointB.value - pointC.value) / (pointC.time - pointB.time);
+    //const extensibilityIndex = (pointC.value - pointB.value) / -pointC.value;
 
     return {
-        stretchOvershoot: stretchOvershoot.toFixed(2),
-        reflexRelaxationPoint: reflexRelaxationPoint.toFixed(2),
-        muscleRelaxationLimit: muscleRelaxationLimit.toFixed(2),
-        patientConfidence: patientConfidence.toFixed(2),
-        muscleRelaxation: muscleRelaxation.toFixed(2),
+        stretchOvershoot,
+        reflexRelaxationPoint,
+        muscleRelaxationLimit,
+        patientConfidence: `${patientConfidence.toFixed(2)}mm`,
+        muscleRelaxation,
         avgRelaxRate: avgRelaxRate.toFixed(2),
-        extensibilityIndex: extensibilityIndex.toFixed(2)
+        //extensibilityIndex: extensibilityIndex.toFixed(2)
     };
 }
 
@@ -59,7 +68,7 @@ function updateStatsForRow(rowNumber, time, distance) {
         return;
     }
 
-    const stats = computeAllMetrics(time, distance);
+    const stats = computeAllMetrics(time, distance, graphSelections[`graph${rowNumber}`].angle);
 
     // Missing A/B/C → show error
     if (!stats) {
@@ -79,7 +88,7 @@ function updateStatsForRow(rowNumber, time, distance) {
     cells[4].textContent = stats.patientConfidence;
     cells[5].textContent = stats.muscleRelaxation;
     cells[6].textContent = stats.avgRelaxRate;
-    cells[7].textContent = stats.extensibilityIndex;
+    //cells[7].textContent = stats.extensibilityIndex;
 }
 
 // ------------------------------------------------------------
@@ -99,49 +108,3 @@ export function updateStatsTable() {
     });
 }
 
-// ------------------------------------------------------------
-// Highlight A/B/C on the chart when a row is clicked
-// ------------------------------------------------------------
-function highlightABCOnChart(time, distance) {
-    const { pointA, pointB, pointC } = calculateKeyPoints(time, distance);
-
-    if (!pointA || !pointB || !pointC) {
-        console.warn("Cannot highlight ABC — missing points");
-        return;
-    }
-
-    const annotations = createPointAnnotations({ pointA, pointB, pointC });
-
-    // Add pulse effect
-    for (const key of Object.keys(annotations)) {
-        annotations[key].radius = 10;
-        annotations[key].backgroundColor += "AA"; // add transparency
-    }
-
-    lineChart.options.plugins.annotation.annotations = {
-        ...lineChart.options.plugins.annotation.annotations,
-        ...annotations
-    };
-
-    lineChart.update();
-}
-
-
-// ------------------------------------------------------------
-// Make each row clickable
-// ------------------------------------------------------------
-export function setupRowClickHandlers() {
-    for (let i = 1; i <= 4; i++) {
-        const row = document.getElementById(`row-${i}`);
-        if (!row) continue;
-
-        row.addEventListener("click", () => {
-            const key = `graph${i}`;
-            const entry = graphSelections[key];
-
-            if (!entry) return;
-
-            highlightABCOnChart(entry.time, entry.raw);
-        });
-    }
-}

@@ -8,7 +8,7 @@
 // ============================================================
 
 import { calculateKeyPoints, createPointAnnotations } from "./calculations.js";
-import { updateStatsTable, setupRowClickHandlers } from "./statisticsScript.js";
+import { updateStatsTable } from "./statisticsScript.js";
 
 // ------------------------------------------------------------
 // Exported so statisticsScript.js can access selected graph data
@@ -41,23 +41,48 @@ function createBlankChart() {
             responsive: true,
             animation: false,
             plugins: {
-                legend: {
-                    display: true,
-                    position: "bottom"   // Legend at bottom
+            legend: {
+                display: true,
+                position: "bottom",
+                labels: {
+                    filter: function(item) {
+                        return !item.text.includes("Points");
+                    }
                 },
+                onClick: function(event, legendItem, legend) {
+                    const datasets = lineChart.data.datasets;
+                    const lineIndex = datasets.findIndex(ds => ds.label === legendItem.text);
+                    if (lineIndex !== -1) {
+                        const lineMeta = lineChart.getDatasetMeta(lineIndex);
+                        lineMeta.hidden = !lineMeta.hidden;
+
+                        // Toggle scatter dataset with the same base label
+                        const scatterLabel = `${legendItem.text} Points`;
+                        const scatterIndex = datasets.findIndex(ds => ds.label === scatterLabel);
+                        if (scatterIndex !== -1) {
+                            const scatterMeta = lineChart.getDatasetMeta(scatterIndex);
+                            scatterMeta.hidden = lineMeta.hidden;
+                        }
+
+                        lineChart.update();
+                    }
+                }
+            },
                 annotation: { annotations: {} }
             },
             scales: {
                 x: {
+                    type: "linear",
                     title: { display: true, text: "Time (s)" },
                     ticks: {
-                        callback: (value) => Number(value).toFixed(2)   // ⬅️ 2 decimals
+                        stepSize: 10,
+                        callback: (value) => Number(value).toFixed(1)   // ⬅️ 1 decimal
                     }
                 },
                 y: {
                     title: { display: true, text: "Distance (mm)" },
                     ticks: {
-                        callback: (value) => Number(value).toFixed(2)   // ⬅️ 2 decimals
+                        callback: (value) => Number(value).toFixed(1)   // ⬅️ 1 decimal
                     }
                 }
             }
@@ -83,14 +108,16 @@ async function loadCSV(url) {
     // Find column indices dynamically
     const timeIndex = headers.indexOf("Stop Watch time");
     const lhIndex = headers.indexOf("LH");
+    const AngleIndex = headers.indexOf("SlantConfig");
 
     if (timeIndex === -1 || lhIndex === -1) {
         console.error("CSV missing required columns: Stop Watch time or LH");
-        return { time: [], raw: [] };
+        return { time: [], raw: [], angle: null };
     }
 
     const time = [];
     const raw = [];
+    let angle = null;
 
     // Parse data rows
     for (let i = 1; i < lines.length; i++) {
@@ -102,10 +129,13 @@ async function loadCSV(url) {
         if (!isNaN(t) && !isNaN(d)) {
             time.push(t);
             raw.push(d);
+            if (angle === null && AngleIndex !== -1) {
+                angle = cols[AngleIndex];
+            }
         }
     }
 
-    return { time, raw };
+    return { time, raw, angle };
 }
 
 
@@ -113,36 +143,111 @@ async function loadCSV(url) {
 // UPDATE CHART WHEN ANY GRAPH CHANGES
 // ============================================================
 function refreshChart() {
-    const datasets = [];
-    const annotations = {};
+    const lineDatasets = [];
+    const scatterDatasets = [];
 
     Object.entries(graphSelections).forEach(([key, entry]) => {
         if (!entry) return;
 
-        datasets.push({
+        // Calculate points A, B, C
+        const { pointA, pointB, pointC } = calculateKeyPoints(entry.time, entry.raw);
+
+        // Add scatter dataset for points as circles
+        if (pointA || pointB || pointC) {
+            const pointData = [];
+            if (pointA) pointData.push({ x: pointA.time, y: pointA.value });
+            if (pointB) pointData.push({ x: pointB.time, y: pointB.value });
+            if (pointC) pointData.push({ x: pointC.time, y: pointC.value });
+
+            scatterDatasets.push({
+                type: 'scatter',
+                label: `${key} Points`,
+                data: pointData,
+                pointStyle: 'circle',
+                pointRadius: 6,
+                pointBackgroundColor: entry.color,
+                pointBorderColor: 'black',
+                pointBorderWidth: 2,
+                showLine: false,
+                hidden: false,
+                parsing: false,
+                pointHitRadius: 10,
+                pointHoverRadius: 8,
+            });
+        }
+
+        // Add the line dataset
+        lineDatasets.push({
             label: key,
-            data: entry.raw,
+            data: entry.time.map((t, i) => ({ x: t, y: entry.raw[i] })),
             borderColor: entry.color,
             borderWidth: 2,
-            fill: false
+            fill: false,
+            pointRadius: 2  // Hide default points on the line
         });
-
-        const { pointA, pointB, pointC } = calculateKeyPoints(entry.time, entry.raw);
-        const ann = createPointAnnotations({ pointA, pointB, pointC });
-
-        Object.assign(annotations, ann);
     });
+
+    const datasets = [...scatterDatasets, ...lineDatasets];
 
     // FIX: use the first loaded graph for labels
     const firstLoaded = Object.values(graphSelections).find(g => g && g.time);
-    lineChart.data.labels = firstLoaded ? firstLoaded.time : [];
+
 
     lineChart.data.datasets = datasets;
-    lineChart.options.plugins.annotation.annotations = annotations;
+    lineChart.options.plugins.annotation.annotations = {}; // Clear annotations
 
     lineChart.update();
 }
 
+// ============================================================
+// Trims the graph data to rid of padding errors and re-zeroes time
+// ============================================================
+function preprocessGraphData(time, raw) {
+    // --- 1. Remove first positive→negative slope transition ---
+    let cutIndexStart = 0;
+    for (let i = 1; i < raw.length; i++) {
+        const slopePrev = raw[i] - raw[i - 1];
+        const slopeNext = raw[i + 1] - raw[i];
+
+        if (slopePrev > 0 && slopeNext < 0) {
+            cutIndexStart = i;   // start trimming here
+            break;
+        }
+    }
+
+    // Trim the beginning
+    time = time.slice(cutIndexStart);
+    raw = raw.slice(cutIndexStart);
+
+    // Re-zero time
+    const t0 = time[0];
+    time = time.map(t => t - t0);
+
+    // --- 2. Modify last negative→positive transition ---
+    let cutIndexEnd = raw.length - 1;
+    for (let i = raw.length - 2; i > 0; i--) {
+        const slopePrev = raw[i] - raw[i - 1];
+        const slopeNext = raw[i + 1] - raw[i];
+
+        if (slopePrev < 0 && slopeNext > 0) {
+
+            // Walk BACKWARD to find where the negative slope started
+            let j = i - 1;
+            while (j > 0 && (raw[j] - raw[j - 1]) < 0) {
+            j--;
+            }
+
+            cutIndexEnd = j+2;   // end trimming here
+            break;
+        }
+    }
+
+    // Trim the end
+    time = time.slice(0, cutIndexEnd + 1);
+    raw = raw.slice(0, cutIndexEnd + 1);
+
+    return { time, raw };
+}
 
 // ============================================================
 // DROPDOWN HANDLING
@@ -162,12 +267,12 @@ function setupDropdownListeners() {
                 return;
             }
 
-            // ⬇⬇⬇ THIS IS WHERE THE LINE GOES ⬇⬇⬇
-            const dataset = await loadCSV(`sampleGraphsJasTest/${file}`);
-            // ⬆⬆⬆ EXACTLY HERE ⬆⬆⬆
-
+            let dataset = await loadCSV(`sampleGraphsJasTest/${file}`);
+            
+            const trimmed = preprocessGraphData(dataset.time, dataset.raw);
             graphSelections[key] = {
-                ...dataset,
+                ...trimmed,
+                angle: dataset.angle,
                 color: pickColorForGraph(key)
             };
 
@@ -247,4 +352,4 @@ async function populateGraphSelects() {
 setupDropdownListeners();
 setupRemoveButtons();
 populateGraphSelects();
-setupRowClickHandlers(); // NEW: makes rows clickable
+//setupRowClickHandlers(); // NEW: makes rows clickable
