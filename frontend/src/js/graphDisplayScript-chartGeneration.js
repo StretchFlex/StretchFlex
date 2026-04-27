@@ -108,14 +108,16 @@ async function loadCSV(url) {
     // Find column indices dynamically
     const timeIndex = headers.indexOf("Stop Watch time");
     const lhIndex = headers.indexOf("LH");
+    const AngleIndex = headers.indexOf("SlantConfig");
 
     if (timeIndex === -1 || lhIndex === -1) {
         console.error("CSV missing required columns: Stop Watch time or LH");
-        return { time: [], raw: [] };
+        return { time: [], raw: [], angle: null };
     }
 
     const time = [];
     const raw = [];
+    let angle = null;
 
     // Parse data rows
     for (let i = 1; i < lines.length; i++) {
@@ -127,10 +129,13 @@ async function loadCSV(url) {
         if (!isNaN(t) && !isNaN(d)) {
             time.push(t);
             raw.push(d);
+            if (angle === null && AngleIndex !== -1) {
+                angle = cols[AngleIndex];
+            }
         }
     }
 
-    return { time, raw };
+    return { time, raw, angle };
 }
 
 
@@ -263,10 +268,11 @@ function setupDropdownListeners() {
             }
 
             let dataset = await loadCSV(`sampleGraphsJasTest/${file}`);
-            dataset = preprocessGraphData(dataset.time, dataset.raw);
-
+            
+            const trimmed = preprocessGraphData(dataset.time, dataset.raw);
             graphSelections[key] = {
-                ...dataset,
+                ...trimmed,
+                angle: dataset.angle,
                 color: pickColorForGraph(key)
             };
 

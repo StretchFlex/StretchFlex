@@ -16,12 +16,15 @@ function formatPointTimeDistance(point) {
     return `${point.time.toFixed(2)}s / ${point.value.toFixed(2)}mm`;
 }
 
-function computeAllMetrics(time, distance) {
+function computeAllMetrics(time, distance, slantConfig) {
     const { pointA, pointB, pointC } = calculateKeyPoints(time, distance);
 
     if (!pointA || !pointB || !pointC) {
         return null;
     }
+
+    const slant = Number(slantConfig);
+    const divisor = slant === 2 ? 30 : 15;
 
     const stretchOvershoot = formatPointTimeDistance(pointA);
     const reflexRelaxationPoint = formatPointTimeDistance(pointB);
@@ -31,7 +34,7 @@ function computeAllMetrics(time, distance) {
     const muscleRelaxationDistance = Math.abs(pointB.value - pointC.value);
     const muscleRelaxation = `${muscleRelaxationTime.toFixed(2)}s / ${muscleRelaxationDistance.toFixed(2)}mm`;
     const avgRelaxRate = (pointB.value - pointC.value) / (pointC.time - pointB.time);
-    //const extensibilityIndex = (pointC.value - pointB.value) / 20;
+    //const extensibilityIndex = (pointC.value - pointB.value) / -pointC.value;
 
     return {
         stretchOvershoot,
@@ -65,7 +68,7 @@ function updateStatsForRow(rowNumber, time, distance) {
         return;
     }
 
-    const stats = computeAllMetrics(time, distance);
+    const stats = computeAllMetrics(time, distance, graphSelections[`graph${rowNumber}`].angle);
 
     // Missing A/B/C → show error
     if (!stats) {
