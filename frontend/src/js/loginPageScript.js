@@ -25,16 +25,38 @@ async function verifyCredentials() {
             })
         });
 
+        const contentType = response.headers.get('content-type') || '';
+
         if (response.ok) {
-            const data = await response.json();
+            let data;
+            if (contentType.includes('application/json')) {
+                data = await response.json();
+            } else {
+                const text = await response.text();
+                console.error('Unexpected login response content type:', contentType, text);
+                alert('Login succeeded but server returned an invalid response.');
+                return;
+            }
+
             // Store the access token
             localStorage.setItem('accessToken', data.accessToken);
             localStorage.setItem('role', data.role);
             // Redirect to home page
             window.location.href = "homePage.html";
         } else {
-            const errorData = await response.json();
-            alert(errorData.message || "Login failed");
+            let errorMessage = "Login failed";
+            const text = await response.text();
+            if (text) {
+                try {
+                    const errorData = JSON.parse(text);
+                    errorMessage = errorData.message || text;
+                } catch {
+                    errorMessage = text;
+                }
+            } else if (response.statusText) {
+                errorMessage = response.statusText;
+            }
+            alert(errorMessage);
         }
     } catch (error) {
         console.error('Login error:', error);

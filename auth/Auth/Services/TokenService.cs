@@ -6,14 +6,24 @@ using Microsoft.IdentityModel.Tokens;
 
 public class TokenService(IConfiguration config)
 {
-    private readonly string _secret = File.ReadAllText("/run/secrets/jwt_secret").Trim();
+    private readonly byte[] _secretBytes = BuildSecretKey(File.ReadAllText("/run/secrets/jwt_secret").Trim());
     private readonly string _issuer = config["Jwt:Issuer"]!;
     private readonly string _audience = config["Jwt:Audience"]!;
     private readonly int _accessExpiry = int.Parse(config["Jwt:AccessTokenExpiryMinutes"]!);
 
+    private static byte[] BuildSecretKey(string secret)
+    {
+        var secretBytes = Encoding.UTF8.GetBytes(secret);
+        if (secretBytes.Length >= 32)
+            return secretBytes;
+
+        // HS256 requires at least a 256-bit key. If the secret is shorter, derive a fixed 256-bit key.
+        return SHA256.HashData(secretBytes);
+    }
+
     public string GenerateAccessToken(User user)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret));
+        var key = new SymmetricSecurityKey(_secretBytes);
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
@@ -40,7 +50,7 @@ public class TokenService(IConfiguration config)
     public TokenValidationResult ValidateAccessToken(string token)
     {
         var handler = new JwtSecurityTokenHandler();
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret));
+        var key = new SymmetricSecurityKey(_secretBytes);
         try
         {
             var principal = handler.ValidateToken(token, new TokenValidationParameters
