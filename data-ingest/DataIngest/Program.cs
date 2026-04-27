@@ -212,6 +212,44 @@ app.MapPost("/api/data/upload-csv", async (HttpRequest request) =>
     }
 });
 
+app.MapGet("/api/data/sessions", (string patientId) =>
+{
+    if (string.IsNullOrWhiteSpace(patientId))
+        return Results.BadRequest("patientId is required");
+
+    var dir = Path.Combine("/Data", "PatientData", patientId);
+    if (!Directory.Exists(dir))
+        return Results.Ok(Array.Empty<string>());
+
+    var files = Directory.GetFiles(dir, "*-filtered.csv")
+        .Select(Path.GetFileName)
+        .OrderBy(name => name)
+        .ToArray();
+
+    return Results.Json(files);
+});
+
+app.MapGet("/api/data/session-file", async (string patientId, string fileName) =>
+{
+    if (string.IsNullOrWhiteSpace(patientId) || string.IsNullOrWhiteSpace(fileName))
+        return Results.BadRequest("patientId and fileName are required");
+
+    var dir = Path.Combine("/Data", "PatientData", patientId);
+    if (!Directory.Exists(dir))
+        return Results.NotFound("Patient directory not found");
+
+    var safeName = Path.GetFileName(fileName);
+    if (!safeName.EndsWith("-filtered.csv", StringComparison.OrdinalIgnoreCase))
+        return Results.BadRequest("Only filtered session files can be requested");
+
+    var filePath = Path.Combine(dir, safeName);
+    if (!File.Exists(filePath))
+        return Results.NotFound("File not found");
+
+    var content = await File.ReadAllTextAsync(filePath);
+    return Results.Text(content, "text/csv");
+});
+
 // --- Helper: median of a pre-sorted array ---
 static double Median(double[] sorted)
 {
