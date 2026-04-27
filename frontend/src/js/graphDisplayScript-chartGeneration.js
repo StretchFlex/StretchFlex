@@ -96,16 +96,19 @@ createBlankChart();
 // ============================================================
 // CSV LOADING
 // ============================================================
-async function loadCSV(url) {
-    const response = await fetch(url);
-    const text = await response.text();
+const GRAPH_API_BASE = "/api/data";
 
+function getSelectedPatientId() {
+    const patientId = sessionStorage.getItem('selectedPatientId');
+    return patientId ? patientId.toString() : null;
+}
+
+function parseCsvText(text) {
     const lines = text.trim().split("\n");
 
-    // Parse header row
-    const headers = lines[0].split(",").map(h => h.trim());
+    if (lines.length === 0) return { time: [], raw: [], angle: null };
 
-    // Find column indices dynamically
+    const headers = lines[0].split(",").map(h => h.trim());
     const timeIndex = headers.indexOf("Stop Watch time");
     const lhIndex = headers.indexOf("LH");
     const AngleIndex = headers.indexOf("SlantConfig");
@@ -119,10 +122,8 @@ async function loadCSV(url) {
     const raw = [];
     let angle = null;
 
-    // Parse data rows
     for (let i = 1; i < lines.length; i++) {
         const cols = lines[i].split(",");
-
         const t = Number(cols[timeIndex]);
         const d = Number(cols[lhIndex]);
 
@@ -136,6 +137,28 @@ async function loadCSV(url) {
     }
 
     return { time, raw, angle };
+}
+
+async function loadCSV(url) {
+    const response = await fetch(url);
+    const text = await response.text();
+    return parseCsvText(text);
+}
+
+async function loadGraphFile(fileName) {
+    const patientId = getSelectedPatientId();
+    if (!patientId) {
+        return loadCSV(`sampleGraphsJasTest/${fileName}`);
+    }
+
+    const response = await fetch(`${GRAPH_API_BASE}/session-file?patientId=${encodeURIComponent(patientId)}&fileName=${encodeURIComponent(fileName)}`);
+    if (!response.ok) {
+        console.warn(`Unable to load graph file ${fileName}: ${response.status}`);
+        return loadCSV(`sampleGraphsJasTest/${fileName}`);
+    }
+
+    const text = await response.text();
+    return parseCsvText(text);
 }
 
 
@@ -267,7 +290,7 @@ function setupDropdownListeners() {
                 return;
             }
 
-            let dataset = await loadCSV(`sampleGraphsJasTest/${file}`);
+            let dataset = await loadGraphFile(file);
             
             const trimmed = preprocessGraphData(dataset.time, dataset.raw);
             graphSelections[key] = {
@@ -319,13 +342,36 @@ function pickColorForGraph(key) {
 
 
 
+async function fetchSessionFileList() {
+    const patientId = getSelectedPatientId();
+    if (!patientId) {
+        const response = await fetch("sampleGraphsJasTest/graphs.json");
+        return response.ok ? await response.json() : [];
+    }
+
+    const response = await fetch(`${GRAPH_API_BASE}/sessions?patientId=${encodeURIComponent(patientId)}`);
+    if (!response.ok) {
+        console.warn(`Session list fetch failed: ${response.status}`);
+        return [];
+    }
+
+    return await response.json();
+}
+
+function getSessionLabel(fileName) {
+    const match = fileName.match(/Session(\d{4})(?:-filtered)?\.csv$/i);
+    if (match) {
+        return String(Number(match[1]));
+    }
+    return fileName;
+}
+
 async function populateGraphSelects() {
     try {
-        const response = await fetch("sampleGraphsJasTest/graphs.json");
-        const files = await response.json(); // <-- RAW ARRAY
+        const files = await fetchSessionFileList();
 
         if (!Array.isArray(files)) {
-            console.error("graphs.json is not an array");
+            console.error("Session file list is not an array");
             return;
         }
 
@@ -335,13 +381,13 @@ async function populateGraphSelects() {
             files.forEach((file) => {
                 const opt = document.createElement("option");
                 opt.value = file;
-                opt.textContent = file;
+                opt.textContent = getSessionLabel(file);
                 select.appendChild(opt);
             });
         });
 
     } catch (err) {
-        console.error("Error loading graphs.json:", err);
+        console.error("Error loading graph sessions:", err);
     }
 }
 
