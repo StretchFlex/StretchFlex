@@ -55,6 +55,16 @@ CREATE TABLE IF NOT EXISTS stretchflex_db.medical_history (
     FOREIGN KEY (patient_id) REFERENCES stretchflex_db.patients(patient_id)
 );
 
+CREATE TABLE IF NOT EXISTS stretchflex_db.users (
+    user_id SERIAL PRIMARY KEY,
+    username TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    role TEXT NOT NULL CHECK (role IN ('admin', 'clinician')),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    last_login TIMESTAMPTZ
+);
+
+
 CREATE INDEX IF NOT EXISTS idx_patient_lastname
     ON stretchflex_db.patients(last_name);
 CREATE INDEX IF NOT EXISTS idx_patient_firstname
@@ -71,3 +81,6 @@ SELECT patient_id, '2000-01-01', 'Male'
 FROM stretchflex_db.patients
 WHERE email = 'test.patient@example.com'
 ON CONFLICT DO NOTHING;
+
+-- temp fix
+CREATE DATABASE data_manager;

@@ -156,11 +156,22 @@ window.addEventListener("beforeunload", function (event) {
     }
 });
 
-const storedPatientData = sessionStorage.getItem('pendingPatientData');
-if (!storedPatientData) {
-    alert('Patient personal information not found. Please start the patient creation process again.');
-    window.location.href = 'createPatient.html';
-}
+// Check authentication and authorization on page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (!isAuthenticated()) {
+        window.top.location.href = '../index.html';
+        return;
+    }
+    
+    // Allow both admin and clinician to create patients (via shared API)
+    // If no stored patient data, redirect back
+    const storedPatientData = sessionStorage.getItem('pendingPatientData');
+    if (!storedPatientData) {
+        alert('Patient personal information not found. Please start the patient creation process again.');
+        window.location.href = 'createPatient.html';
+        return;
+    }
+});
 
 // helper that creates a single question block and wires dependency metadata
 function createQuestion(field) {
@@ -429,32 +440,31 @@ document.getElementById("finishBtn").addEventListener("click", async function ()
     };
 
     try {
-        const response = await fetch("/api/patient/complete", {
+        const response = await authenticatedFetch("/api/patient/complete", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(completePayload)
         });
-
+    
         if (!response.ok) {
-            throw new Error("Network response was not ok");
+            throw new Error(`Network response was not ok: ${response.status}`);
         }
-
-        // Backend returns plain text, so parse as text
+    
+        // If backend returns JSON (recommended since you use patientId)
         const data = await response.json();
+    
         console.log("Complete patient creation success:", data);
-
+    
         medicalFormDirty = false;
-        // Clear the temporary data
         sessionStorage.removeItem('pendingPatientData');
-
+    
         alert("Patient created successfully! Your patient ID is: " + data.patientId);
-        window.location.href = "selectPatient.html";
-
+        window.location.href = "homePage.html";
+    
     } catch (error) {
         console.error("Error completing patient creation:", error);
         alert("There was an error completing the patient creation. Please try again.");
     }
-
 });

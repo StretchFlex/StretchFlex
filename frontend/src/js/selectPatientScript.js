@@ -4,7 +4,7 @@ async function populateDatalist(){
     dl.innerHTML = '';
 
     try {
-        const response = await fetch('/api/patient/list/');
+        const response = await authenticatedFetch('/api/patient/list/');
         if (!response.ok) throw new Error('Failed to fetch patient list');
 
         const list = await response.json();
@@ -31,7 +31,7 @@ async function populateEditDropdown(){
     listNode.innerHTML = '';
 
     try {
-        const response = await fetch('/api/patient/list/');
+        const response = await authenticatedFetch('/api/patient/list/');
         if (!response.ok) throw new Error('Failed to fetch patient list');
         const list = await response.json();
 
@@ -111,6 +111,11 @@ function editSelectedPatient(){
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    if (!isAuthenticated()) {
+        window.top.location.href = '../index.html'; // Redirect to login
+        return;
+    }
+
     populateEditDropdown();
     populateDatalist();
 

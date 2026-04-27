@@ -8,6 +8,7 @@ IF "%1"=="build" (
     docker build -t stretchflex-frontend ./frontend
     docker build -t stretchflex-data-ingest ./data-ingest
     docker build -t stretchflex-patient-management ./patient-management
+    docker build -t stretchflex-auth ./auth
     goto :eof
 )
 IF "%1"=="run" (

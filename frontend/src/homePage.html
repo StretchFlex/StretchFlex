@@ -21,12 +21,25 @@
 
 <!-- Iframe embedding another HTML document -->
     <iframe id="homePageIframe" 
-        src="selectPatient.html" 
         title="Select Patient"
         loading="lazy"
         referrerpolicy="no-referrer">
     </iframe>
 
+<script src="js/auth.js"></script>
+<script src="js/rbac.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var iframe = document.getElementById('homePageIframe');
+        
+        if (!isAuthenticated()) {
+            window.location.href = 'index.html';
+            return;
+        }
+        
+        iframe.src = 'selectPatient.html';
+    });
+</script>
 <script src="js/homePageScript.js"></script>
 
 </body>

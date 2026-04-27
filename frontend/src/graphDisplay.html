@@ -115,6 +115,15 @@
 </div>
 
 <!-- JS Modules (deferred automatically) -->
+<script src="js/auth.js"></script>
+<script src="js/rbac.js"></script>
+<script>
+    if (!isAuthenticated()) {
+        window.location.href = 'index.html';
+    } else if (!PermissionService.guardPage('graphDisplay.html')) {
+        // guardPage handles redirect and alert
+    }
+</script>
 <script type="module" src="js/calculations.js"></script>
 <script type="module" src="js/graphDisplayScript-chartGeneration.js"></script>
 <script type="module" src="js/statisticsScript.js"></script>

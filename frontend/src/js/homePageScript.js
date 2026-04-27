@@ -1,23 +1,18 @@
 
-//Function Probably does not work due to window event listeners adjustIframeHeight below
-// document.addEventListener("DOMContentLoaded", function () {
-//     window.scrollTo(0, 0); // Scroll to the top of the page on load
+// Check authentication on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+        window.location.href = 'index.html';
+        return;
+    }
 
-//     const iframe = document.getElementById("homePageIframe");
+    // Optional: Validate token with backend
+    // validateToken();
 
-//     // Wait until the iframe content is fully loaded
-//     iframe.addEventListener("load", function () {
-//         try {
-//             // Ensure same-origin policy allows access
-//             iframe.contentWindow.scrollTo(0, 0);
-//         } catch (err) {
-//             console.warn("Cannot access iframe contents due to cross-origin restrictions.");
-//         }
-
-//         // Also scroll the main page to the iframe's top position
-//         //iframe.scrollIntoView({ behavior: "smooth", block: "start" });
-//     });
-// });
+    // Attach logout event
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+});
 
 const iframe = document.getElementById('homePageIframe');
 function adjustIframeHeight() {
@@ -52,7 +47,6 @@ updateScrollbarWidth();
 
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('backBtn').addEventListener('click', () => window.history.back());
-    document.getElementById('logoutBtn').addEventListener('click', () => window.location.href='index.html');
 });
 
 

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 public class CreatePatientDto
 {
     public string? firstName { get; set; }
@@ -18,9 +20,14 @@ public class CompletePatientDto
 
 public class PatientResponse
 {
+    [JsonPropertyName("patientId")]
     public int PatientId { get; set; }
+    [JsonPropertyName("firstName")]
     public string? FirstName { get; set; }
+    [JsonPropertyName("lastName")]
     public string? LastName { get; set; }
+    [JsonPropertyName("dateOfBirth")]
     public string? DateOfBirth { get; set; }
+    [JsonPropertyName("email")]
     public string? Email { get; set; }
 }
