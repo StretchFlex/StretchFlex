@@ -41,39 +41,48 @@ function createBlankChart() {
             responsive: true,
             animation: false,
             plugins: {
-                legend: {
-                    display: true,
-                    position: "bottom",
-                    onClick: function(event, legendItem, legend) {
-                        const datasets = lineChart.data.datasets;
-                        const lineIndex = datasets.findIndex(ds => ds.label === legendItem.text);
-                        if (lineIndex !== -1) {
-                            const lineMeta = lineChart.getDatasetMeta(lineIndex);
-                            lineMeta.hidden = !lineMeta.hidden;
-                            // Find and toggle scatter
-                            const scatterLabel = `${legendItem.text} Points`;
-                            const scatterIndex = datasets.findIndex(ds => ds.label === scatterLabel);
-                            if (scatterIndex !== -1) {
-                                const scatterMeta = lineChart.getDatasetMeta(scatterIndex);
-                                scatterMeta.hidden = lineMeta.hidden;
-                            }
-                            lineChart.update();
-                        }
+            legend: {
+                display: true,
+                position: "bottom",
+                labels: {
+                    filter: function(item) {
+                        return !item.text.includes("Points");
                     }
                 },
+                onClick: function(event, legendItem, legend) {
+                    const datasets = lineChart.data.datasets;
+                    const lineIndex = datasets.findIndex(ds => ds.label === legendItem.text);
+                    if (lineIndex !== -1) {
+                        const lineMeta = lineChart.getDatasetMeta(lineIndex);
+                        lineMeta.hidden = !lineMeta.hidden;
+
+                        // Toggle scatter dataset with the same base label
+                        const scatterLabel = `${legendItem.text} Points`;
+                        const scatterIndex = datasets.findIndex(ds => ds.label === scatterLabel);
+                        if (scatterIndex !== -1) {
+                            const scatterMeta = lineChart.getDatasetMeta(scatterIndex);
+                            scatterMeta.hidden = lineMeta.hidden;
+                        }
+
+                        lineChart.update();
+                    }
+                }
+            },
                 annotation: { annotations: {} }
             },
             scales: {
                 x: {
+                    type: "linear",
                     title: { display: true, text: "Time (s)" },
                     ticks: {
-                        callback: (value) => Number(value).toFixed(2)   // ⬅️ 2 decimals
+                        stepSize: 10,
+                        callback: (value) => Number(value).toFixed(1)   // ⬅️ 1 decimal
                     }
                 },
                 y: {
                     title: { display: true, text: "Distance (mm)" },
                     ticks: {
-                        callback: (value) => Number(value).toFixed(2)   // ⬅️ 2 decimals
+                        callback: (value) => Number(value).toFixed(1)   // ⬅️ 1 decimal
                     }
                 }
             }
@@ -135,16 +144,6 @@ function refreshChart() {
     Object.entries(graphSelections).forEach(([key, entry]) => {
         if (!entry) return;
 
-        // Add the line dataset
-        lineDatasets.push({
-            label: key,
-            data: entry.raw,
-            borderColor: entry.color,
-            borderWidth: 2,
-            fill: false,
-            pointRadius: 2  // Hide default points on the line
-        });
-
         // Calculate points A, B, C
         const { pointA, pointB, pointC } = calculateKeyPoints(entry.time, entry.raw);
 
@@ -165,16 +164,29 @@ function refreshChart() {
                 pointBorderColor: 'black',
                 pointBorderWidth: 2,
                 showLine: false,
-                legend: { display: false }
+                hidden: false,
+                parsing: false,
+                pointHitRadius: 10,
+                pointHoverRadius: 8,
             });
         }
+
+        // Add the line dataset
+        lineDatasets.push({
+            label: key,
+            data: entry.time.map((t, i) => ({ x: t, y: entry.raw[i] })),
+            borderColor: entry.color,
+            borderWidth: 2,
+            fill: false,
+            pointRadius: 2  // Hide default points on the line
+        });
     });
 
-    const datasets = [...lineDatasets, ...scatterDatasets];
+    const datasets = [...scatterDatasets, ...lineDatasets];
 
     // FIX: use the first loaded graph for labels
     const firstLoaded = Object.values(graphSelections).find(g => g && g.time);
-    lineChart.data.labels = firstLoaded ? firstLoaded.time : [];
+
 
     lineChart.data.datasets = datasets;
     lineChart.options.plugins.annotation.annotations = {}; // Clear annotations
@@ -182,6 +194,55 @@ function refreshChart() {
     lineChart.update();
 }
 
+// ============================================================
+// Trims the graph data to rid of padding errors and re-zeroes time
+// ============================================================
+function preprocessGraphData(time, raw) {
+    // --- 1. Remove first positive→negative slope transition ---
+    let cutIndexStart = 0;
+    for (let i = 1; i < raw.length; i++) {
+        const slopePrev = raw[i] - raw[i - 1];
+        const slopeNext = raw[i + 1] - raw[i];
+
+        if (slopePrev > 0 && slopeNext < 0) {
+            cutIndexStart = i;   // start trimming here
+            break;
+        }
+    }
+
+    // Trim the beginning
+    time = time.slice(cutIndexStart);
+    raw = raw.slice(cutIndexStart);
+
+    // Re-zero time
+    const t0 = time[0];
+    time = time.map(t => t - t0);
+
+    // --- 2. Modify last negative→positive transition ---
+    let cutIndexEnd = raw.length - 1;
+    for (let i = raw.length - 2; i > 0; i--) {
+        const slopePrev = raw[i] - raw[i - 1];
+        const slopeNext = raw[i + 1] - raw[i];
+
+        if (slopePrev < 0 && slopeNext > 0) {
+
+            // Walk BACKWARD to find where the negative slope started
+            let j = i - 1;
+            while (j > 0 && (raw[j] - raw[j - 1]) < 0) {
+            j--;
+            }
+
+            cutIndexEnd = j+2;   // end trimming here
+            break;
+        }
+    }
+
+    // Trim the end
+    time = time.slice(0, cutIndexEnd + 1);
+    raw = raw.slice(0, cutIndexEnd + 1);
+
+    return { time, raw };
+}
 
 // ============================================================
 // DROPDOWN HANDLING
@@ -201,9 +262,8 @@ function setupDropdownListeners() {
                 return;
             }
 
-            // ⬇⬇⬇ THIS IS WHERE THE LINE GOES ⬇⬇⬇
-            const dataset = await loadCSV(`sampleGraphsJasTest/${file}`);
-            // ⬆⬆⬆ EXACTLY HERE ⬆⬆⬆
+            let dataset = await loadCSV(`sampleGraphsJasTest/${file}`);
+            dataset = preprocessGraphData(dataset.time, dataset.raw);
 
             graphSelections[key] = {
                 ...dataset,

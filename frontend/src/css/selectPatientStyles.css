@@ -104,10 +104,9 @@ body {
 
 /* Style the input used for patient selection (replaces .dropbtn rules) */
 .patient-select input,
-.patient-select select,
-.lookupButton {
+.patient-select select {
     display: inline-block;
-    padding: 5px 14px;
+    padding: 5px 20px;
     font-size: 15px;
     margin-bottom: 20px;
     margin-left: 10px;
@@ -119,6 +118,26 @@ body {
     border: 1px solid #251829;
     box-sizing: border-box;
     height: 40px;
+    width: 240px;
+    text-align: left;
+    font-family: Poppins-Regular-400, sans-serif;
+}
+
+.lookupButton {
+    display: inline-block;
+    padding: 5px 20px;
+    font-size: 15px;
+    margin-bottom: 20px;
+    margin-left: 10px;
+    margin-top: 20px;
+    background-color: #007e93;
+    color: #f9f9f9;
+    border-radius: 6px;
+    cursor: text;
+    border: 1px solid #251829;
+    box-sizing: border-box;
+    height: 40px;
+
     text-align: left;
     font-family: Poppins-Regular-400, sans-serif;
 }
