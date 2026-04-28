@@ -109,7 +109,7 @@ label {
 .calendar-icon {
     position: absolute;
     right: 8px;
-    top: 50%;
+    top: 65%;
     transform: translateY(-50%);
     background: none;
     border: none;

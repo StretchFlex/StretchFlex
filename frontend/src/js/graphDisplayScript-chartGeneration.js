@@ -247,8 +247,20 @@ function preprocessGraphData(time, raw) {
     time = time.map(t => t - t0);
 
     // --- 2. Modify last negative→positive transition ---
+    const dt = time[1] - time[0];
+
+    // Compute how many samples fit in 20 seconds (manual floor)
+    let maxSamples = 20 / dt;
+    maxSamples = maxSamples - (maxSamples % 1);   // floor()
+
+    // Compute earliest index allowed (manual max)
+    let windowStartIndex = raw.length - 1 - maxSamples;
+    if (windowStartIndex < 1) {
+        windowStartIndex = 1;
+    } 
+
     let cutIndexEnd = raw.length - 1;
-    for (let i = raw.length - 2; i > 0; i--) {
+    for (let i = raw.length - 2; i > windowStartIndex; i--) {
         const slopePrev = raw[i] - raw[i - 1];
         const slopeNext = raw[i + 1] - raw[i];
 

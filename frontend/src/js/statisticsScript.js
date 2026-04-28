@@ -34,7 +34,7 @@ function computeAllMetrics(time, distance, slantConfig) {
     const muscleRelaxationDistance = Math.abs(pointB.value - pointC.value);
     const muscleRelaxation = `${muscleRelaxationTime.toFixed(2)}s / ${muscleRelaxationDistance.toFixed(2)}mm`;
     const avgRelaxRate = (pointB.value - pointC.value) / (pointC.time - pointB.time);
-    //const extensibilityIndex = (pointC.value - pointB.value) / -pointC.value;
+    const extensibilityIndex = (pointC.value - pointB.value) / -divisor;
 
     return {
         stretchOvershoot,
@@ -43,7 +43,7 @@ function computeAllMetrics(time, distance, slantConfig) {
         patientConfidence: `${patientConfidence.toFixed(2)}mm`,
         muscleRelaxation,
         avgRelaxRate: avgRelaxRate.toFixed(2),
-        //extensibilityIndex: extensibilityIndex.toFixed(2)
+        extensibilityIndex: extensibilityIndex.toFixed(2)
     };
 }
 
@@ -88,7 +88,7 @@ function updateStatsForRow(rowNumber, time, distance) {
     cells[4].textContent = stats.patientConfidence;
     cells[5].textContent = stats.muscleRelaxation;
     cells[6].textContent = stats.avgRelaxRate;
-    //cells[7].textContent = stats.extensibilityIndex;
+    cells[7].textContent = stats.extensibilityIndex;
 }
 
 // ------------------------------------------------------------
