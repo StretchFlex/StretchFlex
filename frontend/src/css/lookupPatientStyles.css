@@ -1,6 +1,6 @@
 /* For main body of Page */
 body {
-        font-family: Tahoma, sans-serif;
+        font-family: Poppins-Regular-400, sans-serif;
         padding: 20px;
         /*color: #a334c5;*/
     }
@@ -11,7 +11,7 @@ body {
 	color: #251829;
 	margin-bottom: 50px;
     margin-top: 0px;
-    font-family: Tahoma, sans-serif;
+    font-family: Poppins-Regular-400, sans-serif;
     text-align: center;
 }
 
@@ -27,7 +27,7 @@ body {
     box-sizing: border-box;
     height: 40px;
     text-align: center;
-    font-family: Tahoma, sans-serif;
+    font-family: Poppins-Regular-400, sans-serif;
 }
 
 .goButton:hover {
@@ -39,8 +39,10 @@ body {
 
 /* Patient select container (replaces old dropdown) */
 .patient-select {
-    position: relative;
-    display: inline-block;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px; /* Space between boxes */
+    width: 300px;
 }
 
 /* Style the input used for patient selection (replaces .dropbtn rules) */
@@ -56,7 +58,7 @@ body {
     box-sizing: border-box;
     height: 40px;
     text-align: left;
-    font-family: Tahoma, sans-serif;
+    font-family: Poppins-Regular-400, sans-serif;
 }
 
 .patient-select input::placeholder { 
@@ -76,4 +78,9 @@ datalist {
 datalist option {
     background-color: #d32f2f;
     color: #f9f9f9;
+}
+
+label {
+    font-weight: bold;
+    font-family: Poppins-Regular-400, sans-serif;
 }
