@@ -29,7 +29,7 @@ function computeAllMetrics(time, distance, slantConfig) {
     const stretchOvershoot = formatPointTimeDistance(pointA);
     const reflexRelaxationPoint = formatPointTimeDistance(pointB);
     const muscleRelaxationLimit = formatPointTimeDistance(pointC);
-    const patientConfidence = pointA.value - pointC.value;
+    const patientConfidence = pointB.value - pointA.value;
     const muscleRelaxationTime = Math.abs(pointC.time - pointB.time);
     const muscleRelaxationDistance = Math.abs(pointB.value - pointC.value);
     const muscleRelaxation = `${muscleRelaxationTime.toFixed(2)}s / ${muscleRelaxationDistance.toFixed(2)}mm`;
