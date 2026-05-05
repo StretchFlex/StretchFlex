@@ -48,10 +48,10 @@ export function findPointA(
     time,
     distance,
     slopes,
-    maxTimeSeconds = 60
+    maxTimeSeconds = 30
 ) {
     for (let i = 1; i < slopes.length; i++) {
-        if (time[i] > maxTimeSeconds) break;  // don’t look past 60 s
+        if (time[i] > maxTimeSeconds) break;  // don’t look past 30 s
 
         if (slopes[i - 1] < 0 && slopes[i] >= 0) {
             // optional: keep or remove local-min check
